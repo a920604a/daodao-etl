@@ -1,0 +1,7 @@
+data/
+logs/
+plugins/
+backup/
+
+*.pyc
+.env

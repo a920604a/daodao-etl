@@ -1,0 +1,88 @@
+version: "3"
+x-airflow-common: &airflow-common
+  build: .
+  image: ${AIRFLOW_IMAGE_NAME}
+  environment: &airflow-common-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    AIRFLOW__CORE__FERNET_KEY: ""
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__SCHEDULER__MIN_FILE_PROCESS_INTERVAL: 10
+
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./logs:/opt/airflow/logs
+    - ./plugins:/opt/airflow/plugins
+  user: "${AIRFLOW_UID}:${AIRFLOW_GID}"
+  depends_on:
+    postgres:
+      condition: service_healthy
+
+services:
+  postgres:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ./data/postgres-db-volume:/var/lib/postgresql/data
+    ports:
+      - "5422:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}"]
+      interval: 5s
+      retries: 5
+    restart: always
+
+  airflow-webserver:
+    <<: *airflow-common
+    command: webserver
+    ports:
+      - 8080:8080
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    restart: always
+
+  airflow-scheduler:
+    <<: *airflow-common
+    command: scheduler
+    restart: always
+
+  airflow-init:
+    <<: *airflow-common
+    command: bash -c "airflow db upgrade && airflow users create --username ${_AIRFLOW_WWW_USER_USERNAME} --password ${_AIRFLOW_WWW_USER_PASSWORD} --role Admin --firstname Admin --lastname User"
+    environment:
+      <<: *airflow-common-env
+      _AIRFLOW_DB_UPGRADE: "true"
+      _AIRFLOW_WWW_USER_CREATE: "true"
+      _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME}
+      _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  mongo-daodao:
+    image: mongo:latest
+    container_name: mongo-daodao
+    volumes:
+      - ./data/mongo:/data/
+      - ./backup/2024-10-22:/backup
+    ports:
+      - "27017:27017"
+
+  postgres-daodao:
+    image: postgres:latest
+    container_name: postgres-daodao
+    environment:
+      POSTGRES_USER: ${DAO_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${DAO_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${DAO_POSTGRES_DB}
+    ports:
+      - "5423:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
