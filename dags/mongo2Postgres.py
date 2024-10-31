@@ -1,25 +1,32 @@
 from airflow import DAG
+from airflow.models import Variable
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
 import pandas as pd
 import pymongo
 from sqlalchemy import create_engine
 import os
-import numpy as np
 import json
 
+
+MONGO_URI = Variable.get("mongo_uri")
+POSTGRES_URI = Variable.get("postgres_uri")
+MONGO_DB_NAME = Variable.get("table_name")
+print(f" MONGO_URI {MONGO_URI}")
+print(f" POSTGRES_URI {POSTGRES_URI}")
+print(f" MONGO_DB_NAME {MONGO_DB_NAME}")
+
+
 # MongoDB 設定
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://mongo-daodao:27017")
 mongo_client = pymongo.MongoClient(MONGO_URI)
 
 # PostgreSQL 設定
-POSTGRES_URI ="postgresql+psycopg2://daodao:daodao@postgres-daodao:5432/daodao"
 postgres_engine = create_engine(POSTGRES_URI)
 
 # 提取 MongoDB 資料
 def extract_data(collection_name, **kwargs):
     print(f"Extracting data from MongoDB collection: {collection_name}")
-    db = mongo_client["prod"]  # 替換為您的資料庫名稱
+    db = mongo_client[MONGO_DB_NAME]  # 替換為您的資料庫名稱
     collection = db[collection_name]
     data = list(collection.find({}))  # 將 collection 轉成 list
     print(f"Extracted {len(data)} records from {collection_name}")
@@ -81,7 +88,7 @@ def transform_activities(**kwargs):
         df['_id'] = df['_id'].astype(str)
 
     
-       # JSON 處理
+    # JSON 處理
     json_columns = ['category', 'area', 'partnerEducationStep', 'tagList']
 
     for column in json_columns:
