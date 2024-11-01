@@ -10,11 +10,8 @@ import json
 
 
 MONGO_URI = Variable.get("mongo_uri")
-POSTGRES_URI = Variable.get("postgres_uri")
 MONGO_DB_NAME = Variable.get("table_name")
-print(f" MONGO_URI {MONGO_URI}")
-print(f" POSTGRES_URI {POSTGRES_URI}")
-print(f" MONGO_DB_NAME {MONGO_DB_NAME}")
+POSTGRES_URI = Variable.get("postgres_uri")
 
 
 # MongoDB 設定

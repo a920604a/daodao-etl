@@ -28,6 +28,8 @@ Airflow Admin -> Variable
 - mongo_uri=.env.MONGO_URI
 - postgres_uri =.env.POSTGRES_URI
 - table_name=.env.MONGO_DB_NAME
+- NOTION_API_KEY=.env.token
+- DATABASE_ID=.env.databaseID
 
 ## TODO
 - 找揪團、找夥伴 
