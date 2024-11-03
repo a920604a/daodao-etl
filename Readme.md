@@ -17,6 +17,10 @@ MONGO_DB_NAME=
 POSTGRES_URI=postgresql+psycopg2://DAO_POSTGRES_USER:DAO_POSTGRES_PASSWORD@postgres-daodao:5432/DAO_POSTGRES_DB
 AIRFLOW_UID=
 ```
+
+
+mkdir -p ./logs ./plugins ./config ./data
+
 docker compose down --volumes --remove-orphans
 
 docker compose run --rm airflow-init 
@@ -28,8 +32,9 @@ Airflow Admin -> Variable
 - mongo_uri=.env.MONGO_URI
 - postgres_uri =.env.POSTGRES_URI
 - table_name=.env.MONGO_DB_NAME
-- NOTION_API_KEY=.env.token
-- DATABASE_ID=.env.databaseID
+- NOTION_API_KEY=.env.TOKEN
+- NOTION_DATABASE_RESOURCE_ID=.env.NOTION_DATABASE_RESOURCE_ID
+- NOTION_DATABASE_STORE_ID=.env.NOTION_DATABASE_STORE_ID
 
 ## TODO
 - 找揪團、找夥伴 
