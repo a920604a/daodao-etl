@@ -35,7 +35,7 @@ class MongoToPostgresETL:
 
         for record in data:
             # 將 _id 欄位格式化為 BSON 格式
-            record['_id'] = {"$oid": str(record['_id'])}
+            record["_id"] = {"$oid": str(record["_id"])}
             for key in record.keys():
                 if isinstance(record[key], datetime):
                     record[key] = {"$date": record[key].isoformat()}
@@ -43,65 +43,87 @@ class MongoToPostgresETL:
         df = pd.DataFrame(data)
         print(df.head())
         print(df.columns)
-        kwargs['ti'].xcom_push(key='extracted_df', value=df.to_dict(orient='records'))
+        kwargs["ti"].xcom_push(key="extracted_df", value=df.to_dict(orient="records"))
 
     def transform_users(self, **kwargs):
-        extracted_data = kwargs['ti'].xcom_pull(key='extracted_df')
+        extracted_data = kwargs["ti"].xcom_pull(key="extracted_df")
         df = pd.DataFrame(extracted_data)
         print(f"Transforming users data {df.columns}")
 
-        if '_id' in df.columns:
-            df['_id'] = df['_id'].astype(str)
+        if "_id" in df.columns:
+            df["_id"] = df["_id"].astype(str)
 
-        json_columns = ['interestList', 'roleList', 'tagList', 'wantToDoList', 'contactList']
+        json_columns = [
+            "interestList",
+            "roleList",
+            "tagList",
+            "wantToDoList",
+            "contactList",
+        ]
         for column in json_columns:
-            df[column] = df[column].apply(lambda x: json.dumps(x) if isinstance(x, list) else None)
+            df[column] = df[column].apply(
+                lambda x: json.dumps(x) if isinstance(x, list) else None
+            )
 
-        df['isOpenLocation'] = df['isOpenLocation'].astype(bool)
-        df['isOpenProfile'] = df['isOpenProfile'].astype(bool)
-        df['isSubscribeEmail'] = df['isSubscribeEmail'].astype(bool)
+        df["isOpenLocation"] = df["isOpenLocation"].astype(bool)
+        df["isOpenProfile"] = df["isOpenProfile"].astype(bool)
+        df["isSubscribeEmail"] = df["isSubscribeEmail"].astype(bool)
 
         print("User transformation complete")
-        kwargs['ti'].xcom_push(key='transform_users', value=df.to_dict(orient='records'))
+        kwargs["ti"].xcom_push(
+            key="transform_users", value=df.to_dict(orient="records")
+        )
 
     def transform_activities(self, **kwargs):
-        extracted_data = kwargs['ti'].xcom_pull(key='extracted_df')
+        extracted_data = kwargs["ti"].xcom_pull(key="extracted_df")
         df = pd.DataFrame(extracted_data)
         print(f"Transforming activities data {df.columns}")
 
-        if '_id' in df.columns:
-            df['_id'] = df['_id'].astype(str)
+        if "_id" in df.columns:
+            df["_id"] = df["_id"].astype(str)
 
-        json_columns = ['category', 'area', 'partnerEducationStep', 'tagList']
-        for column in json_columns:
-            df[column] = df[column].apply(lambda x: json.dumps(x) if isinstance(x, list) else None)
+        # json_columns = ['category', 'area', 'partnerEducationStep', 'tagList']
+        # for column in json_columns:
+        #     df[column] = df[column].apply(lambda x: json.dumps(x) if isinstance(x, list) else None)
 
         print("Activities transformation complete")
-        kwargs['ti'].xcom_push(key='transform_activities', value=df.to_dict(orient='records'))
+        kwargs["ti"].xcom_push(
+            key="transform_activities", value=df.to_dict(orient="records")
+        )
 
     def load_data(self, table_name, **kwargs):
-        transform_data = kwargs['ti'].xcom_pull(key=f"transform_{table_name}")
+        transform_data = kwargs["ti"].xcom_pull(key=f"transform_{table_name}")
         df = pd.DataFrame(transform_data)
 
         def parse_date(date_dict):
-            if isinstance(date_dict, dict) and '$date' in date_dict:
-                date_str = date_dict['$date']
+            if isinstance(date_dict, dict) and "$date" in date_dict:
+                date_str = date_dict["$date"]
                 return datetime.fromisoformat(date_str[:-3])
             return pd.NaT
 
-        df['createdDate'] = df['createdDate'].apply(parse_date)
-        df['updatedDate'] = df['updatedDate'].apply(parse_date)
+        df["createdDate"] = df["createdDate"].apply(parse_date)
+        df["updatedDate"] = df["updatedDate"].apply(parse_date)
 
-        df['createdDate'] = pd.to_datetime(df['createdDate'], errors='coerce').dt.strftime('%Y-%m-%d %H:%M:%S')
-        df['updatedDate'] = pd.to_datetime(df['updatedDate'], errors='coerce').dt.strftime('%Y-%m-%d %H:%M:%S')
+        df["createdDate"] = pd.to_datetime(
+            df["createdDate"], errors="coerce"
+        ).dt.strftime("%Y-%m-%d %H:%M:%S")
+        df["updatedDate"] = pd.to_datetime(
+            df["updatedDate"], errors="coerce"
+        ).dt.strftime("%Y-%m-%d %H:%M:%S")
 
-        df['created_at'] = pd.to_datetime('now')
-        df['created_by'] = kwargs['task_instance'].task.owner
-        df['updated_at'] = pd.to_datetime('now')
-        df['updated_by'] = kwargs['task_instance'].task.owner
+        df["created_at"] = pd.to_datetime("now")
+        df["created_by"] = kwargs["task_instance"].task.owner
+        df["updated_at"] = pd.to_datetime("now")
+        df["updated_by"] = kwargs["task_instance"].task.owner
 
         try:
-            df.to_sql(table_name, con=self.postgres_engine, if_exists='append', index=False, method='multi')
+            df.to_sql(
+                table_name,
+                con=self.postgres_engine,
+                if_exists="append",
+                index=False,
+                method="multi",
+            )
         except Exception as e:
             print(f"Failed to load data into {table_name}: {e}")
 
