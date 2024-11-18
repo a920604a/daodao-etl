@@ -18,10 +18,11 @@ POSTGRES_URI=postgresql+psycopg2://DAO_POSTGRES_USER:DAO_POSTGRES_PASSWORD@postg
 AIRFLOW_UID=
 ```
 
-
+rm -rf ./logs ./plugins ./config ./data
 mkdir -p ./logs ./plugins ./config ./data
 
-docker compose down --volumes --remove-orphans
+docker compose down --volumes --remove-orphans --rmi all
+
 
 docker compose run --rm airflow-init 
 docker compose up -d
