@@ -1,3 +1,4 @@
+CREATE TYPE "gender_t" AS ENUM ('male', 'female', 'other');
 CREATE TYPE "education_stage_t" AS ENUM ('university', 'high', 'other');
 CREATE TYPE "role_list_t" AS ENUM (
     'normal-student',
@@ -9,15 +10,14 @@ CREATE TYPE "role_list_t" AS ENUM (
 );
 CREATE TABLE "users" (
     "id" serial NOT NULL UNIQUE,
-    "user_id" uuid,
-    "gender" int,
+    "user_id" uuid NOT NULL UNIQUE,
+    "gender" gender_t,
     "education_stage" education_stage_t DEFAULT 'other',
-    "tagList" text(65535),
+    "tagList" text,
     "contact_id" int,
     "is_open_location" boolean,
-    "location_id" int NOT NULL,
+    "location_id" int,
     "nickname" varchar(255),
-    -- 夥伴類型
     "role_list" role_list_t [],
     "is_open_profile" boolean,
     "birthDay" date,
@@ -26,12 +26,7 @@ CREATE TABLE "users" (
     "created_at" TIMESTAMPTZ,
     "updated_by" varchar(255),
     "updated_at" TIMESTAMPTZ,
-    PRIMARY KEY(
-        "id",
-        "contact_id",
-        "location_id",
-        "basic_info_id"
-    )
+    PRIMARY KEY("id")
 );
 COMMENT ON TABLE users IS '可能需要維護 熱門標籤列表 到cache';
 COMMENT ON COLUMN users.role_list IS '夥伴類型';
@@ -66,14 +61,14 @@ CREATE TYPE "City_t" AS ENUM (
 );
 CREATE TABLE "area" (
     "id" serial NOT NULL UNIQUE,
-    "City" City_t,
+    "City" "City_t",
     PRIMARY KEY("id")
 );
 CREATE INDEX "location_index_0" ON "area" ("City");
 CREATE TABLE "contact" (
     "id" serial NOT NULL UNIQUE,
     "google_id" varchar(255),
-    "photo_url" text(65535),
+    "photo_url" text,
     "is_subscribe_email" boolean,
     "email" varchar(255),
     "ig" varchar(255),
@@ -92,14 +87,14 @@ CREATE TYPE "want_to_do_list_t" AS ENUM (
 );
 CREATE TABLE "basic_info" (
     "id" serial NOT NULL UNIQUE,
-    "self_introduction" text(65535),
+    "self_introduction" text,
     -- split('、')
-    "share_list" text(65535),
+    "share_list" text,
     "want_to_do_list" want_to_do_list_t,
     "user_id" uuid,
     PRIMARY KEY("id")
 );
-COMMENT ON COLUMN basic_info.share_list IS 'split(' 、 ')';
+COMMENT ON COLUMN basic_info.share_list IS 'split(、)';
 CREATE TYPE "group_type_t" AS ENUM (
     'reading club',
     'workshop',
@@ -114,44 +109,37 @@ CREATE TYPE "group_type_t" AS ENUM (
 CREATE TYPE "partnerEducationStep_t" AS ENUM ('high school', 'other', 'University');
 CREATE TABLE "group" (
     "id" serial NOT NULL UNIQUE,
-    "title" text(65535),
+    "title" text,
     "photoURL" varchar(255),
     "photoALT" varchar(255),
-    -- 學習領域
-    split(',') "category" text(65535),
+    "category" text,
     "group_type" group_type_t DEFAULT 'other',
-    "partnerEducationStep" partnerEducationStep_t DEFAULT 'other',
+    "partnerEducationStep" "partnerEducationStep_t" DEFAULT 'other',
     "description" varchar(255),
     -- split(',')
     "area_id" int,
     "isGrouping" boolean,
     "updatedDate" date,
     "time" time,
-    "partnerStyle" text(65535),
-    "tagList" text(65535),
+    "partnerStyle" text,
+    "tagList" text,
     "created_at" timestamp,
     "created_by" uuid,
     "updated_at" timestamp,
     "updated_by" varchar(255),
-    "motivation" text(65535),
-    "Contents" text(65535),
-    "expectation_result" text(65535),
-    "Notice" text(65535),
+    "motivation" text,
+    "Contents" text,
+    "expectation_result" text,
+    "Notice" text,
     "group_daedline" date,
     "hold_time" time,
     "isOnline" boolean,
     "TBD" boolean,
     PRIMARY KEY("id")
 );
-COMMENT ON TABLE group IS 'need to normalize
-
-需要維護 熱門學習領域 ';
-COMMENT ON COLUMN group.category IS '學習領域
-split(',
-')';
-COMMENT ON COLUMN group.area_id IS 'split(',
-')
-';
+COMMENT ON TABLE "group" IS 'need to normalize 需要維護 熱門學習領域 ';
+COMMENT ON COLUMN "group".category IS '學習領域 split(,)';
+COMMENT ON COLUMN "group".area_id IS 'split(,)';
 CREATE INDEX "activity_index_0" ON "group" ("isGrouping");
 CREATE INDEX "activity_index_1" ON "group" ("partnerEducationStep");
 CREATE INDEX "activity_index_2" ON "group" ("group_type");
@@ -166,35 +154,33 @@ CREATE TABLE "resource" (
     "resource_name" varchar(255),
     "cost" cost_t DEFAULT 'free',
     -- split()
-    "tagList" text(65535),
+    "tagList" text,
     "username" varchar(255),
     "age" age_t,
-    "type_list" text(65535),
+    "type_list" text,
     "url_link" varchar(255),
-    "filed_name_list" text(65535),
+    "filed_name_list" text,
     "video_url" varchar(255),
-    "introduction" text(65535),
+    "introduction" text,
     "area" varchar(255),
-    "補充資料" text(65535),
+    "補充資料" text,
     "id" serial NOT NULL UNIQUE,
     PRIMARY KEY("id")
 );
-COMMENT ON TABLE resource IS '後端需要判斷 不同人剛好分享同一的資源(例如：同時分享島島主站)
-
-標籤 與 領域名稱 需要維護';
-COMMENT ON COLUMN resource.tagList IS 'split()';
+COMMENT ON TABLE resource IS '後端需要判斷 不同人剛好分享同一的資源(例如：同時分享島島主站) 標籤 與 領域名稱 需要維護';
+COMMENT ON COLUMN resource."tagList" IS 'split()';
 CREATE INDEX "resource_index_0" ON "resource" ("cost");
 CREATE INDEX "resource_index_1" ON "resource" ("age");
 CREATE TABLE "Store" (
     "id" serial NOT NULL UNIQUE,
     "user_id" uuid UNIQUE,
-    "image" blob,
-    "author_list" text(65535),
+    "image_url" varchar(255),
+    "author_list" text,
     "tags" varchar(255),
     "created_at" timestamp,
-    "ai_summary" text(65535),
-    "description" text(65535),
-    "content" text(65535),
+    "ai_summary" text,
+    "description" text,
+    "content" text,
     "name" varchar(255),
     PRIMARY KEY("id")
 );
@@ -218,13 +204,13 @@ CREATE TABLE "project" (
     "id" serial NOT NULL UNIQUE,
     "img_url" varchar(255),
     "topic" varchar(255),
-    "project_description" text(65535),
+    "project_description" text,
     "motivation" motivation_t [],
-    "content" text(65535),
+    "content" text,
     "goal" varchar(255),
     "policy" policy_t [],
     "milestone_id" int,
-    "Presentation" text(65535),
+    "Presentation" text,
     "isPublic" boolean,
     "qualifications" qualifications_t,
     "qualification_file_id" int,
@@ -232,7 +218,7 @@ CREATE TABLE "project" (
     "created_by" int,
     "updated_at" timestamp,
     "updated_by" int,
-    PRIMARY KEY("id", "milestone_id")
+    PRIMARY KEY("id")
 );
 CREATE TYPE "freqency_t" AS ENUM ('three', 'month', 'two', 'one');
 CREATE TABLE "milestone" (
@@ -240,14 +226,14 @@ CREATE TABLE "milestone" (
     "isApply" boolean,
     "Durtation" int,
     "freqency" freqency_t DEFAULT 'one',
-    "subtask_content" text(65535),
+    "subtask_content" text,
     PRIMARY KEY("id")
 );
 CREATE TABLE "user_project" (
     "id" serial NOT NULL UNIQUE,
     "user_id" uuid,
     "project_id" int,
-    PRIMARY KEY("id", "user_id", "project_id")
+    PRIMARY KEY("id")
 );
 CREATE TYPE "role_t" AS ENUM ('Initiator', 'Participant');
 CREATE TABLE "user_join_group" (
@@ -256,14 +242,14 @@ CREATE TABLE "user_join_group" (
     "group_id" int,
     "role" role_t DEFAULT 'Initiator',
     "participated_at" TIMESTAMPTZ,
-    PRIMARY KEY("id", "user_id", "group_id")
+    PRIMARY KEY("id")
 );
 CREATE TABLE "resource_recommendations" (
     "id" serial NOT NULL UNIQUE,
     "user_id" uuid,
     "resource_id" int,
     "recommended_at" TIMESTAMPTZ,
-    PRIMARY KEY("id", "user_id", "resource_id")
+    PRIMARY KEY("id")
 );
 CREATE TABLE "location" (
     "id" serial NOT NULL UNIQUE,
@@ -296,3 +282,5 @@ ALTER TABLE "resource"
 ADD FOREIGN KEY("id") REFERENCES "resource_recommendations"("resource_id") ON UPDATE NO ACTION ON DELETE NO ACTION;
 ALTER TABLE "resource"
 ADD FOREIGN KEY("username") REFERENCES "users"("nickname") ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE "milestone"
+ADD FOREIGN KEY("id") REFERENCES "project"("milestone_id") ON UPDATE NO ACTION ON DELETE NO ACTION;
