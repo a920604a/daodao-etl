@@ -56,7 +56,7 @@ class MongoToPostgresETL:
         json_columns = [
             "interestList",
             "roleList",
-            "tagList",
+            # "tagList",
             "wantToDoList",
             "contactList",
         ]
@@ -135,7 +135,7 @@ etl_process = MongoToPostgresETL(mongo_uri, mongo_db_name, postgres_uri)
 with DAG(
     dag_id="mongo_users_to_postgres",
     start_date=datetime(2023, 1, 1),
-    schedule_interval="@daily",
+    schedule_interval="@monthly",
     catchup=False,
     default_args=default_args,
 ) as dag:
