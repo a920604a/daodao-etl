@@ -1,5 +1,4 @@
 from airflow import DAG
-from airflow.models import Variable
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
 import pandas as pd
@@ -8,16 +7,7 @@ from sqlalchemy import create_engine
 import os
 import json
 
-# Airflow DAG 設定
-default_args = {
-    "retries": 3,
-    "retry_delay": timedelta(minutes=5),
-}
 
-# 初始化 ETL 類別
-mongo_uri = Variable.get("mongo_uri")
-mongo_db_name = Variable.get("table_name")
-postgres_uri = Variable.get("postgres_uri")
 
 
 class MongoToPostgresETL:
@@ -91,7 +81,7 @@ class MongoToPostgresETL:
             key="transform_activities", value=df.to_dict(orient="records")
         )
 
-    def load_data(self, table_name, **kwargs):
+    def load_data(self, table_name,target_table_name,  **kwargs):
         transform_data = kwargs["ti"].xcom_pull(key=f"transform_{table_name}")
         df = pd.DataFrame(transform_data)
 
@@ -118,75 +108,13 @@ class MongoToPostgresETL:
 
         try:
             df.to_sql(
-                table_name,
+                target_table_name,
                 con=self.postgres_engine,
                 if_exists="append",
                 index=False,
                 method="multi",
             )
         except Exception as e:
-            print(f"Failed to load data into {table_name}: {e}")
+            print(f"Failed to load data into {target_table_name}: {e}")
 
 
-etl_process = MongoToPostgresETL(mongo_uri, mongo_db_name, postgres_uri)
-
-
-# DAG for users
-with DAG(
-    dag_id="mongo_users_to_postgres",
-    start_date=datetime(2023, 1, 1),
-    schedule_interval="@monthly",
-    catchup=False,
-    default_args=default_args,
-) as dag:
-    extract_task = PythonOperator(
-        task_id="extract_users",
-        python_callable=etl_process.extract_data,
-        op_args=["users"],
-        provide_context=True,
-    )
-
-    transform_task = PythonOperator(
-        task_id="transform_users",
-        python_callable=etl_process.transform_users,
-        provide_context=True,
-    )
-
-    load_task = PythonOperator(
-        task_id="load_users",
-        python_callable=etl_process.load_data,
-        op_kwargs={"table_name": "users"},
-        provide_context=True,
-    )
-
-    extract_task >> transform_task >> load_task
-
-# DAG for activities
-with DAG(
-    dag_id="mongo_activities_to_postgres",
-    start_date=datetime(2023, 1, 1),
-    schedule_interval="@daily",
-    catchup=False,
-    default_args=default_args,
-) as dag_activities:
-    extract_task = PythonOperator(
-        task_id="extract_activities",
-        python_callable=etl_process.extract_data,
-        op_args=["activities"],
-        provide_context=True,
-    )
-
-    transform_task = PythonOperator(
-        task_id="transform_activities",
-        python_callable=etl_process.transform_activities,
-        provide_context=True,
-    )
-
-    load_task = PythonOperator(
-        task_id="load_activities",
-        python_callable=etl_process.load_data,
-        op_kwargs={"table_name": "activities"},
-        provide_context=True,
-    )
-
-    extract_task >> transform_task >> load_task

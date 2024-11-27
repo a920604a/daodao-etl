@@ -8,11 +8,6 @@ import pandas as pd
 from sqlalchemy import create_engine
 import json
 
-# Airflow DAG 設定
-default_args = {
-    "retries": 3,
-    "retry_delay": timedelta(minutes=5),
-}
 
 
 # 初始化 ETL 類別
@@ -140,31 +135,3 @@ def create_etl_tasks(etl_instance, database_id, dag):
     save_json_task >> save_csv_task >> load_task
 
 
-with DAG(
-    dag_id="notion_resource_to_postgresql",
-    start_date=days_ago(1),
-    schedule_interval="@monthly",
-    catchup=False,
-    default_args=default_args,
-) as dag:
-    notion_resource_etl = NotionToPostgresETL(
-        Variable.get("NOTION_DATABASE_RESOURCE_ID"), "resource"
-    )
-
-    # 建立資源 ETL 任務
-    create_etl_tasks(notion_resource_etl, "resource", dag)
-
-
-with DAG(
-    dag_id="notion_store_to_postgresql",
-    start_date=days_ago(1),
-    schedule_interval="@daily",
-    catchup=False,
-    default_args=default_args,
-) as dag:
-    notion_store_etl = NotionToPostgresETL(
-        Variable.get("NOTION_DATABASE_STORE_ID"), "store"
-    )
-
-    # 建立商店 ETL 任務
-    create_etl_tasks(notion_store_etl, "store", dag)
