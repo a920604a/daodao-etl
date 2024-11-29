@@ -135,7 +135,8 @@ CREATE TABLE "group" (
     "hold_time" time,
     "isOnline" boolean,
     "TBD" boolean,
-    PRIMARY KEY("id")
+    PRIMARY KEY("id"),
+    FOREIGN KEY("created_by") REFERENCES "users"("user_id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 COMMENT ON TABLE "group" IS 'need to normalize 需要維護 熱門學習領域 ';
 COMMENT ON COLUMN "group".category IS '學習領域 split(,)';
@@ -233,7 +234,9 @@ CREATE TABLE "user_project" (
     "id" serial NOT NULL UNIQUE,
     "user_id" uuid,
     "project_id" int,
-    PRIMARY KEY("id")
+    PRIMARY KEY("id"),
+    FOREIGN KEY ("user_id") REFERENCES "user" ("id") ON DELETE CASCADE,
+    FOREIGN KEY ("project_id") REFERENCES "project" ("id") ON DELETE CASCADE
 );
 CREATE TYPE "role_t" AS ENUM ('Initiator', 'Participant');
 CREATE TABLE "user_join_group" (
@@ -242,7 +245,8 @@ CREATE TABLE "user_join_group" (
     "group_id" int,
     "role" role_t DEFAULT 'Initiator',
     "participated_at" TIMESTAMPTZ,
-    PRIMARY KEY("id")
+    PRIMARY KEY("id"),
+    FOREIGN KEY("group_id") REFERENCES "group"("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 CREATE TABLE "resource_recommendations" (
     "id" serial NOT NULL UNIQUE,
@@ -258,14 +262,6 @@ CREATE TABLE "location" (
     "region" char(64),
     PRIMARY KEY("id")
 );
-ALTER TABLE "user_project"
-ADD FOREIGN KEY("user_id") REFERENCES "users"("user_id") ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "project"
-ADD FOREIGN KEY("id") REFERENCES "user_project"("project_id") ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "group"
-ADD FOREIGN KEY("created_by") REFERENCES "users"("user_id") ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "user_join_group"
-ADD FOREIGN KEY("group_id") REFERENCES "group"("id") ON UPDATE NO ACTION ON DELETE NO ACTION;
 ALTER TABLE "user_join_group"
 ADD FOREIGN KEY("user_id") REFERENCES "users"("user_id") ON UPDATE NO ACTION ON DELETE NO ACTION;
 ALTER TABLE "area"
