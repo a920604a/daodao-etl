@@ -1,3 +1,5 @@
+-- TYPE
+
 CREATE TYPE "gender_t" AS ENUM ('male', 'female', 'other');
 CREATE TYPE "education_stage_t" AS ENUM ('university', 'high', 'other');
 CREATE TYPE "role_list_t" AS ENUM (
@@ -8,31 +10,7 @@ CREATE TYPE "role_list_t" AS ENUM (
     'parents',
     'experimental-education-student'
 );
-CREATE TABLE "users" (
-    "id" serial NOT NULL UNIQUE,
-    "user_id" uuid NOT NULL UNIQUE,
-    "gender" gender_t,
-    "education_stage" education_stage_t DEFAULT 'other',
-    "tagList" text,
-    "contact_id" int,
-    "is_open_location" boolean,
-    "location_id" int,
-    "nickname" varchar(255),
-    "role_list" role_list_t [],
-    "is_open_profile" boolean,
-    "birthDay" date,
-    "basic_info_id" int,
-    "created_by" varchar(255),
-    "created_at" TIMESTAMPTZ,
-    "updated_by" varchar(255),
-    "updated_at" TIMESTAMPTZ,
-    PRIMARY KEY("id")
-);
-COMMENT ON TABLE users IS '可能需要維護 熱門標籤列表 到cache';
-COMMENT ON COLUMN users.role_list IS '夥伴類型';
-CREATE INDEX "users_index_0" ON "users" ("education_stage");
-CREATE INDEX "users_index_1" ON "users" ("role_list");
-CREATE INDEX "users_index_2" ON "users" ("location_id");
+
 CREATE TYPE "City_t" AS ENUM (
     'Taipei City',
     'Keelung City',
@@ -59,24 +37,8 @@ CREATE TYPE "City_t" AS ENUM (
     'Taitung County',
     'Other'
 );
-CREATE TABLE "area" (
-    "id" serial NOT NULL UNIQUE,
-    "City" "City_t",
-    PRIMARY KEY("id")
-);
-CREATE INDEX "location_index_0" ON "area" ("City");
-CREATE TABLE "contact" (
-    "id" serial NOT NULL UNIQUE,
-    "google_id" varchar(255),
-    "photo_url" text,
-    "is_subscribe_email" boolean,
-    "email" varchar(255),
-    "ig" varchar(255),
-    "discord VARCHAR(255)," varchar(255),
-    "line" varchar(255),
-    "fb" varchar(255),
-    PRIMARY KEY("id")
-);
+
+
 CREATE TYPE "want_to_do_list_t" AS ENUM (
     'interaction',
     'do-project',
@@ -85,16 +47,7 @@ CREATE TYPE "want_to_do_list_t" AS ENUM (
     'find-teacher',
     'find-group'
 );
-CREATE TABLE "basic_info" (
-    "id" serial NOT NULL UNIQUE,
-    "self_introduction" text,
-    -- split('、')
-    "share_list" text,
-    "want_to_do_list" want_to_do_list_t,
-    "user_id" uuid,
-    PRIMARY KEY("id")
-);
-COMMENT ON COLUMN basic_info.share_list IS 'split(、)';
+
 CREATE TYPE "group_type_t" AS ENUM (
     'reading club',
     'workshop',
@@ -107,6 +60,161 @@ CREATE TYPE "group_type_t" AS ENUM (
     'other'
 );
 CREATE TYPE "partnerEducationStep_t" AS ENUM ('high school', 'other', 'University');
+
+
+CREATE TYPE "cost_t" AS ENUM ('free', 'part', 'payment');
+CREATE TYPE "age_t" AS ENUM ('preschool', 'Elementary', 'high', 'University');
+
+
+CREATE TYPE "freqency_t" AS ENUM ( 'two', 'one', 'three', 'month');
+
+CREATE TYPE "qualifications_t" AS ENUM (
+    'low_income',
+    'discount',
+    'personal',
+    'double',
+    'three',
+    'four'
+    
+);
+CREATE TABLE "eligibility" (
+    "id" serial NOT NULL UNIQUE,
+    "qualifications" qualifications_t,
+    "qualification_file_path" VARCHAR(255)
+
+);
+
+CREATE TYPE "role_t" AS ENUM ('Initiator', 'Participant');
+
+
+CREATE TYPE "motivation_t" AS ENUM (
+    'driven_by_curiosity',
+    'interest_and_passion',
+    'self_challenge',
+    'personal_growth',
+    'career_development',
+    'pursuing_education_or_qualifications',
+    'social_recognition',
+    'exploring_possibilities',
+    'preparing_for_the_future',
+    'innovation_and_development',
+    'practical_needs',
+    'inspired_by_events',
+    'interpersonal_connections',
+    'life_changes',
+    'impact_on_society',
+    'influenced_by_a_group',
+    'others'
+);
+
+CREATE TYPE "policy_t" AS ENUM (
+    'data_collection_research_analysis',
+    'book_reading',
+    'watching_videos',
+    'listening_to_podcasts',
+    'examinations',
+    'participating_in_competitions',
+    'finding_study_partners',
+    'joining_communities',
+    'consulting_experts_and_scholars',
+    'doing_projects',
+    'initiating_actions',
+    'field_internship',
+    'organizing_events_or_courses',
+    'attending_events_or_courses',
+    'field_research',
+    'conducting_interviews',
+    'conducting_surveys',
+    'others'
+);
+CREATE TYPE "presentation_t" AS ENUM (
+    'building_websites',
+    'managing_social_media',
+    'writing_research_reports',
+    'artistic_creation',
+    'initiating_projects_or_organizations',
+    'making_videos',
+    'organizing_events',
+    'teaching_courses',
+    'participating_in_competitions',
+    'others'
+);
+
+
+-- Misc TABLE 
+CREATE TABLE "area" (
+    "id" serial NOT NULL UNIQUE,
+    "City" "City_t",
+    PRIMARY KEY("id")
+);
+CREATE INDEX "idx_area_city" ON "area" ("City");
+
+CREATE TABLE "location" (
+    "id" serial NOT NULL UNIQUE,
+    "area_id" int,
+    "isTaiwan" boolean,
+    "region" char(64),
+    PRIMARY KEY("id"),
+    FOREIGN KEY ("area_id") REFERENCES "area"("id")
+);
+
+CREATE TABLE "contact" (
+    "id" serial NOT NULL UNIQUE,
+    "google_id" varchar(255),
+    "photo_url" text,
+    "is_subscribe_email" boolean,
+    "email" varchar(255),
+    "ig" varchar(255),
+    "discord VARCHAR(255)," varchar(255),
+    "line" varchar(255),
+    "fb" varchar(255),
+    PRIMARY KEY("id")
+);
+CREATE TABLE "basic_info" (
+    "id" serial NOT NULL UNIQUE,
+    "self_introduction" text,
+    "share_list" text,
+    "want_to_do_list" want_to_do_list_t,
+    "uuid" uuid,
+    PRIMARY KEY("id")
+);
+COMMENT ON COLUMN basic_info.share_list IS 'split(、)';
+
+
+CREATE TABLE "users" (
+    "id" serial NOT NULL UNIQUE,
+    "uuid" uuid NOT NULL UNIQUE,
+    "gender" gender_t,
+    "language" VARCHAR(255),
+    "education_stage" education_stage_t DEFAULT 'other',
+    "tagList" text,
+    "contact_id" int,
+    "is_open_location" boolean,
+    "location_id" int,
+    "nickname" varchar(255),
+    "role_list" role_list_t [],
+    "is_open_profile" boolean,
+    "birthDay" date,
+    "basic_info_id" int,
+    "created_by" varchar(255),
+    "created_at" TIMESTAMPTZ,
+    "updated_by" varchar(255),
+    "updated_at" TIMESTAMPTZ,
+    PRIMARY KEY("uuid"),
+    FOREIGN KEY("location_id") REFERENCES "location"("id"),
+    FOREIGN KEY("contact_id") REFERENCES "contact"("id"),
+    FOREIGN KEY("basic_info_id") REFERENCES "basic_info"("id")
+);
+
+COMMENT ON TABLE users IS '可能需要維護 熱門標籤列表 到cache';
+COMMENT ON COLUMN users.role_list IS '夥伴類型';
+
+CREATE INDEX "idx_users_education_stage" ON "users" ("education_stage");
+CREATE INDEX "idx_users_role_list" ON "users" ("role_list");
+CREATE INDEX "idx_users_location_id" ON "users" ("location_id");
+
+
+
 CREATE TABLE "group" (
     "id" serial NOT NULL UNIQUE,
     "title" text,
@@ -116,7 +224,6 @@ CREATE TABLE "group" (
     "group_type" group_type_t DEFAULT 'other',
     "partnerEducationStep" "partnerEducationStep_t" DEFAULT 'other',
     "description" varchar(255),
-    -- split(',')
     "area_id" int,
     "isGrouping" boolean,
     "updatedDate" date,
@@ -136,25 +243,24 @@ CREATE TABLE "group" (
     "isOnline" boolean,
     "TBD" boolean,
     PRIMARY KEY("id"),
-    FOREIGN KEY("created_by") REFERENCES "users"("user_id") ON UPDATE NO ACTION ON DELETE NO ACTION
+    FOREIGN KEY("created_by") REFERENCES "users"("uuid") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 COMMENT ON TABLE "group" IS 'need to normalize 需要維護 熱門學習領域 ';
 COMMENT ON COLUMN "group".category IS '學習領域 split(,)';
 COMMENT ON COLUMN "group".area_id IS 'split(,)';
-CREATE INDEX "activity_index_0" ON "group" ("isGrouping");
-CREATE INDEX "activity_index_1" ON "group" ("partnerEducationStep");
-CREATE INDEX "activity_index_2" ON "group" ("group_type");
-CREATE INDEX "group_index_3" ON "group" ("area_id");
-CREATE INDEX "group_index_4" ON "group" ("isOnline");
-CREATE INDEX "group_index_5" ON "group" ("TBD");
-CREATE TYPE "cost_t" AS ENUM ('free', 'part', 'payment');
-CREATE TYPE "age_t" AS ENUM ('preschool', 'Elementary', 'high', 'University');
+CREATE INDEX "idx_group_isGrouping" ON "group" ("isGrouping");
+CREATE INDEX "idx_group_partnerEducationStep" ON "group" ("partnerEducationStep");
+CREATE INDEX "idx_group_group_type" ON "group" ("group_type");
+CREATE INDEX "idx_group_area_id" ON "group" ("area_id");
+CREATE INDEX "idx_group_isOnline" ON "group" ("isOnline");
+CREATE INDEX "idx_group_TBD" ON "group" ("TBD");
+
+
 CREATE TABLE "resource" (
     "created_by_user_id" uuid UNIQUE,
     "image_url" varchar(255),
     "resource_name" varchar(255),
     "cost" cost_t DEFAULT 'free',
-    -- split()
     "tagList" text,
     "username" varchar(255),
     "age" age_t,
@@ -164,17 +270,19 @@ CREATE TABLE "resource" (
     "video_url" varchar(255),
     "introduction" text,
     "area" varchar(255),
-    "補充資料" text,
+    "supplement" text,
     "id" serial NOT NULL UNIQUE,
-    PRIMARY KEY("id")
+    PRIMARY KEY("id"),
+    FOREIGN KEY ("created_by_user_id") REFERENCES "users"("uuid")
 );
-COMMENT ON TABLE resource IS '後端需要判斷 不同人剛好分享同一的資源(例如：同時分享島島主站) 標籤 與 領域名稱 需要維護';
+
+COMMENT ON TABLE resource IS '後端需要判斷 不同人剛好分享同一的資源(例如：同時分享島島主站) 標籤 與 領域名稱 需要維護, username = users table nickname';
 COMMENT ON COLUMN resource."tagList" IS 'split()';
-CREATE INDEX "resource_index_0" ON "resource" ("cost");
-CREATE INDEX "resource_index_1" ON "resource" ("age");
+CREATE INDEX "idx_resource_cost" ON "resource" ("cost");
+CREATE INDEX "idx_resource_age" ON "resource" ("age");
 CREATE TABLE "Store" (
     "id" serial NOT NULL UNIQUE,
-    "user_id" uuid UNIQUE,
+    "uuid" uuid UNIQUE,
     "image_url" varchar(255),
     "author_list" text,
     "tags" varchar(255),
@@ -185,63 +293,56 @@ CREATE TABLE "Store" (
     "name" varchar(255),
     PRIMARY KEY("id")
 );
-CREATE TYPE "motivation_t" AS ENUM (
-    'other',
-    'Challenge',
-    'Interested and enthusiastic',
-    'curiosity',
-    'Progression'
+
+CREATE TABLE "milestone" (
+    "id" serial NOT NULL UNIQUE,
+    "isApply" boolean,
+    "start_date" date,
+    "end_date" date,
+    "freqency" freqency_t DEFAULT 'one',
+    "subtask_title" text,
+    "subtask_content" text,
+    PRIMARY KEY("id")
 );
-CREATE TYPE "policy_t" AS ENUM ('book reading', 'materials');
-CREATE TYPE "qualifications_t" AS ENUM (
-    'low income',
-    'discount',
-    'personal',
-    'double',
-    'three',
-    'four'
-);
+
+
 CREATE TABLE "project" (
     "id" serial NOT NULL UNIQUE,
     "img_url" varchar(255),
     "topic" varchar(255),
     "project_description" text,
     "motivation" motivation_t [],
-    "content" text,
+    "motivation_description" text,
     "goal" varchar(255),
+    "content" text,
     "policy" policy_t [],
+    "policy_description" text,
+    "resource_url" text [],
     "milestone_id" int,
-    "Presentation" text,
+    "presentation" presentation_t [],
+    "presentation_description" text,
     "isPublic" boolean,
-    "qualifications" qualifications_t,
-    "qualification_file_id" int,
+    "eligibility_id"  int,
     "created_at" timestamp,
     "created_by" int,
     "updated_at" timestamp,
     "updated_by" int,
-    PRIMARY KEY("id")
+    PRIMARY KEY("id"),
+    FOREIGN KEY ("milestone_id") REFERENCES "milestone"("id")
 );
-CREATE TYPE "freqency_t" AS ENUM ('three', 'month', 'two', 'one');
-CREATE TABLE "milestone" (
-    "id" serial NOT NULL UNIQUE,
-    "isApply" boolean,
-    "Durtation" int,
-    "freqency" freqency_t DEFAULT 'one',
-    "subtask_content" text,
-    PRIMARY KEY("id")
-);
+
+
 CREATE TABLE "user_project" (
     "id" serial NOT NULL UNIQUE,
-    "user_id" uuid,
+    "user_uuid" uuid,
     "project_id" int,
     PRIMARY KEY("id"),
-    FOREIGN KEY ("user_id") REFERENCES "user" ("id") ON DELETE CASCADE,
+    FOREIGN KEY ("user_uuid") REFERENCES "users" ("uuid") ON DELETE CASCADE,
     FOREIGN KEY ("project_id") REFERENCES "project" ("id") ON DELETE CASCADE
 );
-CREATE TYPE "role_t" AS ENUM ('Initiator', 'Participant');
 CREATE TABLE "user_join_group" (
     "id" serial NOT NULL UNIQUE,
-    "user_id" uuid,
+    "uuid" uuid,
     "group_id" int,
     "role" role_t DEFAULT 'Initiator',
     "participated_at" TIMESTAMPTZ,
@@ -250,33 +351,14 @@ CREATE TABLE "user_join_group" (
 );
 CREATE TABLE "resource_recommendations" (
     "id" serial NOT NULL UNIQUE,
-    "user_id" uuid,
+    "uuid" uuid,
     "resource_id" int,
     "recommended_at" TIMESTAMPTZ,
-    PRIMARY KEY("id")
+    PRIMARY KEY("id"),
+    FOREIGN KEY("uuid") REFERENCES "users"("uuid"),
+    FOREIGN KEY ("resource_id" ) REFERENCES "resource"("id")
 );
-CREATE TABLE "location" (
-    "id" serial NOT NULL UNIQUE,
-    "area_id" int,
-    "isTaiwan" boolean,
-    "region" char(64),
-    PRIMARY KEY("id")
-);
-ALTER TABLE "user_join_group"
-ADD FOREIGN KEY("user_id") REFERENCES "users"("user_id") ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "area"
-ADD FOREIGN KEY("id") REFERENCES "location"("area_id") ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "location"
-ADD FOREIGN KEY("id") REFERENCES "users"("location_id") ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "contact"
-ADD FOREIGN KEY("id") REFERENCES "users"("contact_id") ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "basic_info"
-ADD FOREIGN KEY("user_id") REFERENCES "users"("user_id") ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "resource_recommendations"
-ADD FOREIGN KEY("user_id") REFERENCES "users"("user_id") ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "resource"
-ADD FOREIGN KEY("id") REFERENCES "resource_recommendations"("resource_id") ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "resource"
-ADD FOREIGN KEY("username") REFERENCES "users"("nickname") ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "milestone"
-ADD FOREIGN KEY("id") REFERENCES "project"("milestone_id") ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+
+
+
