@@ -1,3 +1,4 @@
+
 -- TYPE
 
 CREATE TYPE "gender_t" AS ENUM ('male', 'female', 'other');
@@ -294,43 +295,70 @@ CREATE TABLE "Store" (
     PRIMARY KEY("id")
 );
 
+
+-- Milestone 表
 CREATE TABLE "milestone" (
-    "id" serial NOT NULL UNIQUE,
-    "isApply" boolean,
+    "id" serial PRIMARY KEY,
+    "is_apply" boolean,
+    "start_date" date,
+    "end_date" date
+   );
+
+-- Task 表
+CREATE TABLE "task" (
+    "id" serial PRIMARY KEY,
+    "milestone_id" int NOT NULL,
+    "name" varchar(255),
     "start_date" date,
     "end_date" date,
-    "freqency" freqency_t DEFAULT 'one',
-    "subtask_title" text,
-    "subtask_content" text,
-    PRIMARY KEY("id")
+    FOREIGN KEY ("milestone_id") REFERENCES "milestone"("id")
+);
+
+-- Subtask 表
+CREATE TABLE "subtask" (
+    "id" serial PRIMARY KEY,
+    "task_id" int NOT NULL,
+    "name" varchar(255),
+    "is_deleted" boolean DEFAULT false,
+    FOREIGN KEY ("task_id") REFERENCES "task"("id")
+);
+
+-- Subtask Schedule 表
+CREATE TABLE "subtask_schedule" (
+    "id" serial PRIMARY KEY,
+    "subtask_id" int NOT NULL,
+    "day_of_week" varchar(10), -- e.g., 'Monday', 'Wednesday'
+    FOREIGN KEY ("subtask_id") REFERENCES "subtask"("id")
 );
 
 
+
 CREATE TABLE "project" (
-    "id" serial NOT NULL UNIQUE,
+    "id" serial PRIMARY KEY,
+    "user_id" int NOT NULL,
     "img_url" varchar(255),
     "topic" varchar(255),
     "project_description" text,
-    "motivation" motivation_t [],
+    "motivation" varchar(255)[],
     "motivation_description" text,
     "goal" varchar(255),
     "content" text,
-    "policy" policy_t [],
+    "policy" varchar(255)[],
     "policy_description" text,
-    "resource_name" text [],
-    "resource_url" text [],
+    "resource_name" text[],
+    "resource_url" text[],
     "milestone_id" int,
-    "presentation" presentation_t [],
+    "presentation" varchar(255)[],
     "presentation_description" text,
-    "isPublic" boolean,
-    "eligibility_id"  int,
-    "created_at" timestamp,
+    "is_public" boolean DEFAULT false,
+    "eligibility_id" int,
+    "created_at" timestamp DEFAULT current_timestamp,
     "created_by" int,
-    "updated_at" timestamp,
+    "updated_at" timestamp DEFAULT current_timestamp,
     "updated_by" int,
-    PRIMARY KEY("id"),
+    FOREIGN KEY ("user_id") REFERENCES "users"("id"),
     FOREIGN KEY ("milestone_id") REFERENCES "milestone"("id"),
-    FOREIGN KEY("eligibility_id") REFERENCES "eligibility"("id")
+    FOREIGN KEY ("eligibility_id") REFERENCES "eligibility"("id")
 );
 
 
@@ -342,6 +370,7 @@ CREATE TABLE "user_project" (
     FOREIGN KEY ("user_uuid") REFERENCES "users" ("uuid") ON DELETE CASCADE,
     FOREIGN KEY ("project_id") REFERENCES "project" ("id") ON DELETE CASCADE
 );
+
 CREATE TABLE "user_join_group" (
     "id" serial NOT NULL UNIQUE,
     "uuid" uuid,
