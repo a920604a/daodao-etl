@@ -184,6 +184,7 @@ COMMENT ON COLUMN basic_info.share_list IS 'split(、)';
 
 CREATE TABLE "users" (
     "id" serial NOT NULL UNIQUE,
+    "_id" text NOT NULL UNIQUE,
     "uuid" uuid NOT NULL UNIQUE,
     "gender" gender_t,
     "language" VARCHAR(255),

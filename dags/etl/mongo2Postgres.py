@@ -25,7 +25,9 @@ class MongoToPostgresETL:
 
         for record in data:
             # 將 _id 欄位格式化為 BSON 格式
-            record["_id"] = {"$oid": str(record["_id"])}
+            # record["_id"] = {"$oid": str(record["_id"])}
+            record["_id"] = str(record["_id"]).zfill(24)[:24]  # MongoDB 的 ObjectId 通常是 24 位十六進位字符串。確保字符串為 24 位十六進位格式
+
             for key in record.keys():
                 if isinstance(record[key], datetime):
                     record[key] = {"$date": record[key].isoformat()}
