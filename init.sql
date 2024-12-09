@@ -165,7 +165,7 @@ CREATE TABLE "contact" (
     "is_subscribe_email" boolean,
     "email" varchar(255),
     "ig" varchar(255),
-    "discord VARCHAR(255)," varchar(255),
+    "discord" varchar(255),
     "line" varchar(255),
     "fb" varchar(255),
     PRIMARY KEY("id")
@@ -317,6 +317,7 @@ CREATE TABLE "project" (
     "content" text,
     "policy" policy_t [],
     "policy_description" text,
+    "resource_name" text [],
     "resource_url" text [],
     "milestone_id" int,
     "presentation" presentation_t [],
@@ -328,7 +329,8 @@ CREATE TABLE "project" (
     "updated_at" timestamp,
     "updated_by" int,
     PRIMARY KEY("id"),
-    FOREIGN KEY ("milestone_id") REFERENCES "milestone"("id")
+    FOREIGN KEY ("milestone_id") REFERENCES "milestone"("id"),
+    FOREIGN KEY("eligibility_id") REFERENCES "eligibility"("id")
 );
 
 
