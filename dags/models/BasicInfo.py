@@ -8,11 +8,14 @@ from utils.code_enum import want_to_do_list_t
 from .base import Base  # 引用分離出的 Base
 
 
-# 定義 BasicInfo 類
 class BasicInfo(Base):
     __tablename__ = "basic_info"
-    id = Column(Integer, primary_key=True)
-    self_introduction = Column(Text, nullable=True)
-    share_list = Column(Text, nullable=True)
-    want_to_do_list = Column(ARRAY(want_to_do_list_t), nullable=True)
-    uuid = Column(UUID(as_uuid=True), default=uuid.uuid4, nullable=True)
+
+    id = Column(Integer, primary_key=True, autoincrement=True, nullable=False, unique=True)
+    self_introduction = Column(String, nullable=True)
+    share_list = Column("share_list", String, nullable=True)  # text
+    want_to_do_list = Column("want_to_do_list", ARRAY(String), nullable=True)
+    uuid = Column(UUID(as_uuid=True), default=uuid.uuid4, nullable=False)
+
+    # 與 Users 關聯
+    users = relationship("Users", back_populates="basic_info")

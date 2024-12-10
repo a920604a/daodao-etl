@@ -4,12 +4,14 @@ from datetime import datetime, timedelta
 from sqlalchemy import create_engine, Table, Column, Text, Boolean, BigInteger, MetaData, ForeignKey
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
-from models import Base, User, Contact, BasicInfo, Location, Area
+from models import Base, Users, Contact, BasicInfo, Location, Area
 from config import postgres_uri
 import json
-from utils.code_enum import want_to_do_list_t
+from utils.code_enum import want_to_do_list_t, role_list_t
 from utils.code import city_mapping
+from sqlalchemy.sql.expression import cast
 
+from sqlalchemy.dialects.postgresql import array, ARRAY
 
 # 設置 DAG 預設參數
 default_args = {
@@ -73,15 +75,20 @@ def process_and_migrate_users():
                 
     
     
-                valid_enum_values = set(want_to_do_list_t.enums)  # 從 SQLAlchemy ENUM 類型中提取合法值
-
-                valid_values = [item for item in json.loads(user_record['wantToDoList']) if item in valid_enum_values]
+                valid_enum_values = set(want_to_do_list_t.enums)
+                valid_values = [
+                    item for item in json.loads(user_record['wantToDoList'])
+                    if item in valid_enum_values
+                ]
             
+                print(valid_values)
                 # 將數據插入到 BasicInfo 表
                 basic_info = BasicInfo(
                     self_introduction=user_record["selfIntroduction"],
                     share_list=','.join([item.strip() for item in user_record["share"].split('、')]),
-                    want_to_do_list=valid_values  
+                    # want_to_do_list=valid_values  
+                    # want_to_do_list=cast(valid_values, ARRAY(want_to_do_list_t)),  # 類型轉換
+                    want_to_do_list=cast(array(valid_values, type_=want_to_do_list_t), ARRAY(want_to_do_list_t))
                 )
                 session.add(basic_info)
                 session.flush()
@@ -89,31 +96,42 @@ def process_and_migrate_users():
                 # 獲取區域和位置數據
                 area_name = user_record["location"]
                 if area_name:
-                    city = city_mapping[area_name.split('@')[1]]
+                    city, region = city_mapping.get(area_name.split('@')[1], "Other"),area_name.split('@')[-1]
+                    print(city, region )
                     area = session.execute(
-                        "SELECT * FROM area WHERE City = :city", {"city": city}
+                        'SELECT * FROM area WHERE "City" = :city', {"city": city}
                     ).fetchone()
                     if not area:
                         # 如果 Area 不存在，創建新區域
-                        area = Area(city=area_name)
+                        area = Area(city=city)
                         session.add(area)
                         session.flush()
                     location = Location(
                         area_id=area.id,
-                        is_taiwan=True,
-                        region=area_name,
+                        isTaiwan=True,
+                        region=region,
                     )
                 else:
-                    location = Location(is_taiwan=False, region=None)
+                    location = Location(isTaiwan=False, region=None)
                 session.add(location)
                 session.flush()
 
+
+                print(user_record["roleList"])
+                
+                valid_enum_values = set(role_list_t.enums)
+                valid_values = [
+                    item for item in json.loads(user_record['roleList'])
+                    if item in valid_enum_values
+                ]
+                print(valid_values)
                 # 插入用戶數據到 users 表
-                user = User(
-                    uuid=str(uuid.uuid4()),
+                user = Users(
+                    uuid=uuid.uuid4(),
                     gender=user_record["gender"],
                     education_stage=user_record["educationStage"],
-                    role_list=user_record["roleList"].split(","),
+                    # role_list=user_record["roleList"].split(","),
+                    role_list=cast(array(valid_values, type_=role_list_t), ARRAY(role_list_t)),
                     contact_id=contact.id,
                     location_id=location.id,
                     basic_info_id=basic_info.id,
@@ -121,6 +139,19 @@ def process_and_migrate_users():
                     updated_at=datetime.now(),
                 )
                 session.add(user)
+                
+                print({
+                    "uuid": user_record["uuid"],
+                    "gender": user_record["gender"],
+                    "education_stage": user_record["educationStage"],
+                    "role_list": role_list,
+                    "contact_id": contact.id if contact else None,
+                    "location_id": location.id if location else None,
+                    "basic_info_id": basic_info.id if basic_info else None,
+                    "created_at": datetime.now(),
+                    "updated_at": datetime.now(),
+                })
+
 
                 # 提交整個事務
                 session.commit()
