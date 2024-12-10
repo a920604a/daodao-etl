@@ -1,8 +1,14 @@
 from airflow import DAG
-from airflow.operators.python_operator import PythonOperator
-from sqlalchemy import create_engine, text
+from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
+from sqlalchemy import create_engine, Table, Column, Text, Boolean, BigInteger, MetaData, ForeignKey
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import sessionmaker
+from models import Base, User, Contact, BasicInfo, Location, Area
 from config import postgres_uri
+import json
+from utils.code_enum import want_to_do_list_t
+from utils.code import city_mapping
 
 
 # 設置 DAG 預設參數
@@ -17,99 +23,127 @@ default_args = {
 
 # 定義 DAG
 dag = DAG(
-    "process_and_write_users",
+    "migrate_old_users_to_new_schema",
     default_args=default_args,
-    description="Process all users from old_users table and write to users table",
-    schedule_interval=None,  # 只運行一次
+    description="Migrate data from old_users table to the new schema tables",
+    schedule_interval=None,
     start_date=datetime(2023, 12, 9),
     catchup=False,
 )
 
 
-# 定義處理邏輯的函數
-def process_and_write_users():
+def process_and_migrate_users():
     """
-    從 old_users 表讀取數據，處理並插入到 users 表中。
-    使用事務處理來確保數據完整性。
+    遷移舊用戶數據到新 schema（users, contact, basic_info, location, area）。
+    包括事務處理，確保所有數據一致性。
     """
-    # 設置 SQLAlchemy 連接
     engine = create_engine(postgres_uri)
-
-    # 查詢舊數據
-    old_query = "SELECT * FROM public.old_users"
+    Session = sessionmaker(bind=engine)
+    session = Session()
 
     try:
-        with engine.connect() as connection:
-            # 啟動事務
-            with connection.begin():
-                # 執行查詢
-                result = connection.execute(text(old_query))
+        # 從舊表格中讀取數據
+        old_users = session.execute("SELECT * FROM old_users").fetchall()
 
-                # 遍歷查詢結果並插入數據
-                for row in result:
-                    # 提取需要的欄位
-                    old_user_id = row["_id"]
-                    email = row["email"]
-                    name = row["name"]
-                    google_id = row["googleID"]
-                    photo_url = row["photoURL"]
-                    interest_list = row["interestList"]
-                    is_open_location = row["isOpenLocation"]
-                    is_open_profile = row["isOpenProfile"]
-                    role_list = row["roleList"]
-                    self_introduction = row["selfIntroduction"]
-                    created_date = row["createdDate"]
-                    updated_date = row["updatedDate"]
+        # 輸出結果集，檢查所有欄位名稱
+        print("Fetched old_users data:")
+        i=0
+        for row in old_users:
+            print(dict(row))  # 輸出資料結果檢查欄位名稱
 
-                    # 插入數據
-                    insert_query = """
-                    INSERT INTO public.users (
-                        "_id", email, name, googleID, photoURL, interestList, 
-                        isOpenLocation, isOpenProfile, roleList, selfIntroduction, 
-                        createdDate, updatedDate
+        for user_record in old_users:
+            try:
+                # Debug輸出，查看是否存在欄位問題
+                print(f"Processing {i} user_record:", dict(user_record))
+                i+=1
+
+                # 將數據插入到 Contact 表
+                contact = Contact(
+                    google_id=user_record["googleID"],
+                    photo_url=user_record["photoURL"],
+                    is_subscribe_email=user_record["isSubscribeEmail"],
+                    email=user_record["email"],
+                    ig=None,
+                    discord=None,
+                    line=None,
+                    fb=None,
+                )
+                session.add(contact)
+                session.flush()  # 先提交，以獲取生成的 ID
+                
+    
+    
+                valid_enum_values = set(want_to_do_list_t.enums)  # 從 SQLAlchemy ENUM 類型中提取合法值
+
+                valid_values = [item for item in json.loads(user_record['wantToDoList']) if item in valid_enum_values]
+            
+                # 將數據插入到 BasicInfo 表
+                basic_info = BasicInfo(
+                    self_introduction=user_record["selfIntroduction"],
+                    share_list=','.join([item.strip() for item in user_record["share"].split('、')]),
+                    want_to_do_list=valid_values  
+                )
+                session.add(basic_info)
+                session.flush()
+
+                # 獲取區域和位置數據
+                area_name = user_record["location"]
+                if area_name:
+                    city = city_mapping[area_name.split('@')[1]]
+                    area = session.execute(
+                        "SELECT * FROM area WHERE City = :city", {"city": city}
+                    ).fetchone()
+                    if not area:
+                        # 如果 Area 不存在，創建新區域
+                        area = Area(city=area_name)
+                        session.add(area)
+                        session.flush()
+                    location = Location(
+                        area_id=area.id,
+                        is_taiwan=True,
+                        region=area_name,
                     )
-                    VALUES (
-                        :_id, :email, :name, :googleID, :photoURL, :interestList, 
-                        :isOpenLocation, :isOpenProfile, :roleList, :selfIntroduction, 
-                        :createdDate, :updatedDate
-                    )
-                    ON CONFLICT ("_id") DO NOTHING;
-                    """
+                else:
+                    location = Location(is_taiwan=False, region=None)
+                session.add(location)
+                session.flush()
 
-                    # 執行插入
-                    connection.execute(
-                        text(insert_query),
-                        {
-                            "_id": old_user_id,
-                            "email": email,
-                            "name": name,
-                            "googleID": google_id,
-                            "photoURL": photo_url,
-                            "interestList": interest_list,
-                            "isOpenLocation": is_open_location,
-                            "isOpenProfile": is_open_profile,
-                            "roleList": role_list,
-                            "selfIntroduction": self_introduction,
-                            "createdDate": created_date,
-                            "updatedDate": updated_date,
-                        },
-                    )
-                    print(f"Inserted user {old_user_id} into users table")
+                # 插入用戶數據到 users 表
+                user = User(
+                    uuid=str(uuid.uuid4()),
+                    gender=user_record["gender"],
+                    education_stage=user_record["educationStage"],
+                    role_list=user_record["roleList"].split(","),
+                    contact_id=contact.id,
+                    location_id=location.id,
+                    basic_info_id=basic_info.id,
+                    created_at=datetime.now(),
+                    updated_at=datetime.now(),
+                )
+                session.add(user)
 
-            # 提交事務
-            print("Transaction committed successfully.")
-
+                # 提交整個事務
+                session.commit()
+            except KeyError as e:
+                # 如果訪問欄位時發生 KeyError，輸出 debug 訊息
+                print(f"KeyError: Missing column {e} in user_record:", user_record)
+                session.rollback()
+            except IntegrityError as e:
+                print(f"Integrity error: {e}")
+                session.rollback()
+                continue
     except Exception as e:
-        # 捕捉異常
-        print(f"Error occurred: {e}")
+        print(f"Unexpected error: {e}")
+        session.rollback()
+    finally:
+        session.close()
 
 
-# 定義 PythonOperator 執行任務
-process_and_write_users_task = PythonOperator(
-    task_id="process_and_write_users_to_new_table",
-    python_callable=process_and_write_users,
+# 定義 PythonOperator 執行遷移過程
+migrate_users_task = PythonOperator(
+    task_id="migrate_old_users_to_new_schema",
+    python_callable=process_and_migrate_users,
     dag=dag,
 )
 
-# 設置 DAG 任務執行順序
-process_and_write_users_task
+migrate_users_task

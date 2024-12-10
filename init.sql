@@ -175,7 +175,7 @@ CREATE TABLE "basic_info" (
     "id" serial NOT NULL UNIQUE,
     "self_introduction" text,
     "share_list" text,
-    "want_to_do_list" want_to_do_list_t,
+    "want_to_do_list" want_to_do_list_t[],
     "uuid" uuid,
     PRIMARY KEY("id")
 );
