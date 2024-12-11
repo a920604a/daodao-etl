@@ -18,7 +18,7 @@ class Users(Base):
     _id = Column(Text, nullable=False, unique=True)
     uuid = Column(UUID(as_uuid=True), default=uuid.uuid4, nullable=False)
 
-    gender = Column("gender", String, nullable=True)  # 對應 gender_t
+    gender = Column("gender", gender_t, nullable=True)  # 對應 gender_t
     language = Column(String(255), nullable=True)
     education_stage = Column(
         "education_stage", String, default="other", nullable=True

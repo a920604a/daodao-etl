@@ -1,16 +1,16 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
-from sqlalchemy import create_engine, Table, Column, Text, Boolean, BigInteger, MetaData, ForeignKey
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from models import Base, Users, Contact, BasicInfo, Location, Area
+from sqlalchemy.exc import IntegrityError
+from models import Users, Contact, BasicInfo, Location, Area
 from config import postgres_uri
 import json
+import uuid
 from utils.code_enum import want_to_do_list_t, role_list_t
 from utils.code import city_mapping
 from sqlalchemy.sql.expression import cast
-
 from sqlalchemy.dialects.postgresql import array, ARRAY
 
 # 設置 DAG 預設參數
@@ -33,15 +33,27 @@ dag = DAG(
     catchup=False,
 )
 
-
-def process_and_migrate_users():
+def process_and_migrate_users(**kwargs):
     """
     遷移舊用戶數據到新 schema（users, contact, basic_info, location, area）。
-    包括事務處理，確保所有數據一致性。
+    包括事務處理，並生成統計報告。
     """
     engine = create_engine(postgres_uri)
     Session = sessionmaker(bind=engine)
     session = Session()
+
+    # 初始化統計變數
+    total_processed = 0
+    total_successful = 0
+    total_failed = 0
+    failed_records = []
+
+    # 初始化各表插入計數器
+    contact_inserted = 0
+    basic_info_inserted = 0
+    location_inserted = 0
+    area_inserted = 0
+    user_inserted = 0
 
     try:
         # 從舊表格中讀取數據
@@ -49,15 +61,31 @@ def process_and_migrate_users():
 
         # 輸出結果集，檢查所有欄位名稱
         print("Fetched old_users data:")
-        i=0
         for row in old_users:
             print(dict(row))  # 輸出資料結果檢查欄位名稱
 
-        for user_record in old_users:
+        for i, user_record in enumerate(old_users):
+            total_processed += 1
             try:
                 # Debug輸出，查看是否存在欄位問題
+                print(type(user_record))
                 print(f"Processing {i} user_record:", dict(user_record))
-                i+=1
+                i += 1
+                
+                
+                contact_list = {"instagram":"", "discord" : "", "line":"", "facebook":""}
+                if user_record["contactList"]:
+                    # 只有當 contactList 存在且有值時才解析 JSON 字串
+                    try:
+                        parsed_contact_list = json.loads(user_record["contactList"])
+                        # 合併解析後的 contact_list 和預設的 contact_list
+                        contact_list.update(parsed_contact_list)
+                    except json.JSONDecodeError:
+                        print(f"Invalid JSON format in contactList for user {user_record['_id']}.")
+                        # 解析失敗時可以選擇保留 contact_list 為空字典，或者根據需求處理
+                        
+                print(f'contact_list {contact_list}')
+
 
                 # 將數據插入到 Contact 表
                 contact = Contact(
@@ -65,39 +93,42 @@ def process_and_migrate_users():
                     photo_url=user_record["photoURL"],
                     is_subscribe_email=user_record["isSubscribeEmail"],
                     email=user_record["email"],
-                    ig=None,
-                    discord=None,
-                    line=None,
-                    fb=None,
+                    ig=contact_list.get("instagram"),  # 直接使用 get()，如果沒有 instagram，會返回 None
+                    discord=contact_list.get("discord"),  # 同上
+                    line=contact_list.get("line"),  # 同上
+                    fb=contact_list.get("facebook"),  # 同上
                 )
                 session.add(contact)
                 session.flush()  # 先提交，以獲取生成的 ID
-                
-    
-    
+                contact_inserted += 1  # 更新 contact 表插入數量
+
+                # 處理 wish list，過濾不正確的 enum 值
                 valid_enum_values = set(want_to_do_list_t.enums)
                 valid_values = [
                     item for item in json.loads(user_record['wantToDoList'])
                     if item in valid_enum_values
                 ]
-            
                 print(valid_values)
+
                 # 將數據插入到 BasicInfo 表
                 basic_info = BasicInfo(
                     self_introduction=user_record["selfIntroduction"],
                     share_list=','.join([item.strip() for item in user_record["share"].split('、')]),
-                    # want_to_do_list=valid_values  
-                    # want_to_do_list=cast(valid_values, ARRAY(want_to_do_list_t)),  # 類型轉換
                     want_to_do_list=cast(array(valid_values, type_=want_to_do_list_t), ARRAY(want_to_do_list_t))
                 )
                 session.add(basic_info)
                 session.flush()
+                basic_info_inserted += 1  # 更新 basic_info 表插入數量
 
                 # 獲取區域和位置數據
                 area_name = user_record["location"]
+                print(area_name)
                 if area_name:
-                    city, region = city_mapping.get(area_name.split('@')[1], "Other"),area_name.split('@')[-1]
-                    print(city, region )
+                    if "@" in area_name:
+                        city, region = city_mapping.get(area_name.split('@')[1], "Other"), area_name.split('@')[-1]
+                    else:
+                        city, region = "Other", "Unknown"
+
                     area = session.execute(
                         'SELECT * FROM area WHERE "City" = :city', {"city": city}
                     ).fetchone()
@@ -106,6 +137,7 @@ def process_and_migrate_users():
                         area = Area(city=city)
                         session.add(area)
                         session.flush()
+                        area_inserted += 1  # 更新 area 表插入數量
                     location = Location(
                         area_id=area.id,
                         isTaiwan=True,
@@ -115,60 +147,93 @@ def process_and_migrate_users():
                     location = Location(isTaiwan=False, region=None)
                 session.add(location)
                 session.flush()
-
+                location_inserted += 1  # 更新 location 表插入數量
 
                 print(user_record["roleList"])
-                
                 valid_enum_values = set(role_list_t.enums)
                 valid_values = [
                     item for item in json.loads(user_record['roleList'])
                     if item in valid_enum_values
                 ]
                 print(valid_values)
+
+                # 處理 birthDay
+                birth_day_str = user_record['birthDay']
+
+                if birth_day_str:
+                    try:
+                        if 'T' in birth_day_str:
+                            birth_day = datetime.strptime(birth_day_str.split('T')[0], "%Y-%m-%d").date()
+                        elif '/' in birth_day_str:
+                            birth_day = datetime.strptime(birth_day_str, "%Y/%m/%d").date()
+                        else:
+                            birth_day = None
+                    except ValueError as e:
+                        print(f"Invalid date format for birthDay: {birth_day_str}. Error: {e}")
+                        birth_day = None
+                else:
+                    birth_day = None
+
                 # 插入用戶數據到 users 表
                 user = Users(
+                    _id=user_record["_id"],
                     uuid=uuid.uuid4(),
-                    gender=user_record["gender"],
-                    education_stage=user_record["educationStage"],
-                    # role_list=user_record["roleList"].split(","),
+                    gender=user_record["gender"] if user_record["gender"] else 'other',
+                    language=None,
+                    education_stage=user_record["educationStage"] if user_record["educationStage"] else None,
+                    tag_list=user_record['tagList'],
+                    is_open_location=user_record['isOpenLocation'],
+                    nickname=user_record['name'] if user_record['name'] else None,
                     role_list=cast(array(valid_values, type_=role_list_t), ARRAY(role_list_t)),
+                    is_open_profile=user_record['isOpenProfile'],
+                    birth_day=birth_day,
                     contact_id=contact.id,
                     location_id=location.id,
                     basic_info_id=basic_info.id,
                     created_at=datetime.now(),
+                    created_by=kwargs["task_instance"].task.owner,
                     updated_at=datetime.now(),
+                    updated_by=kwargs["task_instance"].task.owner
                 )
                 session.add(user)
-                
-                print({
-                    "uuid": user_record["uuid"],
-                    "gender": user_record["gender"],
-                    "education_stage": user_record["educationStage"],
-                    "role_list": role_list,
-                    "contact_id": contact.id if contact else None,
-                    "location_id": location.id if location else None,
-                    "basic_info_id": basic_info.id if basic_info else None,
-                    "created_at": datetime.now(),
-                    "updated_at": datetime.now(),
-                })
-
+                user_inserted += 1  # 更新 users 表插入數量
 
                 # 提交整個事務
                 session.commit()
+                total_successful += 1
             except KeyError as e:
-                # 如果訪問欄位時發生 KeyError，輸出 debug 訊息
                 print(f"KeyError: Missing column {e} in user_record:", user_record)
                 session.rollback()
+                total_failed += 1
+                failed_records.append(str(user_record))
             except IntegrityError as e:
                 print(f"Integrity error: {e}")
                 session.rollback()
-                continue
-    except Exception as e:
-        print(f"Unexpected error: {e}")
-        session.rollback()
+                total_failed += 1
+                failed_records.append(str(user_record))
+            except Exception as e:
+                print(f"Unexpected error: {e}")
+                session.rollback()
+                total_failed += 1
+                failed_records.append(str(user_record))
+
+        # 統計報告
+        print(f"Migration Summary Report:")
+        print(f"Total processed users: {total_processed}")
+        print(f"Total successful migrations: {total_successful}")
+        print(f"Total failed migrations: {total_failed}")
+        print(f"Contact table insertions: {contact_inserted}")
+        print(f"BasicInfo table insertions: {basic_info_inserted}")
+        print(f"Location table insertions: {location_inserted}")
+        print(f"Area table insertions: {area_inserted}")
+        print(f"User table insertions: {user_inserted}")
+        if total_failed > 0:
+            print(f"Failed records:")
+            for failed_record in failed_records:
+                print(failed_record)
+
     finally:
         session.close()
-
 
 # 定義 PythonOperator 執行遷移過程
 migrate_users_task = PythonOperator(

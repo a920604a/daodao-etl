@@ -14,7 +14,7 @@ class BasicInfo(Base):
     id = Column(Integer, primary_key=True, autoincrement=True, nullable=False, unique=True)
     self_introduction = Column(String, nullable=True)
     share_list = Column("share_list", String, nullable=True)  # text
-    want_to_do_list = Column("want_to_do_list", ARRAY(String), nullable=True)
+    want_to_do_list = Column("want_to_do_list", ARRAY(want_to_do_list_t), nullable=True)
     uuid = Column(UUID(as_uuid=True), default=uuid.uuid4, nullable=False)
 
     # 與 Users 關聯

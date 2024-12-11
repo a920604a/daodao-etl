@@ -54,7 +54,7 @@ class MongoToPostgresETL:
         ]
         for column in json_columns:
             df[column] = df[column].apply(
-                lambda x: json.dumps(x) if isinstance(x, list) else None
+                lambda x: json.dumps(x) if isinstance(x,( list, dict)) else None
             )
 
         df["isOpenLocation"] = df["isOpenLocation"].astype(bool)
