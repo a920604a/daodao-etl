@@ -86,6 +86,7 @@ class MongoToPostgresETL:
     def load_data(self, table_name,target_table_name,  **kwargs):
         transform_data = kwargs["ti"].xcom_pull(key=f"transform_{table_name}")
         df = pd.DataFrame(transform_data)
+        print(df.head())
 
         def parse_date(date_dict):
             if isinstance(date_dict, dict) and "$date" in date_dict:
@@ -107,6 +108,13 @@ class MongoToPostgresETL:
         df["created_by"] = kwargs["task_instance"].task.owner
         df["updated_at"] = pd.to_datetime("now")
         df["updated_by"] = kwargs["task_instance"].task.owner
+        
+        
+        import json
+        for column in df.select_dtypes(include=["object"]).columns:
+            if df[column].apply(lambda x: isinstance(x, dict)).any():
+                df[column] = df[column].apply(json.dumps)
+
 
         try:
             df.to_sql(
