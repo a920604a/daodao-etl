@@ -45,3 +45,5 @@ Airflow Admin -> Variable
   - 目前沒欠缺 內文 (notion-title, notion-property, notioh-page-content) , 是否要存入 SQL DB
 - 找資源
   - https://daodaoedu.notion.site/edc9ef670495412c803d4028510c518e?v=db43b8f6d18f48f0b64f61d80b65e894
+  - 思考 領域 list 上 快速搜尋
+  - 思考 熱門標籤 上 快速搜尋,使用 Cache 

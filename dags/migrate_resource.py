@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
-from models import Store
+from models import  Resource
 from config import postgres_uri
 import json
 import uuid
@@ -31,26 +31,26 @@ default_args = {
 }
 
 dag = DAG(
-    "migrate_old_store_to_new_store",
-    tags=['migrate', 'store'],
+    "migrate_old_resource_to_new_resource",
+    tags=['migrate', 'resource'],
     default_args=default_args,
-    description="Migrate data from old_store table to the new schema tables",
+    description="Migrate data from old_resource table to the new schema tables",
     schedule_interval=None,
     start_date=datetime(2023, 12, 9),
     catchup=False,
 )
 
-def transform_and_load_data(**kwargs):
+def transform_old_resource_to_new_resource(**kwargs):
     engine = create_engine(postgres_uri)
     Session = sessionmaker(bind=engine)
     session = Session()
     
     try:
-    
-        logger.info("Reading data from old_store table...")
+        logger.info("Reading data from old_resource table...")
         # 讀取舊表資料
-        query = "SELECT * FROM public.old_store"
+        query = "SELECT * FROM public.old_resource"
         df = pd.read_sql(query, engine)
+        
         
         # 批次處理資料
         batch_size = 1000
@@ -60,21 +60,38 @@ def transform_and_load_data(**kwargs):
         for i in range(0, total_records, batch_size):
             batch = df.iloc[i:i+batch_size]
             batch_records = []
-            
             for _, row in batch.iterrows():
                 try:
-                    store = Store(
+                    resource = Resource(
                         # uuid=uuid.uuid4(),
-                        image_url=str(row['Social Image'])[:255] if pd.notna(row['Social Image']) else None,
-                        author_list=str(row['作者']) if pd.notna(row['作者']) else None,
-                        tags=str(row['Tags'])[:255] if pd.notna(row['Tags']) else None,
-                        name=str(row['Name'])[:255] if pd.notna(row['Name']) else None,
-                        ai_summary=str(row['AI 摘要']) if pd.notna(row['AI 摘要']) else None,
-                        description=str(row['Description']) if pd.notna(row['Description']) else None,
-                        content=None,
-                        created_at=pd.to_datetime(row['Created']) if pd.notna(row['Created']) else None
+                        # image_url=str(row['Social Image'])[:255] if pd.notna(row['Social Image']) else None,
+                        # author_list=str(row['作者']) if pd.notna(row['作者']) else None,
+                        # tags=str(row['Tags'])[:255] if pd.notna(row['Tags']) else None,
+                        # name=str(row['Name'])[:255] if pd.notna(row['Name']) else None,
+                        # ai_summary=str(row['AI 摘要']) if pd.notna(row['AI 摘要']) else None,
+                        # description=str(row['Description']) if pd.notna(row['Description']) else None,
+                        # content=None,
+                        # created_at=pd.to_datetime(row['Created']) if pd.notna(row['Created']) else None
+                        
+                        created_by_user_id=,
+                        image_url=,
+                        resource_name=,
+                        cost=,
+                        tag_list=,
+                        username = ,
+                        age = ,
+                        type_list = Column(Text)
+                        url_link = Column(Text)
+                        filed_name_list = Column(Text)
+                        video_url = Column(Text)
+                        introduction = Column(Text)
+                        area = Column(Text)
+                        supplement = Column(Text)
+
+                        
+                        
                     )
-                    batch_records.append(store)
+                    batch_records.append(resource)
                 except Exception as e:
                     logger.error(f"Error processing row: {row}")
                     logger.error(f"Error details: {str(e)}")
@@ -97,7 +114,7 @@ def transform_and_load_data(**kwargs):
         logger.info(f"Migration completed. Successfully inserted {successful_inserts} records")
         
         # 驗證資料
-        new_count = session.query(Store).count()
+        new_count = session.query(Resource).count()
         logger.info(f"Total records in new table: {new_count}")
         
     except Exception as e:
@@ -105,16 +122,16 @@ def transform_and_load_data(**kwargs):
         raise
     finally:
         session.close()
-
+    
+    
     
 # 定義 PythonOperator 執行遷移過程
-migrate_store_task = PythonOperator(
-    task_id="migrate_old_data_to_new_store",
-    python_callable=transform_and_load_data,
+migrate_resource_task = PythonOperator(
+    task_id="migrate_old_data_to_new_resource",
+    python_callable=transform_old_resource_to_new_resource,
     dag=dag,
 )
 
-migrate_store_task
-
+migrate_resource_task
 
 
