@@ -40,3 +40,4 @@ class Users(Base):
     contact = relationship("Contact", back_populates="users")
     location = relationship("Location", back_populates="users")
     basic_info = relationship("BasicInfo", back_populates="users")
+    resources = relationship("Resource", back_populates="users")
