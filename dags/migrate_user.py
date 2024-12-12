@@ -26,6 +26,7 @@ default_args = {
 # 定義 DAG
 dag = DAG(
     "migrate_old_users_to_new_schema",
+     tags=['migrate', 'users'],
     default_args=default_args,
     description="Migrate data from old_users table to the new schema tables",
     schedule_interval=None,

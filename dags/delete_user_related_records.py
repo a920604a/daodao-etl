@@ -19,6 +19,7 @@ default_args = {
 # 定義 DAG
 dag = DAG(
     "delete_all_user_related_records",
+     tags=['migrate', 'user'],
     default_args=default_args,
     description="Delete all records related to users from the database",
     schedule_interval=None,

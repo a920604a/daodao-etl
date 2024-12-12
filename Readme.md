@@ -19,7 +19,7 @@ AIRFLOW_UID=
 ```
 
 rm -rf ./logs ./plugins ./config ./data
-mkdir -p ./logs ./plugins ./config ./data
+mkdir -p ./logs ./plugins ./config ./data ./data/airflow-db-volume
 
 docker compose down --volumes --remove-orphans --rmi all
 
@@ -42,5 +42,6 @@ Airflow Admin -> Variable
   - 資料可以導入pgsql 但需要normal
 - 找故事
   - https://www.notion.so/daodaoedu/776e54be135a47198c5a50b0f0868e68
+  - 目前沒欠缺 內文 (notion-title, notion-property, notioh-page-content) , 是否要存入 SQL DB
 - 找資源
   - https://daodaoedu.notion.site/edc9ef670495412c803d4028510c518e?v=db43b8f6d18f48f0b64f61d80b65e894

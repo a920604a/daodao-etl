@@ -31,6 +31,7 @@ class NotionToPostgresETL:
         data = []
         has_more = True
         next_cursor = None
+        i = 0
 
         while has_more:
             payload = {"start_cursor": next_cursor} if next_cursor else {}
@@ -43,6 +44,8 @@ class NotionToPostgresETL:
             data.extend(response_data.get("results", []))
             has_more = response_data.get("has_more", False)
             next_cursor = response_data.get("next_cursor")
+            print(f"page {i}")
+            i+=1
 
         # 儲存 JSON 數據
         with open(output_json_path, "w", encoding="utf-8") as f:
