@@ -114,7 +114,10 @@ def process_and_migrate_users(**kwargs):
                 # 將數據插入到 BasicInfo 表
                 basic_info = BasicInfo(
                     self_introduction=user_record["selfIntroduction"],
-                    share_list=','.join([item.strip() for item in user_record["share"].split('、')]),
+                    share_list = (
+                        ','.join([item.strip() for item in user_record["share"].split('、')]) 
+                        if user_record["share"] else ""
+                    ),
                     want_to_do_list=cast(array(valid_values, type_=want_to_do_list_t), ARRAY(want_to_do_list_t))
                 )
                 session.add(basic_info)
