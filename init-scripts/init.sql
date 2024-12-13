@@ -198,6 +198,8 @@ CREATE TABLE "users" (
     "is_open_profile" boolean,
     "birthDay" date,
     "basic_info_id" int,
+    "createdDate" TIMESTAMPTZ,
+    "updatedDate" TIMESTAMPTZ,
     "created_by" varchar(255),
     "created_at" TIMESTAMPTZ,
     "updated_by" varchar(255),
@@ -361,6 +363,24 @@ CREATE TABLE "project" (
     FOREIGN KEY ("milestone_id") REFERENCES "milestone"("id"),
     FOREIGN KEY ("eligibility_id") REFERENCES "eligibility"("id")
 );
+
+
+CREATE TABLE "marathon" (
+    "id" serial PRIMARY KEY,
+    "event_id" varchar(50) NOT NULL UNIQUE, -- 活動代碼，例如 "2024S1"
+    "title" varchar(255) NOT NULL, -- 活動標題
+    "description" text, -- 活動描述
+    "start_date" date NOT NULL, -- 活動開始日期
+    "end_date" date NOT NULL, -- 活動結束日期
+    "status" varchar(50) CHECK ("status" IN ('Ongoing', 'Completed', 'Not Started', 'Canceled')), -- 活動狀態
+    "registration_status" varchar(50) CHECK ("registration_status" IN ('Open', 'Closed', 'Pending', 'Full')), -- 報名狀態
+    "registration_date" date, -- 報名開放日期
+    "pricing" jsonb, -- 收費計劃，JSON 格式
+    "is_public" boolean DEFAULT false, -- 是否公開
+    "created_at" timestamp DEFAULT current_timestamp,
+    "updated_at" timestamp DEFAULT current_timestamp
+);
+
 
 
 CREATE TABLE "user_project" (

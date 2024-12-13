@@ -177,7 +177,6 @@ def process_and_migrate_users(**kwargs):
                         birth_day = None
                 else:
                     birth_day = None
-
                 # 插入用戶數據到 users 表
                 user = Users(
                     _id=user_record["_id"],
@@ -194,9 +193,11 @@ def process_and_migrate_users(**kwargs):
                     contact_id=contact.id,
                     location_id=location.id,
                     basic_info_id=basic_info.id,
-                    created_at=datetime.now(),
+                    createdDate=datetime.fromisoformat(user_record['createdDate']).replace(tzinfo=None),  # 無時區
+                    updatedDate=datetime.fromisoformat(user_record['updatedDate']).replace(tzinfo=None),  # 無時區
+                    created_at=datetime.now(),  # for developer
                     created_by=kwargs["task_instance"].task.owner,
-                    updated_at=datetime.now(),
+                    updated_at=datetime.now(),  # for developer
                     updated_by=kwargs["task_instance"].task.owner
                 )
                 session.add(user)

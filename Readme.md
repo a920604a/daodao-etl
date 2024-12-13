@@ -33,7 +33,7 @@ Airflow Admin -> Variable
 - mongo_uri=.env.MONGO_URI
 - postgres_uri =.env.POSTGRES_URI
 - table_name=.env.MONGO_DB_NAME
-- NOTION_API_KEY=.env.TOKEN
+- NOTION_API_KEY=.env.NOTION_API_KEY
 - NOTION_DATABASE_RESOURCE_ID=.env.NOTION_DATABASE_RESOURCE_ID
 - NOTION_DATABASE_STORE_ID=.env.NOTION_DATABASE_STORE_ID
 
@@ -47,3 +47,5 @@ Airflow Admin -> Variable
   - https://daodaoedu.notion.site/edc9ef670495412c803d4028510c518e?v=db43b8f6d18f48f0b64f61d80b65e894
   - 思考 領域 list 上 快速搜尋
   - 思考 熱門標籤 上 快速搜尋,使用 Cache 
+
+- User table created_at, update_at 需要 保留原始

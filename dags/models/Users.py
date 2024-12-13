@@ -31,10 +31,13 @@ class Users(Base):
     is_open_profile = Column(Boolean, nullable=True)
     birth_day = Column("birthDay", Date, nullable=True)
     basic_info_id = Column(Integer, ForeignKey("basic_info.id"), nullable=True)  # 外鍵
-    created_by = Column(String(255), nullable=True)
-    created_at = Column(TIMESTAMP(timezone=True), nullable=True)
-    updated_by = Column(String(255), nullable=True)
-    updated_at = Column(TIMESTAMP(timezone=True), nullable=True)
+    createdDate = Column(TIMESTAMP(timezone=False), nullable=False)
+    updatedDate = Column(TIMESTAMP(timezone=False), nullable=False)
+    
+    created_by = Column(String(255), nullable=True) # for developer
+    created_at = Column(TIMESTAMP(timezone=True), nullable=True) # for developer
+    updated_by = Column(String(255), nullable=True) # for developer
+    updated_at = Column(TIMESTAMP(timezone=True), nullable=True) # for developer
 
     # 定義外鍵關聯
     contact = relationship("Contact", back_populates="users")
