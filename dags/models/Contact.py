@@ -18,5 +18,5 @@ class Contact(Base):
     line = Column(String(255), nullable=True)
     fb = Column(String(255), nullable=True)
 
-    # 與 users 關聯
-    users = relationship("Users", back_populates="contact")
+    # 與 user 關聯
+    user = relationship("Users", back_populates="contact")

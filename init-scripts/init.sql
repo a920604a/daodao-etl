@@ -182,7 +182,7 @@ CREATE TABLE "basic_info" (
 COMMENT ON COLUMN basic_info.share_list IS 'split(、)';
 
 
-CREATE TABLE "users" (
+CREATE TABLE "user" (
     "id" serial NOT NULL UNIQUE,
     "_id" text NOT NULL UNIQUE,
     "uuid" uuid NOT NULL UNIQUE,
@@ -210,12 +210,12 @@ CREATE TABLE "users" (
     FOREIGN KEY("basic_info_id") REFERENCES "basic_info"("id")
 );
 
-COMMENT ON TABLE users IS '可能需要維護 熱門標籤列表 到cache';
-COMMENT ON COLUMN users.role_list IS '夥伴類型';
+COMMENT ON TABLE "user" IS '可能需要維護 熱門標籤列表 到cache';
+COMMENT ON COLUMN "user".role_list IS '夥伴類型';
 
-CREATE INDEX "idx_users_education_stage" ON "users" ("education_stage");
-CREATE INDEX "idx_users_role_list" ON "users" ("role_list");
-CREATE INDEX "idx_users_location_id" ON "users" ("location_id");
+CREATE INDEX "idx_users_education_stage" ON "user" ("education_stage");
+CREATE INDEX "idx_users_role_list" ON "user" ("role_list");
+CREATE INDEX "idx_users_location_id" ON "user" ("location_id");
 
 
 
@@ -247,7 +247,7 @@ CREATE TABLE "group" (
     "isOnline" boolean,
     "TBD" boolean,
     PRIMARY KEY("id"),
-    FOREIGN KEY("created_by") REFERENCES "users"("uuid") ON UPDATE NO ACTION ON DELETE NO ACTION
+    FOREIGN KEY("created_by") REFERENCES "user"("uuid") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 COMMENT ON TABLE "group" IS 'need to normalize 需要維護 熱門學習領域 ';
 COMMENT ON COLUMN "group".category IS '學習領域 split(,)';
@@ -277,10 +277,10 @@ CREATE TABLE "resource" (
     "supplement" text,
     "id" serial NOT NULL UNIQUE,
     PRIMARY KEY("id"),
-    FOREIGN KEY ("created_by_user_id") REFERENCES "users"("uuid")
+    FOREIGN KEY ("created_by_user_id") REFERENCES "user"("uuid")
 );
 
-COMMENT ON TABLE resource IS '後端需要判斷 不同人剛好分享同一的資源(例如：同時分享島島主站) 標籤 與 領域名稱 需要維護, username = users table nickname';
+COMMENT ON TABLE resource IS '後端需要判斷 不同人剛好分享同一的資源(例如：同時分享島島主站) 標籤 與 領域名稱 需要維護, username = user table nickname';
 COMMENT ON COLUMN resource."tagList" IS 'split()';
 CREATE INDEX "idx_resource_cost" ON "resource" ("cost");
 CREATE INDEX "idx_resource_age" ON "resource" ("age");
@@ -359,7 +359,7 @@ CREATE TABLE "project" (
     "created_by" int,
     "updated_at" timestamp DEFAULT current_timestamp,
     "updated_by" int,
-    FOREIGN KEY ("user_id") REFERENCES "users"("id"),
+    FOREIGN KEY ("user_id") REFERENCES "user"("id"),
     FOREIGN KEY ("milestone_id") REFERENCES "milestone"("id"),
     FOREIGN KEY ("eligibility_id") REFERENCES "eligibility"("id")
 );
@@ -388,7 +388,7 @@ CREATE TABLE "user_project" (
     "user_uuid" uuid,
     "project_id" int,
     PRIMARY KEY("id"),
-    FOREIGN KEY ("user_uuid") REFERENCES "users" ("uuid") ON DELETE CASCADE,
+    FOREIGN KEY ("user_uuid") REFERENCES "user" ("uuid") ON DELETE CASCADE,
     FOREIGN KEY ("project_id") REFERENCES "project" ("id") ON DELETE CASCADE
 );
 
@@ -407,7 +407,7 @@ CREATE TABLE "resource_recommendations" (
     "resource_id" int,
     "recommended_at" TIMESTAMPTZ,
     PRIMARY KEY("id"),
-    FOREIGN KEY("uuid") REFERENCES "users"("uuid"),
+    FOREIGN KEY("uuid") REFERENCES "user"("uuid"),
     FOREIGN KEY ("resource_id" ) REFERENCES "resource"("id")
 );
 

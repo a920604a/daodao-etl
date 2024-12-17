@@ -18,4 +18,4 @@ class BasicInfo(Base):
     uuid = Column(UUID(as_uuid=True), default=uuid.uuid4, nullable=False)
 
     # 與 Users 關聯
-    users = relationship("Users", back_populates="basic_info")
+    user = relationship("Users", back_populates="basic_info")

@@ -26,9 +26,9 @@ default_args = {
 # 定義 DAG
 dag = DAG(
     "migrate_old_users_to_new_user",
-     tags=['migrate', 'users'],
+    tags=['migrate', 'user'],
     default_args=default_args,
-    description="Migrate data from old_users table to the new schema tables",
+    description="Migrate data from old_user table to the new schema tables",
     schedule_interval=None,
     start_date=datetime(2023, 12, 9),
     catchup=False,
@@ -36,7 +36,7 @@ dag = DAG(
 
 def process_and_migrate_users(**kwargs):
     """
-    遷移舊用戶數據到新 schema（users, contact, basic_info, location, area）。
+    遷移舊用戶數據到新 schema（user, contact, basic_info, location, area）。
     包括事務處理，並生成統計報告。
     """
     engine = create_engine(postgres_uri)
@@ -58,14 +58,14 @@ def process_and_migrate_users(**kwargs):
 
     try:
         # 從舊表格中讀取數據
-        old_users = session.execute("SELECT * FROM old_users").fetchall()
+        old_user = session.execute("SELECT * FROM old_user").fetchall()
 
         # 輸出結果集，檢查所有欄位名稱
-        print("Fetched old_users data:")
-        for row in old_users:
+        print("Fetched old_user data:")
+        for row in old_user:
             print(dict(row))  # 輸出資料結果檢查欄位名稱
 
-        for i, user_record in enumerate(old_users):
+        for i, user_record in enumerate(old_user):
             total_processed += 1
             try:
                 # Debug輸出，查看是否存在欄位問題
@@ -177,7 +177,7 @@ def process_and_migrate_users(**kwargs):
                         birth_day = None
                 else:
                     birth_day = None
-                # 插入用戶數據到 users 表
+                # 插入用戶數據到 user 表
                 user = Users(
                     _id=user_record["_id"],
                     uuid=uuid.uuid4(),
@@ -201,7 +201,7 @@ def process_and_migrate_users(**kwargs):
                     updated_by=kwargs["task_instance"].task.owner
                 )
                 session.add(user)
-                user_inserted += 1  # 更新 users 表插入數量
+                user_inserted += 1  # 更新 user 表插入數量
 
                 # 提交整個事務
                 session.commit()
@@ -224,7 +224,7 @@ def process_and_migrate_users(**kwargs):
 
         # 統計報告
         print(f"Migration Summary Report:")
-        print(f"Total processed users: {total_processed}")
+        print(f"Total processed user: {total_processed}")
         print(f"Total successful migrations: {total_successful}")
         print(f"Total failed migrations: {total_failed}")
         print(f"Contact table insertions: {contact_inserted}")
