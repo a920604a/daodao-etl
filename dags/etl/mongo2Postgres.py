@@ -40,7 +40,7 @@ class MongoToPostgresETL:
     def transform_users(self, **kwargs):
         extracted_data = kwargs["ti"].xcom_pull(key="extracted_df")
         df = pd.DataFrame(extracted_data)
-        print(f"Transforming users data {df.columns}")
+        print(f"Transforming user data {df.columns}")
 
         if "_id" in df.columns:
             df["_id"] = df["_id"].astype(str)

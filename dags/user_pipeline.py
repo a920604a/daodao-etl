@@ -5,11 +5,11 @@ from config import default_args, mongo_uri, mongo_db_name, postgres_uri
 from etl.mongo2Postgres import MongoToPostgresETL
 
 ORG_TABLE_NAME = "users"
-TABLE_NAME = "old_users"
+TABLE_NAME = "old_user"
 etl_process = MongoToPostgresETL(mongo_uri, mongo_db_name, postgres_uri)
 
 
-# DAG for users
+# DAG for user
 with DAG(
     dag_id="mongo_users_to_postgres",
     start_date=datetime(2023, 1, 1),

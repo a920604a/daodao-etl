@@ -10,7 +10,7 @@ import uuid
     
 # User 表
 class Users(Base):
-    __tablename__ = "users"
+    __tablename__ = "user"
 
     # 欄位定義
     id = Column(Integer, primary_key=True, autoincrement=True, nullable=False, unique=True)  # Primary Key
@@ -40,7 +40,7 @@ class Users(Base):
     updated_at = Column(TIMESTAMP(timezone=True), nullable=True) # for developer
 
     # 定義外鍵關聯
-    contact = relationship("Contact", back_populates="users")
-    location = relationship("Location", back_populates="users")
-    basic_info = relationship("BasicInfo", back_populates="users")
-    resource = relationship("Resource", back_populates="users")
+    contact = relationship("Contact", back_populates="user")
+    location = relationship("Location", back_populates="user")
+    basic_info = relationship("BasicInfo", back_populates="user")
+    resource = relationship("Resource", back_populates="user")

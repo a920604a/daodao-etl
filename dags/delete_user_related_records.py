@@ -21,7 +21,7 @@ dag = DAG(
     "delete_all_user_related_records",
      tags=['migrate', 'user'],
     default_args=default_args,
-    description="Delete all records related to users from the database",
+    description="Delete all records related to user from the database",
     schedule_interval=None,
     start_date=datetime(2023, 12, 9),
     catchup=False,
@@ -30,7 +30,7 @@ dag = DAG(
 
 def delete_related_records():
     """
-    刪除所有與用戶相關的紀錄，包括 users, contact, basic_info, location, 和可能孤立的 area。
+    刪除所有與用戶相關的紀錄，包括 user, contact, basic_info, location, 和可能孤立的 area。
     """
     engine = create_engine(postgres_uri)
     Session = sessionmaker(bind=engine)
@@ -39,7 +39,7 @@ def delete_related_records():
     try:
         # 刪除 Users 表中的紀錄
         user_ids = session.query(Users.id).all()
-        print(f"Deleting {len(user_ids)} users.")
+        print(f"Deleting {len(user_ids)} user.")
         session.query(Users).delete(synchronize_session=False)
         session.flush()
 
