@@ -39,7 +39,7 @@ CREATE TABLE "basic_info" (
 COMMENT ON COLUMN basic_info.share_list IS 'split(、)';
 
 
-
+-- main tables
 
 CREATE TABLE "user" (
     "id" serial NOT NULL UNIQUE,
@@ -143,6 +143,39 @@ COMMENT ON TABLE resource IS '後端需要判斷 不同人剛好分享同一的�
 COMMENT ON COLUMN resource."tagList" IS 'split()';
 CREATE INDEX "idx_resource_cost" ON "resource" ("cost");
 CREATE INDEX "idx_resource_age" ON "resource" ("age");
+
+
+-- 用來紀錄分享關係的表
+CREATE TABLE "resource_share" (
+    "resource_id" int NOT NULL,
+    "user_id" uuid NOT NULL,
+    "shared_at" timestamp DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY ("resource_id", "user_id"),
+    FOREIGN KEY ("resource_id") REFERENCES "resource"("id"),
+    FOREIGN KEY ("user_id") REFERENCES "user"("uuid")
+);
+
+-- 用來紀錄收藏關係的表
+CREATE TABLE "resource_favorite" (
+    "resource_id" int NOT NULL,
+    "user_id" uuid NOT NULL,
+    "favorited_at" timestamp DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY ("resource_id", "user_id"),
+    FOREIGN KEY ("resource_id") REFERENCES "resource"("id"),
+    FOREIGN KEY ("user_id") REFERENCES "user"("uuid")
+);
+
+CREATE TABLE "resource_recommendations" (
+    "id" serial NOT NULL UNIQUE,
+    "uuid" uuid,
+    "resource_id" int,
+    "recommended_at" TIMESTAMPTZ,
+    PRIMARY KEY("id"),
+    FOREIGN KEY("uuid") REFERENCES "user"("uuid"),
+    FOREIGN KEY ("resource_id" ) REFERENCES "resource"("id")
+);
+
+
 CREATE TABLE "Store" (
     "id" serial NOT NULL UNIQUE,
     "uuid" uuid UNIQUE,
@@ -212,8 +245,9 @@ CREATE TABLE "project" (
     "milestone_id" int,
     "presentation" varchar(255)[],
     "presentation_description" text,
-    "is_public" boolean DEFAULT false,
+    "is_public" boolean DEFAULT false,  -- 是否公開
     "eligibility_id" int,
+    "status" varchar(50) CHECK ("status" IN ('Ongoing', 'Completed', 'Not Started', 'Canceled')), -- 活動狀態
     "created_at" timestamp DEFAULT current_timestamp,
     "created_by" int,
     "updated_at" timestamp DEFAULT current_timestamp,
@@ -231,7 +265,6 @@ CREATE TABLE "marathon" (
     "description" text, -- 活動描述
     "start_date" date NOT NULL, -- 活動開始日期
     "end_date" date NOT NULL, -- 活動結束日期
-    "status" varchar(50) CHECK ("status" IN ('Ongoing', 'Completed', 'Not Started', 'Canceled')), -- 活動狀態
     "registration_status" varchar(50) CHECK ("registration_status" IN ('Open', 'Closed', 'Pending', 'Full')), -- 報名狀態
     "registration_date" date, -- 報名開放日期
     "pricing" jsonb, -- 收費計劃，JSON 格式
@@ -259,15 +292,6 @@ CREATE TABLE "user_join_group" (
     "participated_at" TIMESTAMPTZ,
     PRIMARY KEY("id"),
     FOREIGN KEY("group_id") REFERENCES "group"("id") ON UPDATE NO ACTION ON DELETE NO ACTION
-);
-CREATE TABLE "resource_recommendations" (
-    "id" serial NOT NULL UNIQUE,
-    "uuid" uuid,
-    "resource_id" int,
-    "recommended_at" TIMESTAMPTZ,
-    PRIMARY KEY("id"),
-    FOREIGN KEY("uuid") REFERENCES "user"("uuid"),
-    FOREIGN KEY ("resource_id" ) REFERENCES "resource"("id")
 );
 
 
