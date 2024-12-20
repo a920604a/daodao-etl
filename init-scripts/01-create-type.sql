@@ -76,13 +76,6 @@ CREATE TYPE "qualifications_t" AS ENUM (
     'double',
     'three',
     'four'
-    
-);
-CREATE TABLE "eligibility" (
-    "id" serial NOT NULL UNIQUE,
-    "qualifications" qualifications_t,
-    "qualification_file_path" VARCHAR(255)
-
 );
 
 CREATE TYPE "role_t" AS ENUM ('Initiator', 'Participant');

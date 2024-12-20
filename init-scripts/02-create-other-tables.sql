@@ -1,83 +1,3 @@
-
--- Misc TABLE 
-CREATE TABLE "area" (
-    "id" serial NOT NULL UNIQUE,
-    "City" "City_t",
-    PRIMARY KEY("id")
-);
-CREATE INDEX "idx_area_city" ON "area" ("City");
-
-CREATE TABLE "location" (
-    "id" serial NOT NULL UNIQUE,
-    "area_id" int,
-    "isTaiwan" boolean,
-    "region" char(64),
-    PRIMARY KEY("id"),
-    FOREIGN KEY ("area_id") REFERENCES "area"("id")
-);
-
-CREATE TABLE "contact" (
-    "id" serial NOT NULL UNIQUE,
-    "google_id" varchar(255),
-    "photo_url" text,
-    "is_subscribe_email" boolean,
-    "email" varchar(255),
-    "ig" varchar(255),
-    "discord" varchar(255),
-    "line" varchar(255),
-    "fb" varchar(255),
-    PRIMARY KEY("id")
-);
-CREATE TABLE "basic_info" (
-    "id" serial NOT NULL UNIQUE,
-    "self_introduction" text,
-    "share_list" text,
-    "want_to_do_list" want_to_do_list_t[],
-    "uuid" uuid,
-    PRIMARY KEY("id")
-);
-COMMENT ON COLUMN basic_info.share_list IS 'split(、)';
-
-
--- main tables
-
-CREATE TABLE "user" (
-    "id" serial NOT NULL UNIQUE,
-    "_id" text NOT NULL UNIQUE,
-    "uuid" uuid NOT NULL UNIQUE,
-    "gender" gender_t,
-    "language" VARCHAR(255),
-    "education_stage" education_stage_t DEFAULT 'other',
-    "tagList" text,
-    "contact_id" int,
-    "is_open_location" boolean,
-    "location_id" int,
-    "nickname" varchar(255),
-    "role_list" role_list_t [],
-    "is_open_profile" boolean,
-    "birthDay" date,
-    "basic_info_id" int,
-    "createdDate" TIMESTAMPTZ,
-    "updatedDate" TIMESTAMPTZ,
-    "created_by" varchar(255),
-    "created_at" TIMESTAMPTZ,
-    "updated_by" varchar(255),
-    "updated_at" TIMESTAMPTZ,
-    PRIMARY KEY("uuid"),
-    FOREIGN KEY("location_id") REFERENCES "location"("id"),
-    FOREIGN KEY("contact_id") REFERENCES "contact"("id"),
-    FOREIGN KEY("basic_info_id") REFERENCES "basic_info"("id")
-);
-
-COMMENT ON TABLE "user" IS '可能需要維護 熱門標籤列表 到cache';
-COMMENT ON COLUMN "user".role_list IS '夥伴類型';
-
-CREATE INDEX "idx_users_education_stage" ON "user" ("education_stage");
-CREATE INDEX "idx_users_role_list" ON "user" ("role_list");
-CREATE INDEX "idx_users_location_id" ON "user" ("location_id");
-
-
-
 CREATE TABLE "group" (
     "id" serial NOT NULL UNIQUE,
     "title" text,
@@ -246,34 +166,60 @@ CREATE TABLE "project" (
     "presentation" varchar(255)[],
     "presentation_description" text,
     "is_public" boolean DEFAULT false,  -- 是否公開
-    "eligibility_id" int,
     "status" varchar(50) CHECK ("status" IN ('Ongoing', 'Completed', 'Not Started', 'Canceled')), -- 活動狀態
     "created_at" timestamp DEFAULT current_timestamp,
     "created_by" int,
     "updated_at" timestamp DEFAULT current_timestamp,
     "updated_by" int,
     FOREIGN KEY ("user_id") REFERENCES "user"("id"),
-    FOREIGN KEY ("milestone_id") REFERENCES "milestone"("id"),
-    FOREIGN KEY ("eligibility_id") REFERENCES "eligibility"("id")
+    FOREIGN KEY ("milestone_id") REFERENCES "milestone"("id")
 );
 
+
+
+CREATE TABLE "eligibility" (
+    "id" serial NOT NULL UNIQUE,
+    "qualifications" qualifications_t,
+    "qualification_file_path" VARCHAR(255),
+    "partner_email" text[]
+);
 
 CREATE TABLE "marathon" (
     "id" serial PRIMARY KEY,
     "event_id" varchar(50) NOT NULL UNIQUE, -- 活動代碼，例如 "2024S1"
     "title" varchar(255) NOT NULL, -- 活動標題
     "description" text, -- 活動描述
-    "start_date" date NOT NULL, -- 活動開始日期
+    "start_date" date NOT NULL, -- 馬拉松的報名開始日期。
     "end_date" date NOT NULL, -- 活動結束日期
-    "registration_status" varchar(50) CHECK ("registration_status" IN ('Open', 'Closed', 'Pending', 'Full')), -- 報名狀態
-    "registration_date" date, -- 報名開放日期
-    "pricing" jsonb, -- 收費計劃，JSON 格式
+    "registration_status" varchar(50) CHECK ("registration_status" IN ('Open', 'Closed', 'Pending', 'Full')), -- 活動的整體報名狀態。
+    "registration_start_date" date, -- 報名開放日期
+    "eligibility_id" int, -- 收費計劃
     "is_public" boolean DEFAULT false, -- 是否公開
+    "created_by" int, -- 主辦者 (可選)
     "created_at" timestamp DEFAULT current_timestamp,
-    "updated_at" timestamp DEFAULT current_timestamp
+    "updated_at" timestamp DEFAULT current_timestamp,
+    FOREIGN KEY ("eligibility_id") REFERENCES "eligibility"("id"),
+    FOREIGN KEY ("created_by") REFERENCES "user"("id") -- 若需要記錄主辦者
+);
+CREATE INDEX idx_marathon_start_date ON "marathon"("start_date");
+
+
+
+CREATE TABLE "project_marathon" (
+    "id" serial PRIMARY KEY,
+    "project_id" int NOT NULL, -- 專案 ID
+    "marathon_id" int NOT NULL, -- 馬拉松 ID
+    "project_registration_date" timestamp DEFAULT current_timestamp, -- 某個專案報名此馬拉松的日期。
+    "status" varchar(50) CHECK ("status" IN ('Pending', 'Approved', 'Rejected')), -- 專案報名的審核狀態
+    "feedback" text, -- 評審意見或備註
+    "created_at" timestamp DEFAULT current_timestamp,
+    "updated_at" timestamp DEFAULT current_timestamp,
+    FOREIGN KEY ("project_id") REFERENCES "project"("id") ON DELETE CASCADE,
+    FOREIGN KEY ("marathon_id") REFERENCES "marathon"("id") ON DELETE CASCADE,
+    UNIQUE ("project_id", "marathon_id") -- 保證同一專案不能重複報名同一馬拉松
 );
 
-
+CREATE INDEX idx_project_marathon_status ON "project_marathon"("status");
 
 CREATE TABLE "user_project" (
     "id" serial NOT NULL UNIQUE,
