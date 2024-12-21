@@ -48,4 +48,9 @@ Airflow Admin -> Variable
   - 思考 領域 list 上 快速搜尋
   - 思考 熱門標籤 上 快速搜尋,使用 Cache 
 
-- User table created_at, update_at 需要 保留原始
+
+
+
+- 參考電傷網站如何在 多個 tag 底下 建立schema 
+- review 馬拉松。活動規劃、報名資料、分享區、公告
+- 使用者、角色、權限、個人名片

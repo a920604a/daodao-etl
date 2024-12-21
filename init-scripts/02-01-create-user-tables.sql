@@ -28,6 +28,7 @@ CREATE TABLE "contact" (
     "fb" varchar(255),
     PRIMARY KEY("id")
 );
+
 CREATE TABLE "basic_info" (
     "id" serial NOT NULL UNIQUE,
     "self_introduction" text,
@@ -40,7 +41,7 @@ COMMENT ON COLUMN basic_info.share_list IS 'split(、)';
 
 
 -- main tables
-
+-- 等待 找夥伴 與 個人名片 resume 規格明確 在作拆分。
 CREATE TABLE "user" (
     "id" serial NOT NULL UNIQUE,
     "_id" text NOT NULL UNIQUE,
