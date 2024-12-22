@@ -54,3 +54,10 @@ CREATE TABLE "resource_recommendations" (
     FOREIGN KEY ("resource_id" ) REFERENCES "resource"("id")
 );
 
+CREATE TABLE "resource_post" (
+    "id" serial NOT NULL UNIQUE,
+    "content" text,
+    "rating" int, 
+    "created_by" uuid
+    FOREIGN KEY("uuid") REFERENCES "user"("uuid"),
+);
