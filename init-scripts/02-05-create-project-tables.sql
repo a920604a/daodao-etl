@@ -13,6 +13,7 @@ CREATE TABLE "task" (
     "name" varchar(255),
     "start_date" date,
     "end_date" date,
+    "is_completed" boolean DEFAULT false,
     FOREIGN KEY ("milestone_id") REFERENCES "milestone"("id")
 );
 
@@ -46,7 +47,7 @@ CREATE TABLE "project" (
     "presentation" presentation_t[],
     "presentation_description" text,
     "is_public" boolean DEFAULT false,  -- 是否公開
-    "status" varchar(50) CHECK ("status" IN ('Ongoing', 'Completed', 'Not Started', 'Canceled')), -- 活動狀態
+    "status" varchar(50) DEFAULT 'Not Started' CHECK ("status" IN ('Ongoing', 'Completed', 'Not Started', 'Canceled')),
     "created_at" timestamp DEFAULT current_timestamp,
     "created_by" int,
     "updated_at" timestamp DEFAULT current_timestamp,
