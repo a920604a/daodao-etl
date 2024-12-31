@@ -39,3 +39,13 @@ CREATE INDEX "idx_group_isOnline" ON "group" ("isOnline");
 CREATE INDEX "idx_group_TBD" ON "group" ("TBD");
 
 
+
+CREATE TABLE "user_join_group" (
+    "id" serial NOT NULL UNIQUE,
+    "uuid" uuid,
+    "group_id" int,
+    "role" role_t DEFAULT 'Initiator',
+    "participated_at" TIMESTAMPTZ,
+    PRIMARY KEY("id"),
+    FOREIGN KEY("group_id") REFERENCES "group"("id") ON UPDATE NO ACTION ON DELETE NO ACTION
+);
