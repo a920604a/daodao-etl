@@ -1,4 +1,3 @@
-
 -- TYPE
 
 CREATE TYPE "gender_t" AS ENUM ('male', 'female', 'other');
@@ -12,7 +11,7 @@ CREATE TYPE "role_list_t" AS ENUM (
     'experimental-education-student'
 );
 
-CREATE TYPE "City_t" AS ENUM (
+CREATE TYPE "city_t" AS ENUM (
     'Taipei City',
     'Keelung City',
     'New Taipei City',
@@ -60,7 +59,7 @@ CREATE TYPE "group_type_t" AS ENUM (
     'practice',
     'other'
 );
-CREATE TYPE "partnerEducationStep_t" AS ENUM ('high school', 'other', 'University');
+CREATE TYPE "partner_education_step_t" AS ENUM ('high school', 'other', 'University');
 
 
 CREATE TYPE "cost_t" AS ENUM ('free', 'part', 'payment');
@@ -133,4 +132,3 @@ CREATE TYPE "presentation_t" AS ENUM (
     'participating_in_competitions',
     'others'
 );
-

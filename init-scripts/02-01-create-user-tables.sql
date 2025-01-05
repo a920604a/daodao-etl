@@ -1,10 +1,10 @@
 -- Misc TABLE 
 CREATE TABLE "area" (
     "id" serial NOT NULL UNIQUE,
-    "City" "City_t",
+    "city" "city_t",
     PRIMARY KEY("id")
 );
-CREATE INDEX "idx_area_city" ON "area" ("City");
+CREATE INDEX "idx_area_city" ON "area" ("city");
 CREATE TABLE "location" (
     "id" serial NOT NULL UNIQUE,
     "area_id" int,
@@ -74,7 +74,7 @@ CREATE INDEX "idx_users_location_id" ON "user" ("location_id");
 -- 找夥伴功能
 CREATE TABLE user_profiles (
     id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES users(id) ON DELETE CASCADE,
+    user_id INT REFERENCES user(id) ON DELETE CASCADE,
     nickname VARCHAR(100),
     bio TEXT,
     skills TEXT [],
