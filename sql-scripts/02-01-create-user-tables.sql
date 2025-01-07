@@ -77,3 +77,23 @@ CREATE INDEX "idx_users_education_stage" ON "user" ("education_stage");
 CREATE INDEX "idx_users_role_list" ON "user" ("role_list");
 CREATE INDEX "idx_users_location_id" ON "user" ("location_id");
 
+
+CREATE TABLE subscription_plans (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    features JSONB,
+    price DECIMAL(10, 2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE user_subscriptions (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(id) ON DELETE CASCADE,
+    plan_id INT REFERENCES subscription_plans(id) ON DELETE SET NULL,
+    status VARCHAR(50) NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

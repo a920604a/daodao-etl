@@ -5,3 +5,5 @@ backup/
 
 *.pyc
 .env
+
+.codegpt

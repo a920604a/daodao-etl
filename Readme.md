@@ -54,3 +54,8 @@ Airflow Admin -> Variable
 - 參考電傷網站如何在 多個 tag 底下 建立schema 
 - review 馬拉松。活動規劃、報名資料、分享區、公告
 - 使用者、角色、權限、個人名片
+
+1. users
+2. groups
+3. 馬拉松
+4. 學習計畫
