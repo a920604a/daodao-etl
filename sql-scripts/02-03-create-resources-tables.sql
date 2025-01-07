@@ -24,6 +24,21 @@ CREATE INDEX "idx_resource_cost" ON "resource" ("cost");
 CREATE INDEX "idx_resource_age" ON "resource" ("age");
 
 
+
+-- 用來紀錄心得分享與評價關係的表
+CREATE TABLE "resource_review" (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(id) ON DELETE CASCADE,
+    resource_id INT REFERENCES resources(id) ON DELETE CASCADE,
+    title VARCHAR(255),
+    content TEXT,
+    rating INT CHECK (rating BETWEEN 1 AND 5),
+    likes_count INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
 -- 用來紀錄分享關係的表
 CREATE TABLE "resource_share" (
     "resource_id" int NOT NULL,
@@ -44,6 +59,7 @@ CREATE TABLE "resource_favorite" (
     FOREIGN KEY ("user_id") REFERENCES "user"("uuid")
 );
 
+-- 用來紀錄推薦關係的表
 CREATE TABLE "resource_recommendations" (
     "id" serial NOT NULL UNIQUE,
     "uuid" uuid,
@@ -56,8 +72,10 @@ CREATE TABLE "resource_recommendations" (
 
 CREATE TABLE "resource_post" (
     "id" serial NOT NULL UNIQUE,
+    "rating_total" int,
+    "rating_content_content" int,
+    "rating_resources_practical" int,
     "content" text,
-    "rating" int, 
     "created_by" uuid
     FOREIGN KEY("uuid") REFERENCES "user"("uuid"),
 );

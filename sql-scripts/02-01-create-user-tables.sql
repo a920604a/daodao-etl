@@ -1,4 +1,3 @@
-
 -- Misc TABLE 
 CREATE TABLE "area" (
     "id" serial NOT NULL UNIQUE,
@@ -6,7 +5,6 @@ CREATE TABLE "area" (
     PRIMARY KEY("id")
 );
 CREATE INDEX "idx_area_city" ON "area" ("City");
-
 CREATE TABLE "location" (
     "id" serial NOT NULL UNIQUE,
     "area_id" int,
@@ -15,7 +13,6 @@ CREATE TABLE "location" (
     PRIMARY KEY("id"),
     FOREIGN KEY ("area_id") REFERENCES "area"("id")
 );
-
 CREATE TABLE "contact" (
     "id" serial NOT NULL UNIQUE,
     "google_id" varchar(255),
@@ -28,18 +25,15 @@ CREATE TABLE "contact" (
     "fb" varchar(255),
     PRIMARY KEY("id")
 );
-
 CREATE TABLE "basic_info" (
     "id" serial NOT NULL UNIQUE,
     "self_introduction" text,
     "share_list" text,
-    "want_to_do_list" want_to_do_list_t[],
+    "want_to_do_list" want_to_do_list_t [],
     "uuid" uuid,
     PRIMARY KEY("id")
 );
 COMMENT ON COLUMN basic_info.share_list IS 'split(、)';
-
-
 -- main tables
 -- 等待 找夥伴 與 個人名片 resume 規格明確 在作拆分。
 CREATE TABLE "user" (
@@ -72,11 +66,25 @@ CREATE TABLE "user" (
 
 COMMENT ON TABLE "user" IS '可能需要維護 熱門標籤列表 到cache';
 COMMENT ON COLUMN "user".role_list IS '夥伴類型';
-
 CREATE INDEX "idx_users_education_stage" ON "user" ("education_stage");
 CREATE INDEX "idx_users_role_list" ON "user" ("role_list");
 CREATE INDEX "idx_users_location_id" ON "user" ("location_id");
 
+
+-- 找夥伴功能
+CREATE TABLE user_profiles (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(id) ON DELETE CASCADE,
+    nickname VARCHAR(100),
+    bio TEXT,
+    skills TEXT [],
+    interests TEXT [],
+    learning_needs TEXT [],
+    contact_info JSONB,
+    is_public BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 CREATE TABLE subscription_plans (
     id SERIAL PRIMARY KEY,
@@ -86,7 +94,6 @@ CREATE TABLE subscription_plans (
     price DECIMAL(10, 2),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 
 CREATE TABLE user_subscriptions (
     id SERIAL PRIMARY KEY,
