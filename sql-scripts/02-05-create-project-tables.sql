@@ -2,7 +2,7 @@ CREATE TABLE "milestone"(
     "id" serial PRIMARY KEY,
     "project_id" int NOT NULL, -- 專案 ID
     "start_date" date, -- 開始日期
-    "end_date" date, -- 結束日期
+    "end_date" date CHECK ("start_date" < "end_date"), -- 結束日期
     "interval" int CHECK ("interval" > 0), -- 週期間隔（單位：週，必須大於 0）
     FOREIGN KEY ("project_id") REFERENCES "project"("id") ON DELETE CASCADE
 );
@@ -25,7 +25,7 @@ CREATE INDEX idx_task_milestone_id ON "task"("milestone_id");
 
 
 -- Subtask 表
-CREATE TYPE "day_enum" AS ENUM ('周一', '周二', '周三', '周四', '周五', '周六', '周日');
+CREATE TYPE "day_enum" AS ENUM ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
 
 CREATE TABLE "subtask" (
     "id" serial PRIMARY KEY,
@@ -60,6 +60,7 @@ CREATE TABLE "project" (
     "created_by" int,
     "updated_at" timestamp DEFAULT current_timestamp,
     "updated_by" int,
+    "version" int,
     FOREIGN KEY ("user_id") REFERENCES "user"("id")
 );
 

@@ -13,6 +13,7 @@ CREATE TABLE "marathon" (
     "start_date" date NOT NULL, -- 馬拉松的報名開始日期。
     "end_date" date NOT NULL, -- 活動結束日期
     "registration_status" varchar(50) CHECK ("registration_status" IN ('Open', 'Closed', 'Pending', 'Full')), -- 活動的整體報名狀態。
+    "people_number" INT, -- 報名人數上限 
     "registration_start_date" date, -- 報名開放日期
     "eligibility_id" int, -- 收費計劃
     "is_public" boolean DEFAULT false, -- 是否公開
