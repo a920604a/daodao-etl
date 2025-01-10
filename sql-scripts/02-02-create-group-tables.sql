@@ -48,4 +48,5 @@ CREATE TABLE "user_join_group" (
     "participated_at" TIMESTAMPTZ,
     PRIMARY KEY("id"),
     FOREIGN KEY("group_id") REFERENCES "group"("id") ON UPDATE NO ACTION ON DELETE NO ACTION
+    FOREIGN KEY("uuid") REFERENCES "user"("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );

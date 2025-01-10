@@ -30,7 +30,6 @@ CREATE TABLE "basic_info" (
     "self_introduction" text,
     "share_list" text,
     "want_to_do_list" want_to_do_list_t [],
-    "uuid" uuid,
     PRIMARY KEY("id")
 );
 COMMENT ON COLUMN basic_info.share_list IS 'split(、)';
@@ -49,6 +48,7 @@ CREATE TABLE "user" (
     "location_id" int,
     "nickname" varchar(255),
     "role_list" role_list_t [],
+    "role" VARCHAR(20) CHECK (role IN ('student', 'assistant', 'backend', 'admin')) NOT NULL,
     "is_open_profile" boolean,
     "birthDay" date,
     "basic_info_id" int,
@@ -74,7 +74,7 @@ CREATE INDEX "idx_users_location_id" ON "user" ("location_id");
 -- 找夥伴功能
 CREATE TABLE user_profiles (
     id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES users(id) ON DELETE CASCADE,
+    user_id INT REFERENCES user(id) ON DELETE CASCADE,
     nickname VARCHAR(100),
     bio TEXT,
     skills TEXT [],
@@ -97,7 +97,7 @@ CREATE TABLE subscription_plans (
 
 CREATE TABLE user_subscriptions (
     id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES users(id) ON DELETE CASCADE,
+    user_id INT REFERENCES user(id) ON DELETE CASCADE,
     plan_id INT REFERENCES subscription_plans(id) ON DELETE SET NULL,
     status VARCHAR(50) NOT NULL,
     start_date DATE NOT NULL,
