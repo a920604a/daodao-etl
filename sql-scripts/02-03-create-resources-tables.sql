@@ -1,5 +1,5 @@
 CREATE TABLE "resource" (
-    "created_by_user_id" uuid UNIQUE,
+    "created_by_user_id" INT UNIQUE,
     "image_url" varchar(255),
     "resource_name" varchar(255),
     "cost" cost_t DEFAULT 'free',
@@ -15,7 +15,7 @@ CREATE TABLE "resource" (
     "supplement" text,
     "id" serial NOT NULL UNIQUE,
     PRIMARY KEY("id"),
-    FOREIGN KEY ("created_by_user_id") REFERENCES "user"("uuid")
+    FOREIGN KEY ("created_by_user_id") REFERENCES "user"("id")
 );
 
 COMMENT ON TABLE resource IS '後端需要判斷 不同人剛好分享同一的資源(例如：同時分享島島主站) 標籤 與 領域名稱 需要維護, username = user table nickname';
@@ -41,32 +41,32 @@ CREATE TABLE "resource_review" (
 
 -- 用來紀錄分享關係的表
 CREATE TABLE "resource_share" (
-    "resource_id" int NOT NULL,
-    "user_id" uuid NOT NULL,
+    "resource_id" INT NOT NULL,
+    "user_id" INT NOT NULL,
     "shared_at" timestamp DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY ("resource_id", "user_id"),
     FOREIGN KEY ("resource_id") REFERENCES "resource"("id"),
-    FOREIGN KEY ("user_id") REFERENCES "user"("uuid")
+    FOREIGN KEY ("user_id") REFERENCES "user"("id")
 );
 
 -- 用來紀錄收藏關係的表
 CREATE TABLE "resource_favorite" (
     "resource_id" int NOT NULL,
-    "user_id" uuid NOT NULL,
+    "user_id" INT NOT NULL,
     "favorited_at" timestamp DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY ("resource_id", "user_id"),
     FOREIGN KEY ("resource_id") REFERENCES "resource"("id"),
-    FOREIGN KEY ("user_id") REFERENCES "user"("uuid")
+    FOREIGN KEY ("user_id") REFERENCES "user"("id")
 );
 
 -- 用來紀錄推薦關係的表
 CREATE TABLE "resource_recommendations" (
     "id" serial NOT NULL UNIQUE,
-    "uuid" uuid,
+    "user_id" INT NOT NULL,
     "resource_id" int,
     "recommended_at" TIMESTAMPTZ,
     PRIMARY KEY("id"),
-    FOREIGN KEY("uuid") REFERENCES "user"("uuid"),
+    FOREIGN KEY("user_id") REFERENCES "user"("id"),
     FOREIGN KEY ("resource_id" ) REFERENCES "resource"("id")
 );
 
@@ -76,6 +76,6 @@ CREATE TABLE "resource_post" (
     "rating_content_content" int,
     "rating_resources_practical" int,
     "content" text,
-    "created_by" uuid
-    FOREIGN KEY("uuid") REFERENCES "user"("uuid"),
+    "created_by" INT
+    FOREIGN KEY("created_by") REFERENCES "user"("id"),
 );

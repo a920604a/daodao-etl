@@ -27,12 +27,12 @@ COMMENT ON COLUMN "favorites".target_type IS '可選 group 或 resource';
 
 
 CREATE TABLE "follows" (
-    "follower_id" uuid NOT NULL,
-    "followee_id" uuid NOT NULL,
+    "follower_id" INT NOT NULL,
+    "followee_id" INT NOT NULL,
     "followed_at" timestamp DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY("follower_id", "followee_id"),
-    FOREIGN KEY("follower_id") REFERENCES "user"("uuid") ON DELETE CASCADE,
-    FOREIGN KEY("followee_id") REFERENCES "user"("uuid") ON DELETE CASCADE
+    FOREIGN KEY("follower_id") REFERENCES "user"("id") ON DELETE CASCADE,
+    FOREIGN KEY("followee_id") REFERENCES "user"("id") ON DELETE CASCADE
 );
 COMMENT ON TABLE "follows" IS '用於記錄使用者之間的追蹤關係';
 

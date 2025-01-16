@@ -67,10 +67,10 @@ CREATE TABLE "project" (
 
 CREATE TABLE "user_project" (
     "id" serial NOT NULL UNIQUE,
-    "user_uuid" uuid,
+    "user_id" INT,
     "project_id" int,
     PRIMARY KEY("id"),
-    FOREIGN KEY ("user_uuid") REFERENCES "user" ("uuid") ON DELETE CASCADE,
+    FOREIGN KEY ("user_id") REFERENCES "user" ("id") ON DELETE CASCADE,
     FOREIGN KEY ("project_id") REFERENCES "project" ("id") ON DELETE CASCADE
 );
 

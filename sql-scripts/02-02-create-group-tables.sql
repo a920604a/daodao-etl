@@ -13,7 +13,7 @@ CREATE TABLE "group" (
     "time" time,
     "partnerStyle" text,
     "created_at" timestamp,
-    "created_by" uuid,
+    "created_by" INT,
     "updated_at" timestamp,
     "updated_by" varchar(255),
     "motivation" text,
@@ -26,7 +26,7 @@ CREATE TABLE "group" (
     "isOnline" boolean,
     "TBD" boolean,
     PRIMARY KEY("id"),
-    FOREIGN KEY("created_by") REFERENCES "user"("uuid") ON UPDATE NO ACTION ON DELETE NO ACTION
+    FOREIGN KEY("created_by") REFERENCES "user"("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 COMMENT ON TABLE "group" IS 'need to normalize 需要維護 熱門學習領域 ';
 COMMENT ON COLUMN "group".category IS '學習領域 split(,)';
@@ -42,11 +42,11 @@ CREATE INDEX "idx_group_TBD" ON "group" ("TBD");
 
 CREATE TABLE "user_join_group" (
     "id" serial NOT NULL UNIQUE,
-    "uuid" uuid,
+    "uid" uid,
     "group_id" int,
     "role" role_t DEFAULT 'Initiator',
     "participated_at" TIMESTAMPTZ,
     PRIMARY KEY("id"),
     FOREIGN KEY("group_id") REFERENCES "group"("id") ON UPDATE NO ACTION ON DELETE NO ACTION
-    FOREIGN KEY("uuid") REFERENCES "user"("id") ON UPDATE NO ACTION ON DELETE NO ACTION
+    FOREIGN KEY("uid") REFERENCES "user"("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );

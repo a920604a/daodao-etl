@@ -1,6 +1,6 @@
 CREATE TABLE "Store" (
     "id" serial NOT NULL UNIQUE,
-    "uuid" uuid UNIQUE,
+    "user_id" INT UNIQUE,
     "image_url" varchar(255),
     "author_list" text,
     "tags" varchar(255),
@@ -10,4 +10,5 @@ CREATE TABLE "Store" (
     "content" text,
     "name" varchar(255),
     PRIMARY KEY("id")
+    FOREIGN KEY ("user_id") REFERENCES "user"("id")
 );

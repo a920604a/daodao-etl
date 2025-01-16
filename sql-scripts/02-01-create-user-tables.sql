@@ -58,7 +58,7 @@ CREATE TABLE "user" (
     "created_at" TIMESTAMPTZ,
     "updated_by" varchar(255),
     "updated_at" TIMESTAMPTZ,
-    PRIMARY KEY("uuid"),
+    PRIMARY KEY("id", "uuid"),
     FOREIGN KEY("location_id") REFERENCES "location"("id"),
     FOREIGN KEY("contact_id") REFERENCES "contact"("id"),
     FOREIGN KEY("basic_info_id") REFERENCES "basic_info"("id")
@@ -86,6 +86,7 @@ CREATE TABLE user_profiles (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 使用者管理
 CREATE TABLE subscription_plans (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -95,6 +96,7 @@ CREATE TABLE subscription_plans (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 使用者管理
 CREATE TABLE user_subscriptions (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES user(id) ON DELETE CASCADE,
