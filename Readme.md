@@ -59,3 +59,9 @@ Airflow Admin -> Variable
 2. groups
 3. 馬拉松
 4. 學習計畫
+   1. 便利貼(可與專案有關無關)
+   2. 復盤(針對計畫，每兩週必須針對計畫做一次，馬拉松限制兩週做一次，考慮不需兩週)
+   3. 學習成果(針對計畫且只會有一個)
+   4. 補上 user schema
+   5. mentor mapping 學生/馬拉松學生
+   6. project api
