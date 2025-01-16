@@ -86,7 +86,7 @@ CREATE TABLE user_profiles (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 使用者管理
+-- 使用者管理, 訂閱方案相關功能, 免費/標準/進階/專業。只會有四筆紀錄
 CREATE TABLE subscription_plans (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -96,7 +96,7 @@ CREATE TABLE subscription_plans (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 使用者管理
+-- 使用者管理，哪位使用者訂閱了甚麼方案
 CREATE TABLE user_subscriptions (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES user(id) ON DELETE CASCADE,
