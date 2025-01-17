@@ -96,7 +96,7 @@ CREATE TABLE subscription_plans (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 使用者管理，哪位使用者訂閱了甚麼方案
+-- 使用者管理，哪位使用者訂閱了甚麼方案，何時到期
 CREATE TABLE user_subscriptions (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES user(id) ON DELETE CASCADE,
