@@ -5,7 +5,7 @@ CREATE TABLE "likes" (
     "target_type" varchar(50) NOT NULL, -- 'group' 或 'resource'
     "target_id" int NOT NULL, -- group.id 或 resource.id
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY("user_id") REFERENCES "user"("id"),
+    FOREIGN KEY("user_id") REFERENCES "users"("id"),
     -- 注意：根據 target_type 動態檢查外鍵無法直接用外鍵約束，但可以在應用層處理
     CHECK ("target_type" IN ('group', 'resource'))
     PRIMARY KEY(post_id, user_id)
@@ -19,7 +19,7 @@ CREATE TABLE "favorites" (
     "target_id" int NOT NULL, -- group.id 或 resource.id
     "favorited_at" timestamp DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY("user_id", "target_id"),
-    FOREIGN KEY("user_id") REFERENCES "user"("id"),
+    FOREIGN KEY("user_id") REFERENCES "users"("id"),
     CHECK ("target_type" IN ('group', 'resource'))
 );
 COMMENT ON COLUMN "favorites".target_type IS '可選 group 或 resource';
@@ -31,8 +31,8 @@ CREATE TABLE "follows" (
     "followee_id" INT NOT NULL,
     "followed_at" timestamp DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY("follower_id", "followee_id"),
-    FOREIGN KEY("follower_id") REFERENCES "user"("id") ON DELETE CASCADE,
-    FOREIGN KEY("followee_id") REFERENCES "user"("id") ON DELETE CASCADE
+    FOREIGN KEY("follower_id") REFERENCES "users"("id") ON DELETE CASCADE,
+    FOREIGN KEY("followee_id") REFERENCES "users"("id") ON DELETE CASCADE
 );
 COMMENT ON TABLE "follows" IS '用於記錄使用者之間的追蹤關係';
 

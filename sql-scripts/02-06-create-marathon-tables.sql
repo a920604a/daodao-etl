@@ -21,7 +21,7 @@ CREATE TABLE "marathon" (
     "created_at" timestamp DEFAULT current_timestamp,
     "updated_at" timestamp DEFAULT current_timestamp,
     FOREIGN KEY ("eligibility_id") REFERENCES "eligibility"("id"),
-    FOREIGN KEY ("created_by") REFERENCES "user"("id") -- 若需要記錄主辦者
+    FOREIGN KEY ("created_by") REFERENCES "users"("id") -- 若需要記錄主辦者
 );
 CREATE INDEX idx_marathon_start_date ON "marathon"("start_date");
 

@@ -61,7 +61,7 @@ CREATE TABLE "project" (
     "updated_at" timestamp DEFAULT current_timestamp,
     "updated_by" int,
     "version" int,
-    FOREIGN KEY ("user_id") REFERENCES "user"("id")
+    FOREIGN KEY ("user_id") REFERENCES "users"("id")
 );
 
 
@@ -70,7 +70,7 @@ CREATE TABLE "user_project" (
     "user_id" INT,
     "project_id" int,
     PRIMARY KEY("id"),
-    FOREIGN KEY ("user_id") REFERENCES "user" ("id") ON DELETE CASCADE,
+    FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE,
     FOREIGN KEY ("project_id") REFERENCES "project" ("id") ON DELETE CASCADE
 );
 

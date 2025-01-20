@@ -35,7 +35,7 @@ CREATE TABLE "basic_info" (
 COMMENT ON COLUMN basic_info.share_list IS 'split(、)';
 -- main tables
 -- 等待 找夥伴 與 個人名片 resume 規格明確 在作拆分。
-CREATE TABLE "user" (
+CREATE TABLE "users" (
     "id" serial NOT NULL UNIQUE,
     "_id" text NOT NULL UNIQUE,
     "uuid" uuid NOT NULL UNIQUE,
@@ -64,17 +64,17 @@ CREATE TABLE "user" (
     FOREIGN KEY("basic_info_id") REFERENCES "basic_info"("id")
 );
 
-COMMENT ON TABLE "user" IS '可能需要維護 熱門標籤列表 到cache';
-COMMENT ON COLUMN "user".role_list IS '夥伴類型';
-CREATE INDEX "idx_users_education_stage" ON "user" ("education_stage");
-CREATE INDEX "idx_users_role_list" ON "user" ("role_list");
-CREATE INDEX "idx_users_location_id" ON "user" ("location_id");
+COMMENT ON TABLE "users" IS '可能需要維護 熱門標籤列表 到cache';
+COMMENT ON COLUMN "users".role_list IS '夥伴類型';
+CREATE INDEX "idx_users_education_stage" ON "users" ("education_stage");
+CREATE INDEX "idx_users_role_list" ON "users" ("role_list");
+CREATE INDEX "idx_users_location_id" ON "users" ("location_id");
 
 
 -- 找夥伴功能
 CREATE TABLE user_profiles (
     id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES user(id) ON DELETE CASCADE,
+    user_id INT REFERENCES users(id) ON DELETE CASCADE,
     nickname VARCHAR(100),
     bio TEXT,
     skills TEXT [],
@@ -99,7 +99,7 @@ CREATE TABLE subscription_plans (
 -- 使用者管理，哪位使用者訂閱了甚麼方案，何時到期
 CREATE TABLE user_subscriptions (
     id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES user(id) ON DELETE CASCADE,
+    user_id INT REFERENCES users(id) ON DELETE CASCADE,
     plan_id INT REFERENCES subscription_plans(id) ON DELETE SET NULL,
     status VARCHAR(50) NOT NULL,
     start_date DATE NOT NULL,

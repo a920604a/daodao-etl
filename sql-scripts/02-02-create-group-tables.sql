@@ -27,7 +27,7 @@ CREATE TABLE "groups" (
     "is_online" boolean,
     "TBD" boolean,
     PRIMARY KEY("id"),
-    FOREIGN KEY("created_by") REFERENCES "user"("id") ON UPDATE NO ACTION ON DELETE NO ACTION
+    FOREIGN KEY("created_by") REFERENCES "users"("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 COMMENT ON TABLE "groups" IS 'need to normalize 需要維護 熱門學習領域 ';
 COMMENT ON COLUMN "groups".category IS '學習領域 split(,)';
@@ -47,5 +47,5 @@ CREATE TABLE "user_join_group" (
     "participated_at" TIMESTAMPTZ,
     PRIMARY KEY("id"),
     FOREIGN KEY("group_id") REFERENCES "group"("id") ON UPDATE NO ACTION ON DELETE NO ACTION
-    FOREIGN KEY("uid") REFERENCES "user"("id") ON UPDATE NO ACTION ON DELETE NO ACTION
+    FOREIGN KEY("uid") REFERENCES "users"("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );

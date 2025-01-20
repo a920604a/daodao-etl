@@ -15,10 +15,10 @@ CREATE TABLE "resource" (
     "supplement" text,
     "id" serial NOT NULL UNIQUE,
     PRIMARY KEY("id"),
-    FOREIGN KEY ("created_by_user_id") REFERENCES "user"("id")
+    FOREIGN KEY ("created_by_user_id") REFERENCES "users"("id")
 );
 
-COMMENT ON TABLE resource IS '後端需要判斷 不同人剛好分享同一的資源(例如：同時分享島島主站) 標籤 與 領域名稱 需要維護, username = user table nickname';
+COMMENT ON TABLE resource IS '後端需要判斷 不同人剛好分享同一的資源(例如：同時分享島島主站) 標籤 與 領域名稱 需要維護, username = users table nickname';
 COMMENT ON COLUMN resource."tagList" IS 'split()';
 CREATE INDEX "idx_resource_cost" ON "resource" ("cost");
 CREATE INDEX "idx_resource_age" ON "resource" ("age");
@@ -46,7 +46,7 @@ CREATE TABLE "resource_share" (
     "shared_at" timestamp DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY ("resource_id", "user_id"),
     FOREIGN KEY ("resource_id") REFERENCES "resource"("id"),
-    FOREIGN KEY ("user_id") REFERENCES "user"("id")
+    FOREIGN KEY ("user_id") REFERENCES "users"("id")
 );
 
 -- 用來紀錄收藏關係的表
@@ -56,7 +56,7 @@ CREATE TABLE "resource_favorite" (
     "favorited_at" timestamp DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY ("resource_id", "user_id"),
     FOREIGN KEY ("resource_id") REFERENCES "resource"("id"),
-    FOREIGN KEY ("user_id") REFERENCES "user"("id")
+    FOREIGN KEY ("user_id") REFERENCES "users"("id")
 );
 
 -- 用來紀錄推薦關係的表
@@ -66,7 +66,7 @@ CREATE TABLE "resource_recommendations" (
     "resource_id" int,
     "recommended_at" TIMESTAMPTZ,
     PRIMARY KEY("id"),
-    FOREIGN KEY("user_id") REFERENCES "user"("id"),
+    FOREIGN KEY("user_id") REFERENCES "users"("id"),
     FOREIGN KEY ("resource_id" ) REFERENCES "resource"("id")
 );
 
@@ -77,5 +77,5 @@ CREATE TABLE "resource_post" (
     "rating_resources_practical" int,
     "content" text,
     "created_by" INT
-    FOREIGN KEY("created_by") REFERENCES "user"("id"),
+    FOREIGN KEY("created_by") REFERENCES "users"("id"),
 );
