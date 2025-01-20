@@ -53,18 +53,20 @@ CREATE TABLE posts (
 );
 CREATE INDEX idx_posts_study_plan_status ON posts(study_plan_id, status);
 
-
+-- 學習成果 的回覆
 CREATE TABLE learning_outcomes (
     post_id INT PRIMARY KEY REFERENCES posts(id) ON DELETE CASCADE,
     image_urls TEXT[],  -- 儲存圖片 URL
     video_urls TEXT[]   -- 儲存影片 URL
 );
+
+-- 便利貼 的 回饋。目前便利貼是針對專案相關。
 CREATE TABLE sticky_notes (
     post_id INT PRIMARY KEY REFERENCES posts(id) ON DELETE CASCADE,
     image_urls TEXT[],  -- 儲存圖片 URL
     video_urls TEXT[]   -- 儲存影片 URL
 );
-
+-- 覆盤
 CREATE TABLE reviews (
     post_id INT PRIMARY KEY REFERENCES posts(id) ON DELETE CASCADE,
     mood VARCHAR(20) CHECK (mood IN ('happy', 'calm', 'anxious', 'tired', 'depressed')) NOT NULL,
