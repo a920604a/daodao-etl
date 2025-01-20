@@ -1,10 +1,10 @@
 -- Misc TABLE 
 CREATE TABLE "area" (
     "id" serial NOT NULL UNIQUE,
-    "City" "City_t",
+    "city" "city_t",
     PRIMARY KEY("id")
 );
-CREATE INDEX "idx_area_city" ON "area" ("City");
+CREATE INDEX "idx_area_city" ON "area" ("city");
 CREATE TABLE "location" (
     "id" serial NOT NULL UNIQUE,
     "area_id" int,

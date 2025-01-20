@@ -1,44 +1,43 @@
-CREATE TABLE "group" (
+CREATE TABLE "groups" (
     "id" serial NOT NULL UNIQUE,
     "title" text,
-    "photoURL" varchar(255),
-    "photoALT" varchar(255),
+    "photo_url" varchar(255),
+    "photo_alt" varchar(255),
     "category" text,
     "group_type" group_type_t DEFAULT 'other',
-    "partnerEducationStep" "partnerEducationStep_t" DEFAULT 'other',
+    "partner_education_step" "partner_education_step_t" DEFAULT 'other',
     "description" varchar(255),
     "area_id" int,
-    "isGrouping" boolean,
-    "updatedDate" date,
+    "is_grouping" boolean,
+    "created_date" date,
+    "updated_date" date,
     "time" time,
-    "partnerStyle" text,
+    "partner_style" text,
     "created_at" timestamp,
     "created_by" INT,
     "updated_at" timestamp,
     "updated_by" varchar(255),
     "motivation" text,
-    "Contents" text,
+    "contents" text,
     "expectation_result" text,
-    "Notice" text,
-    "tagList" text,
-    "group_daedline" date,
+    "notice" text,
+    "tag_list" text,
+    "group_deadline" date,
     "hold_time" time,
-    "isOnline" boolean,
+    "is_online" boolean,
     "TBD" boolean,
     PRIMARY KEY("id"),
     FOREIGN KEY("created_by") REFERENCES "user"("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
-COMMENT ON TABLE "group" IS 'need to normalize 需要維護 熱門學習領域 ';
-COMMENT ON COLUMN "group".category IS '學習領域 split(,)';
-COMMENT ON COLUMN "group".area_id IS 'split(,)';
-CREATE INDEX "idx_group_isGrouping" ON "group" ("isGrouping");
-CREATE INDEX "idx_group_partnerEducationStep" ON "group" ("partnerEducationStep");
-CREATE INDEX "idx_group_group_type" ON "group" ("group_type");
-CREATE INDEX "idx_group_area_id" ON "group" ("area_id");
-CREATE INDEX "idx_group_isOnline" ON "group" ("isOnline");
-CREATE INDEX "idx_group_TBD" ON "group" ("TBD");
-
-
+COMMENT ON TABLE "groups" IS 'need to normalize 需要維護 熱門學習領域 ';
+COMMENT ON COLUMN "groups".category IS '學習領域 split(,)';
+COMMENT ON COLUMN "groups".area_id IS 'split(,)';
+CREATE INDEX "idx_group_is_grouping" ON "groups" ("is_grouping");
+CREATE INDEX "idx_group_partner_education_step" ON "groups" ("partner_education_step");
+CREATE INDEX "idx_group_group_type" ON "groups" ("group_type");
+CREATE INDEX "idx_group_area_id" ON "groups" ("area_id");
+CREATE INDEX "idx_group_is_online" ON "groups" ("is_online");
+CREATE INDEX "idx_group_TBD" ON "groups" ("TBD");
 
 CREATE TABLE "user_join_group" (
     "id" serial NOT NULL UNIQUE,
