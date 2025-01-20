@@ -1,23 +1,11 @@
-CREATE TABLE products (
-    product_id SERIAL PRIMARY KEY,      -- 商品 ID
-    name VARCHAR(255) NOT NULL,        -- 商品名稱
-    description TEXT,                  -- 商品描述
-    price DECIMAL(10, 2) NOT NULL,     -- 價格
-    stock INT DEFAULT 0,               -- 庫存數量
-    created_at TIMESTAMP DEFAULT NOW(),-- 創建時間
-    updated_at TIMESTAMP DEFAULT NOW() -- 更新時間
-);
-CREATE TABLE categories (
-    category_id SERIAL PRIMARY KEY,    -- 分類 ID
-    name VARCHAR(255) UNIQUE NOT NULL, -- 分類名稱 (如: "藍色", "褲子", "牛子")
-    parent_id INT DEFAULT NULL,        -- 上層分類 ID (用於階層分類)
-    FOREIGN KEY (parent_id) REFERENCES categories(category_id)
-);
+-- https://docs.google.com/spreadsheets/d/1oLtML8oZtZuzk8AKD7G0_NBXGZDyBMZv3ThNSwVlXE0/edit?gid=0#gid=0
 
-CREATE TABLE product_categories (
-    product_id INT NOT NULL,           -- 商品 ID
-    category_id INT NOT NULL,          -- 分類 ID
-    PRIMARY KEY (product_id, category_id),
-    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
-    FOREIGN KEY (category_id) REFERENCES categories(category_id) ON DELETE CASCADE
+CREATE TABLE categories (
+    id SERIAL PRIMARY KEY, -- 分類 ID
+    name TEXT NOT NULL, -- 分類名稱 (如: "自然與環境", "褲子地球科學", "醫藥與運動")
+    name_en VARCHAR(255),
+    parent_id INT REFERENCES categories(id) ON DELETE CASCADE, -- 上層分類 ID (用於階層分類)
+    description TEXT,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
 );
