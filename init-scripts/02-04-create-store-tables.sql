@@ -9,6 +9,6 @@ CREATE TABLE "Store" (
     "description" text,
     "content" text,
     "name" varchar(255),
-    PRIMARY KEY("id")
+    PRIMARY KEY("id"),
     FOREIGN KEY ("user_id") REFERENCES "users"("id")
 );

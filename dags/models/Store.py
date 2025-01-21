@@ -1,7 +1,6 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text
+from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
-import uuid
 
 Base = declarative_base()
 
@@ -11,9 +10,7 @@ class Store(Base):
     # Primary Key
     id = Column(Integer, primary_key=True, autoincrement=True)
     
-    # UUID for unique identification
-    # uuid = Column(UUID(as_uuid=True), unique=True, default=uuid.uuid4)
-    uuid = Column(UUID(as_uuid=True), unique=True, nullable=True)
+    user_id = Column(Integer, ForeignKey('users.id'), unique=True)
     # URL fields
     image_url = Column(String(255), nullable=True)
     
@@ -39,7 +36,7 @@ class Store(Base):
         從字典創建 Store 實例
         """
         return cls(
-            uuid=data.get('uuid'),
+            user_id=data.get('user_id'),
             image_url=data.get('image_url'),
             author_list=data.get('author_list'),
             tags=data.get('tags'),
@@ -56,7 +53,7 @@ class Store(Base):
         """
         return {
             'id': self.id,
-            'uuid': str(self.uuid) if self.uuid else None,
+            'user_id': self.user_id,
             'image_url': self.image_url,
             'author_list': self.author_list,
             'tags': self.tags,

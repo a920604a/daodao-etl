@@ -2,7 +2,6 @@ from sqlalchemy import create_engine, Column, Integer, String, Boolean, ForeignK
 from sqlalchemy.dialects.postgresql import  UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-import uuid
 from utils.code_enum import cost_t, age_t
 from .base import Base  # 引用分離出的 Base
 
@@ -11,7 +10,7 @@ from .base import Base  # 引用分離出的 Base
 class Resource(Base):
     __tablename__ = 'resource'
     id = Column(Integer, primary_key=True)
-    created_by_user_id = Column(UUID(as_uuid=True), ForeignKey("user.uuid"), nullable=True)   # 外鍵
+    created_by_user_id = Column(Integer, ForeignKey('users.id'), unique=True)
     image_url = Column(Text)
     resource_name = Column(Text) 
     cost = Column(cost_t) # TODO, index to filter

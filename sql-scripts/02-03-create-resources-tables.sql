@@ -1,4 +1,5 @@
-CREATE TABLE "resource" (
+CREATE TABLE "resources" (
+    "id" serial NOT NULL UNIQUE,
     "created_by_user_id" INT UNIQUE,
     "image_url" varchar(255),
     "resource_name" varchar(255),
@@ -13,15 +14,14 @@ CREATE TABLE "resource" (
     "introduction" text,
     "area" varchar(255),
     "supplement" text,
-    "id" serial NOT NULL UNIQUE,
     PRIMARY KEY("id"),
-    FOREIGN KEY ("created_by_user_id") REFERENCES "users"("id")
+    FOREIGN KEY ("created_by_user_id") REFERENCES "users"("id") 
 );
 
-COMMENT ON TABLE resource IS '後端需要判斷 不同人剛好分享同一的資源(例如：同時分享島島主站) 標籤 與 領域名稱 需要維護, username = users table nickname';
-COMMENT ON COLUMN resource."tagList" IS 'split()';
-CREATE INDEX "idx_resource_cost" ON "resource" ("cost");
-CREATE INDEX "idx_resource_age" ON "resource" ("age");
+COMMENT ON TABLE resources IS '後端需要判斷 不同人剛好分享同一的資源(例如：同時分享島島主站) 標籤 與 領域名稱 需要維護, username = users table nickname';
+COMMENT ON COLUMN resources."tagList" IS 'split()';
+CREATE INDEX "idx_resource_cost" ON "resources" ("cost");
+CREATE INDEX "idx_resource_age" ON "resources" ("age");
 
 
 
@@ -45,7 +45,7 @@ CREATE TABLE "resource_share" (
     "user_id" INT NOT NULL,
     "shared_at" timestamp DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY ("resource_id", "user_id"),
-    FOREIGN KEY ("resource_id") REFERENCES "resource"("id"),
+    FOREIGN KEY ("resource_id") REFERENCES "resources"("id"),
     FOREIGN KEY ("user_id") REFERENCES "users"("id")
 );
 
@@ -55,7 +55,7 @@ CREATE TABLE "resource_favorite" (
     "user_id" INT NOT NULL,
     "favorited_at" timestamp DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY ("resource_id", "user_id"),
-    FOREIGN KEY ("resource_id") REFERENCES "resource"("id"),
+    FOREIGN KEY ("resource_id") REFERENCES "resources"("id"),
     FOREIGN KEY ("user_id") REFERENCES "users"("id")
 );
 
@@ -67,7 +67,7 @@ CREATE TABLE "resource_recommendations" (
     "recommended_at" TIMESTAMPTZ,
     PRIMARY KEY("id"),
     FOREIGN KEY("user_id") REFERENCES "users"("id"),
-    FOREIGN KEY ("resource_id" ) REFERENCES "resource"("id")
+    FOREIGN KEY ("resource_id" ) REFERENCES "resources"("id")
 );
 
 CREATE TABLE "resource_post" (
@@ -76,6 +76,6 @@ CREATE TABLE "resource_post" (
     "rating_content_content" int,
     "rating_resources_practical" int,
     "content" text,
-    "created_by" INT
-    FOREIGN KEY("created_by") REFERENCES "users"("id"),
+    "created_by" INT,
+    FOREIGN KEY("created_by") REFERENCES "users"("id")
 );

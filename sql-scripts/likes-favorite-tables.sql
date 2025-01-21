@@ -1,3 +1,16 @@
+-- 通用文章表，包含學習成果、便利貼、覆盤。
+CREATE TABLE posts (
+    id SERIAL PRIMARY KEY,
+    study_plan_id INT REFERENCES project(id) ON DELETE CASCADE,
+    user_id  INT REFERENCES users(id) ON DELETE CASCADE,
+    type VARCHAR(20) CHECK (type IN ('learning_outcome', 'sticky_note', 'review')) NOT NULL,
+    content TEXT NOT NULL,
+    status VARCHAR(20) CHECK (status IN ('draft', 'published')) DEFAULT 'draft',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_posts_study_plan_status ON posts(study_plan_id, status);
+
+
 CREATE TABLE "likes" (
     "id" serial NOT NULL UNIQUE,
     "post_id" INT REFERENCES posts(id) ON DELETE CASCADE,
@@ -7,7 +20,7 @@ CREATE TABLE "likes" (
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY("user_id") REFERENCES "users"("id"),
     -- 注意：根據 target_type 動態檢查外鍵無法直接用外鍵約束，但可以在應用層處理
-    CHECK ("target_type" IN ('group', 'resource'))
+    CHECK ("target_type" IN ('group', 'resource')),
     PRIMARY KEY(post_id, user_id)
 
 );
@@ -41,17 +54,6 @@ CREATE INDEX idx_favorites_user_target ON "favorites" ("user_id", "target_type")
 CREATE INDEX idx_follows_followee ON "follows" ("followee_id");
 
 
--- 通用文章表，包含學習成果、便利貼、覆盤。
-CREATE TABLE posts (
-    id SERIAL PRIMARY KEY,
-    study_plan_id INT REFERENCES project(id) ON DELETE CASCADE,
-    user_id  INT REFERENCES users(id) ON DELETE CASCADE,
-    type VARCHAR(20) CHECK (type IN ('learning_outcome', 'sticky_note', 'review')) NOT NULL,
-    content TEXT NOT NULL,
-    status VARCHAR(20) CHECK (status IN ('draft', 'published')) DEFAULT 'draft',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-CREATE INDEX idx_posts_study_plan_status ON posts(study_plan_id, status);
 
 -- 學習成果 的回覆
 CREATE TABLE learning_outcomes (

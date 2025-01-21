@@ -4,11 +4,11 @@ from datetime import datetime, timedelta
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
-from models import Users, Contact, BasicInfo, Location, Area
+from models import Users, Contact, BasicInfo, Location, Area, Identity
 from config import postgres_uri
 import json
 import uuid
-from utils.code_enum import want_to_do_list_t, role_list_t
+from utils.code_enum import want_to_do_list_t, identity_list_t
 from utils.code import city_mapping
 from sqlalchemy.sql.expression import cast
 from sqlalchemy.dialects.postgresql import array, ARRAY
@@ -65,7 +65,7 @@ def process_and_migrate_users(**kwargs):
         for row in old_user:
             print(dict(row))  # 輸出資料結果檢查欄位名稱
 
-        for i, user_record in enumerate(old_user):
+        for i, user_record in enumerate(old_user[:5]):
             total_processed += 1
             try:
                 # Debug輸出，查看是否存在欄位問題
@@ -134,7 +134,7 @@ def process_and_migrate_users(**kwargs):
                         city, region = "Other", "Unknown"
 
                     area = session.execute(
-                        'SELECT * FROM area WHERE "City" = :city', {"city": city}
+                        'SELECT * FROM area WHERE "city" = :city', {"city": city}
                     ).fetchone()
                     if not area:
                         # 如果 Area 不存在，創建新區域
@@ -154,7 +154,7 @@ def process_and_migrate_users(**kwargs):
                 location_inserted += 1  # 更新 location 表插入數量
 
                 print(user_record["roleList"])
-                valid_enum_values = set(role_list_t.enums)
+                valid_enum_values = set(identity_list_t.enums)
                 valid_values = [
                     item for item in json.loads(user_record['roleList'])
                     if item in valid_enum_values
@@ -187,9 +187,9 @@ def process_and_migrate_users(**kwargs):
                     tag_list=user_record['tagList'],
                     is_open_location=user_record['isOpenLocation'],
                     nickname=user_record['name'] if user_record['name'] else None,
-                    role_list=cast(array(valid_values, type_=role_list_t), ARRAY(role_list_t)),
+                    # identity_list=cast(array(valid_values, type_=identity_list_t), ARRAY(identity_list_t)),
                     is_open_profile=user_record['isOpenProfile'],
-                    birth_day=birth_day,
+                    birth_date=birth_day,
                     contact_id=contact.id,
                     location_id=location.id,
                     basic_info_id=basic_info.id,
@@ -200,6 +200,19 @@ def process_and_migrate_users(**kwargs):
                     updated_at=datetime.now(),  # for developer
                     updated_by=kwargs["task_instance"].task.owner
                 )
+                
+                l = list()
+                for id in valid_values:
+                    _identity = session.query(Identity).filter(Identity.name == id).first()
+                    if _identity:
+                        l.append(_identity)
+                    else:
+                        print(f"Identity not found for: {id}")
+
+                print(f"_identity {l}")
+                user.identities = l
+                                
+                
                 session.add(user)
                 user_inserted += 1  # 更新 user 表插入數量
 

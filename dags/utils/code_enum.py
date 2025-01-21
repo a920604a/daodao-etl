@@ -3,12 +3,12 @@ from sqlalchemy.dialects.postgresql import ENUM
 
 metadata = MetaData()
 
-
+role_t = ENUM('student', 'assistant', 'backend', 'admin')
 gender_t = ENUM('male', 'female', 'other', name="gender_t")
 education_stage_t = ENUM('university', 'high', 'other', name="education_stage_t")
-role_list_t = ENUM(
+identity_list_t = ENUM(
     'normal-student', 'citizen', 'experimental-educator',
-    'other', 'parents', 'experimental-education-student', name="role_list_t"
+    'other', 'parents', 'experimental-education-student', name="identity_list_t"
 )
 
 city_t = ENUM(
@@ -35,7 +35,7 @@ age_t = Enum(
 cost_t = Enum('free', 'part', 'payment', name="cost_t")
 
 
-role_t = ENUM('Initiator', 'Participant', name="role_t")
+group_participation_role_t = ENUM('Initiator', 'Participant', name="group_participation_role_t")
 qualifications_t = ENUM(
     'low_income', 'discount', 'personal', 'double', 'three', 'four', name="qualifications_t"
 )

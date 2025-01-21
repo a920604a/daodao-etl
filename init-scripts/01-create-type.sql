@@ -2,14 +2,21 @@
 
 CREATE TYPE "gender_t" AS ENUM ('male', 'female', 'other');
 CREATE TYPE "education_stage_t" AS ENUM ('university', 'high', 'other');
-CREATE TYPE "role_list_t" AS ENUM (
-    'normal-student',
-    'citizen',
-    'experimental-educator',
-    'other',
-    'parents',
-    'experimental-education-student'
+
+CREATE TABLE "identity" (
+    "id" SERIAL PRIMARY KEY,
+    "name" VARCHAR(100) NOT NULL UNIQUE
 );
+
+INSERT INTO "identity" (name) VALUES 
+    ('normal-student'),
+    ('citizen'),
+    ('experimental-educator'),
+    ('other'),
+    ('parents'),
+    ('experimental-education-student');
+
+CREATE TYPE "role_t" AS ENUM ('student', 'assistant', 'backend', 'admin');
 
 CREATE TYPE "city_t" AS ENUM (
     'Taipei City',
@@ -77,7 +84,7 @@ CREATE TYPE "qualifications_t" AS ENUM (
     'four'
 );
 
-CREATE TYPE "role_t" AS ENUM ('Initiator', 'Participant');
+CREATE TYPE "group_participation_role_t" AS ENUM ('Initiator', 'Participant');
 
 
 CREATE TYPE "motivation_t" AS ENUM (

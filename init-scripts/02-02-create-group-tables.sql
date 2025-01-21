@@ -41,11 +41,12 @@ CREATE INDEX "idx_group_TBD" ON "groups" ("TBD");
 
 CREATE TABLE "user_join_group" (
     "id" serial NOT NULL UNIQUE,
-    "uid" uid,
+    "user_id" int,
     "group_id" int,
-    "role" role_t DEFAULT 'Initiator',
+    "group_participation_role_t" group_participation_role_t DEFAULT 'Initiator',
     "participated_at" TIMESTAMPTZ,
     PRIMARY KEY("id"),
-    FOREIGN KEY("group_id") REFERENCES "group"("id") ON UPDATE NO ACTION ON DELETE NO ACTION
-    FOREIGN KEY("uid") REFERENCES "users"("id") ON UPDATE NO ACTION ON DELETE NO ACTION
+    FOREIGN KEY("group_id") REFERENCES "groups"("id") ON UPDATE NO ACTION ON DELETE NO ACTION,
+    FOREIGN KEY("user_id") REFERENCES "users"("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
+CREATE INDEX idx_user_group ON "user_join_group" ("user_id", "group_id");

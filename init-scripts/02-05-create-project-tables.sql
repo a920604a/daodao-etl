@@ -1,3 +1,39 @@
+CREATE TABLE "project" (
+    "id" serial PRIMARY KEY,
+    "user_id" int NOT NULL,
+    "img_url" varchar(255),
+    "topic" varchar(255),
+    "project_description" text,
+    "motivation" motivation_t[],
+    "motivation_description" text,
+    "goal" varchar(255),
+    "content" text,
+    "policy" policy_t[],
+    "policy_description" text,
+    "resource_name" text[],
+    "resource_url" text[],
+    "presentation" presentation_t[],
+    "presentation_description" text,
+    "is_public" boolean DEFAULT false,  -- 是否公開
+    "status" varchar(50) DEFAULT 'Not Started' CHECK ("status" IN ('Ongoing', 'Completed', 'Not Started', 'Canceled')),
+    "created_at" timestamp DEFAULT current_timestamp,
+    "created_by" int,
+    "updated_at" timestamp DEFAULT current_timestamp,
+    "updated_by" int,
+    "version" int,
+    FOREIGN KEY ("user_id") REFERENCES "users"("id")
+);
+
+CREATE TABLE "user_project" (
+    "id" serial NOT NULL UNIQUE,
+    "user_id" INT,
+    "project_id" int,
+    PRIMARY KEY("id"),
+    FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE,
+    FOREIGN KEY ("project_id") REFERENCES "project" ("id") ON DELETE CASCADE
+);
+
+
 CREATE TABLE "milestone"(
     "id" serial PRIMARY KEY,
     "project_id" int NOT NULL, -- 專案 ID
@@ -36,45 +72,6 @@ CREATE TABLE "subtask" (
     "is_deleted" boolean DEFAULT false, -- 是否已刪除，預設為 false
     FOREIGN KEY ("task_id") REFERENCES "task"("id")
 );
-
-
-CREATE TABLE "project" (
-    "id" serial PRIMARY KEY,
-    "user_id" int NOT NULL,
-    "img_url" varchar(255),
-    "topic" varchar(255),
-    "project_description" text,
-    "motivation" motivation_t[],
-    "motivation_description" text,
-    "goal" varchar(255),
-    "content" text,
-    "policy" policy_t[],
-    "policy_description" text,
-    "resource_name" text[],
-    "resource_url" text[],
-    "presentation" presentation_t[],
-    "presentation_description" text,
-    "is_public" boolean DEFAULT false,  -- 是否公開
-    "status" varchar(50) DEFAULT 'Not Started' CHECK ("status" IN ('Ongoing', 'Completed', 'Not Started', 'Canceled')),
-    "created_at" timestamp DEFAULT current_timestamp,
-    "created_by" int,
-    "updated_at" timestamp DEFAULT current_timestamp,
-    "updated_by" int,
-    "version" int,
-    FOREIGN KEY ("user_id") REFERENCES "users"("id")
-);
-
-
-CREATE TABLE "user_project" (
-    "id" serial NOT NULL UNIQUE,
-    "user_id" INT,
-    "project_id" int,
-    PRIMARY KEY("id"),
-    FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE,
-    FOREIGN KEY ("project_id") REFERENCES "project" ("id") ON DELETE CASCADE
-);
-
-
 
 
 
