@@ -3,7 +3,6 @@ from sqlalchemy.dialects.postgresql import ENUM
 
 metadata = MetaData()
 
-role_t = ENUM('student', 'assistant', 'backend', 'admin')
 gender_t = ENUM('male', 'female', 'other', name="gender_t")
 education_stage_t = ENUM('university', 'high', 'other', name="education_stage_t")
 identity_list_t = ENUM(

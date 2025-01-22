@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, Column, TIMESTAMP, ARRAY, Integer, String,
 from sqlalchemy.dialects.postgresql import  UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-from utils.code_enum import education_stage_t, gender_t, role_t
+from utils.code_enum import education_stage_t, gender_t
 
 from .base import Base  # 引用分離出的 Base
 import uuid
@@ -28,7 +28,7 @@ class Users(Base):
     location_id = Column(Integer, ForeignKey("location.id"), nullable=True)  # 外鍵
     nickname = Column(String(255), nullable=True)
     # identity_list = Column(ARRAY(Integer))  # Assuming identity_t is an array of position ids
-    role_t = Column("role", role_t, default="student" )
+    role_id = Column(Integer, default = 2, comment="一般使用者，擁有基本功能" )
     is_open_profile = Column(Boolean, nullable=True)
     birth_date = Column("birth_date", Date, nullable=True)
     basic_info_id = Column(Integer, ForeignKey("basic_info.id"), nullable=True)  # 外鍵
