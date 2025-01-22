@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
-from models import Store
+from models import Store, Users
 from config import postgres_uri
 import json
 import uuid
@@ -62,8 +62,9 @@ def transform_and_load_data(**kwargs):
             
             for _, row in batch.iterrows():
                 try:
+                   
                     store = Store(
-                        # uuid=uuid.uuid4(),
+                        # user_id = user.id,
                         image_url=str(row['Social Image'])[:255] if pd.notna(row['Social Image']) else None,
                         author_list=str(row['作者']) if pd.notna(row['作者']) else None,
                         tags=str(row['Tags'])[:255] if pd.notna(row['Tags']) else None,

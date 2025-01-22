@@ -3,7 +3,6 @@ from sqlalchemy.dialects.postgresql import  UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from utils.code_enum import education_stage_t, gender_t, role_t
-from . import UserIdentity
 
 from .base import Base  # 引用分離出的 Base
 import uuid
@@ -23,13 +22,13 @@ class Users(Base):
     education_stage = Column(
         "education_stage", education_stage_t, default="other", nullable=True
     )  # Default 設定為 'other'
-    tag_list = Column("tagList", String, nullable=True)
+    tag_list = Column("tag_list", String, nullable=True)
     contact_id = Column(Integer, ForeignKey("contacts.id"), nullable=True)  # 外鍵
     is_open_location = Column(Boolean, nullable=True)
     location_id = Column(Integer, ForeignKey("location.id"), nullable=True)  # 外鍵
     nickname = Column(String(255), nullable=True)
-    # identity_list = Column(ARRAY(Integer))  # Assuming identity_t is an array of identity ids
-    role_t = Column("role_t", role_t, default="student" )
+    # identity_list = Column(ARRAY(Integer))  # Assuming identity_t is an array of position ids
+    role_t = Column("role", role_t, default="student" )
     is_open_profile = Column(Boolean, nullable=True)
     birth_date = Column("birth_date", Date, nullable=True)
     basic_info_id = Column(Integer, ForeignKey("basic_info.id"), nullable=True)  # 外鍵
@@ -46,8 +45,9 @@ class Users(Base):
     location = relationship("Location", back_populates="user")
     basic_info = relationship("BasicInfo", back_populates="user")
     resource = relationship("Resource", back_populates="user")    
+    stores = relationship("Store", back_populates="user")
     # 與身份的多對多關聯
-    identities = relationship("Identity", secondary="user_identities", back_populates="users")
+    identities = relationship( "Position", secondary="user_positions", back_populates="users", overlaps="user_positions")
 
 
     def __repr__(self):
@@ -100,5 +100,5 @@ class Users(Base):
             'created_at': self.created_at,
             'updated_by': self.updated_by,
             'updated_at': self.updated_at,
-            'identities': [identity.name for identity in self.identities]  # 提取身份名稱
+            'identities': [position.name for position in self.identities]  # 提取身份名稱
         }

@@ -1,11 +1,12 @@
 from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
+from .base import Base  # 引用分離出的 Base
 
-Base = declarative_base()
 
 class Store(Base):
-    __tablename__ = 'Store'
+    __tablename__ = 'store'
     
     # Primary Key
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -26,6 +27,9 @@ class Store(Base):
     
     # Timestamp
     created_at = Column(DateTime, nullable=True)
+    
+    
+    user = relationship("Users", back_populates="stores")
     
     def __repr__(self):
         return f"<Store(id={self.id}, name='{self.name}', created_at={self.created_at})>"

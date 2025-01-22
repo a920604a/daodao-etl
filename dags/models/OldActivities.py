@@ -4,8 +4,6 @@ from sqlalchemy import (
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import UUID
 
-Base = declarative_base()
-
 class OldActivities(Base):
     __tablename__ = 'old_activities'
     _id = Column(Text, primary_key=True)

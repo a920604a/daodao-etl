@@ -74,12 +74,12 @@ CREATE INDEX "idx_users_location_id" ON "users" ("location_id");
 
 
 -- 新增用戶和身份的聯接表
-CREATE TABLE "user_identities" (
+CREATE TABLE "user_positions" (
     "user_id" INT NOT NULL,
-    "identity_id" INT NOT NULL,
-    PRIMARY KEY ("user_id", "identity_id"),
+    "position_id" INT NOT NULL,
+    PRIMARY KEY ("user_id", "position_id"),
     FOREIGN KEY ("user_id") REFERENCES "users"("id"),
-    FOREIGN KEY ("identity_id") REFERENCES "identity"("id")
+    FOREIGN KEY ("position_id") REFERENCES "position"("id")
 );
 
 

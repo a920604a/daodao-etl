@@ -6,16 +6,16 @@ from sqlalchemy import Enum
 from .base import Base  # 引用分離出的 Base
 
 
-# 定義 Identity 類型
-class Identity(Base):
-    __tablename__ = 'identity'
+# 定義 Position 類型
+class Position(Base):
+    __tablename__ = 'position'
 
     id = Column(Integer, primary_key=True)
     name = Column(String(100), nullable=False, unique=True)
 
-    # 與 UserIdentity 關聯
-    users = relationship("Users", secondary="user_identities", back_populates="identities")
+    # 與 UserPosition 關聯
+    users = relationship("Users",secondary="user_positions",back_populates="identities", overlaps="user_positions")
 
 
     def __repr__(self):
-        return f"<Identity(id={self.id}, name='{self.name}')>"
+        return f"<Position(id={self.id}, name='{self.name}')>"

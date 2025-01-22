@@ -3,12 +3,12 @@
 CREATE TYPE "gender_t" AS ENUM ('male', 'female', 'other');
 CREATE TYPE "education_stage_t" AS ENUM ('university', 'high', 'other');
 
-CREATE TABLE "identity" (
+CREATE TABLE "position" (
     "id" SERIAL PRIMARY KEY,
     "name" VARCHAR(100) NOT NULL UNIQUE
 );
 
-INSERT INTO "identity" (name) VALUES 
+INSERT INTO "position" (name) VALUES 
     ('normal-student'),
     ('citizen'),
     ('experimental-educator'),

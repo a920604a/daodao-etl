@@ -1,4 +1,4 @@
-CREATE TABLE "Store" (
+CREATE TABLE "store" (
     "id" serial NOT NULL UNIQUE,
     "user_id" INT UNIQUE,
     "image_url" varchar(255),

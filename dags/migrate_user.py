@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
-from models import Users, Contact, BasicInfo, Location, Area, Identity
+from models import Users, Contact, BasicInfo, Location, Area, Position
 from config import postgres_uri
 import json
 import uuid
@@ -65,7 +65,7 @@ def process_and_migrate_users(**kwargs):
         for row in old_user:
             print(dict(row))  # 輸出資料結果檢查欄位名稱
 
-        for i, user_record in enumerate(old_user[:5]):
+        for i, user_record in enumerate(old_user):
             total_processed += 1
             try:
                 # Debug輸出，查看是否存在欄位問題
@@ -203,11 +203,11 @@ def process_and_migrate_users(**kwargs):
                 
                 l = list()
                 for id in valid_values:
-                    _identity = session.query(Identity).filter(Identity.name == id).first()
+                    _identity = session.query(Position).filter(Position.name == id).first()
                     if _identity:
                         l.append(_identity)
                     else:
-                        print(f"Identity not found for: {id}")
+                        print(f"Position not found for: {id}")
 
                 print(f"_identity {l}")
                 user.identities = l
