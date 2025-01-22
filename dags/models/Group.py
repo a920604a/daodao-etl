@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, Date, Boolean, Time, ForeignKey, ARRAY
+from sqlalchemy import Column, Integer,TIMESTAMP, String, Text, Date, Boolean, Time, ForeignKey, ARRAY
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.sql import func
@@ -9,18 +9,18 @@ class Group(Base):
     __tablename__ = 'groups'
     id = Column(Integer, primary_key=True)
     title = Column(Text)
-    photoURL = Column('photo_url', String(255))
-    photoALT = Column('photo_alt',String(255))
+    photo_url = Column('photo_url', String(255))
+    photo_alt = Column('photo_alt',String(255))
     category = Column(Text)
     
     group_type = Column(ARRAY(group_type_t), default='other')
-    partnerEducationStep = Column('partner_education_step', ARRAY(partnerEducationStep_t), default='other')
+    partnerEducationStep = Column('partner_education_step', ARRAY(partnerEducationStep_t))
     
     description = Column(String(255))
-    area_id = Column(Integer)
+    area_id = Column(ARRAY(Integer))
     isGrouping = Column('is_grouping', Boolean)
-    createdDate = Column('created_date', Date)
-    updatedDate = Column('updated_date', Date)
+    createdDate = Column('created_date', TIMESTAMP(timezone=False), nullable=False)
+    updatedDate = Column('updated_date', TIMESTAMP(timezone=False), nullable=False)
     time = Column(Time)
     partnerStyle = Column('partner_style', Text)
     tagList = Column('tag_list', Text)
@@ -35,7 +35,7 @@ class Group(Base):
     contents = Column(Text)
     expectation_result = Column(Text)
     notice  = Column(Text)
-    group_deadline = Column(Date)
+    group_deadline = Column('group_deadline', TIMESTAMP(timezone=False), nullable=False)
     hold_time = Column(Time)
     is_online = Column(Boolean)
     TBD = Column(Boolean)

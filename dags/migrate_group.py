@@ -4,10 +4,11 @@ from datetime import datetime, timedelta
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
-from models import Group, Users, UserJoinGroup  # 假設模型已經更新
+from models import Group, Users, UserJoinGroup, Area  # 假設模型已經更新
 from config import postgres_uri
 import pandas as pd
 import logging
+from utils.code import city_mapping
 
 # 設定日誌
 logging.basicConfig(level=logging.INFO)
@@ -55,20 +56,49 @@ def transform_and_load_data(**kwargs):
             join_group_records = []
             
             for _, row in batch.iterrows():
+                # print(f"row {row}")
                 try:
                     # 查找對應的 user
-                    user = session.query(Users).filter_by(uuid=row['userId']).first()
+                    user = session.query(Users).filter_by(_id=row['userId']).first()
                     if user is None:
                         logger.error(f"User with UUID {row['userId']} not found!")
                         continue
                     
                     # 從舊表中取得 group_type 和 partnerEducationStep 並拆分成多個值
-                    group_type_list = [value.strip() for value in str(row['activityCategory']).split(',')] if pd.notna(row['activityCategory']) else []
-                    partner_education_step_list = [value.strip() for value in str(row['partnerEducationStep']).split(',')] if pd.notna(row['partnerEducationStep']) else []
-                    print(f"group_type_list {group_type_list}")
+                    # 確認 activityCategory 是否存在並解析為列表
+                    # 移除大括號，解析 activityCategory
+                    if pd.notna(row.get('activityCategory')):
+                        cleaned_activity_category = str(row['activityCategory']).strip('{}')  # 移除大括號
+                        group_type_list = [value.strip() for value in cleaned_activity_category.split(',') if value.strip()]
+                    else:
+                        group_type_list = []
+
+                    # 移除大括號，解析 partnerEducationStep
+                    if pd.notna(row.get('partnerEducationStep')):
+                        cleaned_partner_education_step = str(row['partnerEducationStep']).strip('{}')  # 移除大photo_url括號
+                        partner_education_step_list = [value.strip() for value in cleaned_partner_education_step.split(',') if value.strip()]
+                    else:
+                        partner_education_step_list = []
                     print(f"partner_education_step_list {partner_education_step_list}")
-                    
-                    is_online = '線上' in str(row['area']).split(',')
+                    # 輸出解析結果
+                    print(f"row['activityCategory']: {row['activityCategory']}, group_type_list: {group_type_list}")
+                    print(f"row['partnerEducationStep']: {row['partnerEducationStep']}, partner_education_step_list: {partner_education_step_list}")
+
+                    print(f"deadline {str(row['deadline']).strip('{}')}")
+                    # 查詢 public.area 表的所有 city 與 id
+                    area_mapping = {
+                        area.city: area.id for area in session.query(Area).all()
+                    }
+
+                    # 將 row['area'] 分割為列表
+                    area_list = str(row['area']).split(',')
+
+                    # 獲取對應的 area_id 列表
+                    area_ids = [area_mapping.get(area.strip()) for area in area_list if area.strip() in area_mapping]
+                    print(f"area_ids {area_ids}")
+
+                    # 判斷是否包含 '線上'
+                    is_online = '線上' in area_list
 
 
                     # 創建新的 group 記錄
@@ -80,16 +110,16 @@ def transform_and_load_data(**kwargs):
                         group_type=group_type_list,  # 使用處理後的 group_type_list
                         partner_education_step=partner_education_step_list,  # 使用處理後的 partner_education_step_list
                         description=str(row['description'])[:255] if pd.notna(row['description']) else None,
-                        area_id=None,  # 根據需求調整
+                        area_id=area_ids,  # 根據需求調整
                         is_grouping=row['isGrouping'],
-                        created_date=pd.to_datetime(row['createdDate']) if pd.notna(row['createdDate']) else None,
-                        updated_date=pd.to_datetime(row['updatedDate']) if pd.notna(row['updatedDate']) else None,
+                        createdDate=datetime.fromisoformat(row['createdDate']).replace(tzinfo=None),
+                        updatedDate=datetime.fromisoformat(row['updatedDate']).replace(tzinfo=None),
                         time=row['time'],  # time 需要對應正確格式
                         partner_style=str(row['partnerStyle'])[:255] if pd.notna(row['partnerStyle']) else None,
-                        created_at=pd.to_datetime(row['created_at']) if pd.notna(row['created_at']) else None,
+                        created_at=datetime.now(),
                         created_by=user.id,  # 使用對應的 user.id
-                        updated_at=pd.to_datetime(row['updated_at']) if pd.notna(row['updated_at']) else None,
-                        updated_by=str(row['updated_by'])[:255] if pd.notna(row['updated_by']) else None,
+                        updated_at=datetime.now(),
+                        updated_by=kwargs["task_instance"].task.owner,
                         motivation=str(row['motivation'])[:255] if pd.notna(row['motivation']) else None,
                         contents=str(row['content'])[:255] if pd.notna(row['content']) else None,
                         expectation_result=str(row['outcome'])[:255] if pd.notna(row['outcome']) else None,
