@@ -48,7 +48,12 @@ class Users(Base):
     stores = relationship("Store", back_populates="user")
     # 與身份的多對多關聯
     identities = relationship( "Position", secondary="user_positions", back_populates="users", overlaps="user_positions")
-
+    
+    # 用來反向查詢User所創建的群組
+    groups_created = relationship("Group", back_populates="created_by_user")
+    
+    # 用來反向查詢User加入的群組
+    user_join_group = relationship("UserJoinGroup", back_populates="user")
 
     def __repr__(self):
         return f"<User(id={self.id}, uuid='{self.uuid}', nickname='{self.nickname}')>"

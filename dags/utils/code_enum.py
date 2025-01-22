@@ -24,6 +24,19 @@ partnerEducationStep_t = Enum(
     'high school','other', 'University', name = "partnerEducationStep_t"    
 )
 
+group_type_t  = ENUM (
+    'reading club',
+    'workshop',
+    'project',
+    'competition',
+    'Activity',
+    'Societies',
+    'course',
+    'practice',
+    'other', 
+    name = "group_type_t"   
+)
+
 want_to_do_list_t = ENUM(
     'interaction', 'do-project', 'make-group-class',
     'find-student', 'find-teacher', 'find-group', name="want_to_do_list_t"
