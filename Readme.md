@@ -30,9 +30,9 @@ docker exec mongo-daodao mongorestore /backup
 
 ## Airflow setting
 Airflow Admin -> Variable
-- mongo_uri=.env.MONGO_URI
-- postgres_uri =.env.POSTGRES_URI
-- table_name=.env.MONGO_DB_NAME
+- MONGO_URI=.env.MONGO_URI
+- POSTGRES_URI =.env.POSTGRES_URI
+- MONGO_DB_NAME=.env.MONGO_DB_NAME
 - NOTION_API_KEY=.env.NOTION_API_KEY
 - NOTION_DATABASE_RESOURCE_ID=.env.NOTION_DATABASE_RESOURCE_ID
 - NOTION_DATABASE_STORE_ID=.env.NOTION_DATABASE_STORE_ID
@@ -48,4 +48,22 @@ Airflow Admin -> Variable
   - 思考 領域 list 上 快速搜尋
   - 思考 熱門標籤 上 快速搜尋,使用 Cache 
 
-- User table created_at, update_at 需要 保留原始
+
+
+
+- 參考電傷網站如何在 多個 tag 底下 建立schema 
+- review 馬拉松。活動規劃、報名資料、分享區、公告
+- 使用者、角色、權限、個人名片
+
+
+migrate_user -> migrate_groups
+1. users
+2. groups
+3. 馬拉松
+4. 學習計畫
+   1. 便利貼(可與專案有關無關)
+   2. 復盤(針對計畫，每兩週必須針對計畫做一次，馬拉松限制兩週做一次，考慮不需兩週)
+   3. 學習成果(針對計畫且只會有一個)
+   4. 補上 user schema
+   5. mentor mapping 學生/馬拉松學生
+   6. project api

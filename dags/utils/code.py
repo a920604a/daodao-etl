@@ -25,3 +25,21 @@ city_mapping = {
     '台東縣': 'Taitung County',
     '其他': 'Other'
 }
+
+partnerEducationStep_mapping = {
+    '高中':'high school',
+    '不設限':'other', 
+    '大學以上':'University'
+}
+
+group_type_mapping = {
+    '讀書會': 'reading club',
+    '工作坊':'workshop',
+    '專案':'project',
+    '競賽':'competition',
+    '活動':'Activity',
+    '社團':'Societies',
+    '課程':'course',
+    '實習':'practice',
+    '其他':'other', 
+}

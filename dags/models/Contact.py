@@ -2,11 +2,11 @@ from sqlalchemy import create_engine, Column, Integer, String, Boolean, ForeignK
 from sqlalchemy.dialects.postgresql import ENUM, UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-import uuid
+
 from .base import Base  # 引用分離出的 Base
 
 class Contact(Base):
-    __tablename__ = "contact"
+    __tablename__ = "contacts"
 
     id = Column(Integer, primary_key=True, autoincrement=True, nullable=False, unique=True)
     google_id = Column(String(255), nullable=True)

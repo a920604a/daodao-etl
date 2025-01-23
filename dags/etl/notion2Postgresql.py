@@ -7,14 +7,17 @@ import requests
 import pandas as pd
 from sqlalchemy import create_engine
 import json
+from config import default_args, mongo_uri, notion_api_key, postgres_uri
 
 
 
 # 初始化 ETL 類別
 class NotionToPostgresETL:
     def __init__(self, notion_database_id, postgres_table_name):
-        self.notion_api_key = Variable.get("NOTION_API_KEY")
-        self.postgres_uri = Variable.get("postgres_uri")
+        self.notion_api_key = notion_api_key
+        self.postgres_uri = postgres_uri
+        print(f"self.notion_api_key {self.notion_api_key}")
+        
         self.postgres_engine = create_engine(self.postgres_uri)
         self.notion_database_id = notion_database_id
         self.postgres_table_name = postgres_table_name
