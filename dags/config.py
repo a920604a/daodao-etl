@@ -8,6 +8,7 @@ default_args = {
 }
 
 # 初始化 ETL 類別
-mongo_uri = Variable.get("mongo_uri")
-mongo_db_name = Variable.get("table_name")
-postgres_uri = Variable.get("postgres_uri")
+mongo_uri = Variable.get("MONGO_URI")
+mongo_db_name = Variable.get("MONGO_DB_NAME")
+postgres_uri = Variable.get("POSTGRES_URI")
+notion_api_key = Variable.get("NOTION_API_KEY")

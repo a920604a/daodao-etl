@@ -8,7 +8,7 @@ from models import Group, Users, UserJoinGroup, Area  # 假設模型已經更新
 from config import postgres_uri
 import pandas as pd
 import logging
-from utils.code import city_mapping
+from utils.code import partnerEducationStep_mapping, group_type_mapping
 
 # 設定日誌
 logging.basicConfig(level=logging.INFO)
@@ -70,6 +70,12 @@ def transform_and_load_data(**kwargs):
                     if pd.notna(row.get('activityCategory')):
                         cleaned_activity_category = str(row['activityCategory']).strip('{}')  # 移除大括號
                         group_type_list = [value.strip() for value in cleaned_activity_category.split(',') if value.strip()]
+                        
+                        
+                        # 就地修改
+                        for i, item in enumerate(group_type_list):
+                            group_type_list[i] = group_type_mapping.get(item, "其他")
+                        
                     else:
                         group_type_list = []
 
@@ -77,8 +83,14 @@ def transform_and_load_data(**kwargs):
                     if pd.notna(row.get('partnerEducationStep')):
                         cleaned_partner_education_step = str(row['partnerEducationStep']).strip('{}')  # 移除大photo_url括號
                         partner_education_step_list = [value.strip() for value in cleaned_partner_education_step.split(',') if value.strip()]
+                        
+                        # 就地修改
+                        for i, item in enumerate(partner_education_step_list):
+                            partner_education_step_list[i] = partnerEducationStep_mapping.get(item, "不設限")
+                            
                     else:
                         partner_education_step_list = []
+                    
                     print(f"partner_education_step_list {partner_education_step_list}")
                     # 輸出解析結果
                     print(f"row['activityCategory']: {row['activityCategory']}, group_type_list: {group_type_list}")

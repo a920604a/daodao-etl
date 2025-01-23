@@ -14,16 +14,16 @@ class Group(Base):
     category = Column(Text)
     
     group_type = Column(ARRAY(group_type_t), default='other')
-    partnerEducationStep = Column('partner_education_step', ARRAY(partnerEducationStep_t))
+    partner_education_step = Column('partner_education_step', ARRAY(partnerEducationStep_t))
     
     description = Column(String(255))
     area_id = Column(ARRAY(Integer))
-    isGrouping = Column('is_grouping', Boolean)
+    is_grouping = Column('is_grouping', Boolean)
     createdDate = Column('created_date', TIMESTAMP(timezone=False), nullable=False)
     updatedDate = Column('updated_date', TIMESTAMP(timezone=False), nullable=False)
-    time = Column(Time)
-    partnerStyle = Column('partner_style', Text)
-    tagList = Column('tag_list', Text)
+    time = Column(Text)
+    partner_style = Column('partner_style', Text)
+    tag_list = Column('tag_list', Text)
     
     created_at = Column(Date, default=func.now())
     created_by = Column(Integer, ForeignKey('users.id'))

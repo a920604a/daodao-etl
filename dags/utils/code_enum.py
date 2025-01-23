@@ -21,7 +21,7 @@ city_t = ENUM(
 
 
 partnerEducationStep_t = Enum(
-    'high school','other', 'University', name = "partnerEducationStep_t"    
+    'high school','other', 'University', name = "partner_education_step_t"    
 )
 
 group_type_t  = ENUM (

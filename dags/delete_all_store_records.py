@@ -7,11 +7,6 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 from models import Users, Contact, BasicInfo, Location, Area, Store
 from config import postgres_uri
-import json
-import uuid
-import pandas as pd
-from utils.code import city_mapping
-from sqlalchemy.sql.expression import cast
 from sqlalchemy.dialects.postgresql import array, ARRAY
 import logging
 
