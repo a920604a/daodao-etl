@@ -49,7 +49,7 @@ CREATE TABLE "users" (
     "is_open_location" boolean,
     "location_id" int,
     "nickname" varchar(255),
-    "role" role_t DEFAULT 'student',
+    "role_id" INT NOT NULL,   -- 關聯角色ID
     "is_open_profile" boolean,
     "birth_date" date,
     "basic_info_id" int,
@@ -62,7 +62,8 @@ CREATE TABLE "users" (
     PRIMARY KEY("id", "uuid"),
     FOREIGN KEY("location_id") REFERENCES "location"("id"),
     FOREIGN KEY("contact_id") REFERENCES "contacts"("id"),
-    FOREIGN KEY("basic_info_id") REFERENCES "basic_info"("id")
+    FOREIGN KEY("basic_info_id") REFERENCES "basic_info"("id"),
+    FOREIGN KEY ("role_id") REFERENCES "roles" ("id") -- 關聯角色表
 );
 
 COMMENT ON TABLE "users" IS '可能需要維護 熱門標籤列表 到cache';
@@ -71,6 +72,13 @@ CREATE INDEX "idx_users_education_stage" ON "users" ("education_stage");
 -- CREATE INDEX "idx_users_on_identity_list" ON "users" ("identity_list");
 CREATE INDEX "idx_users_location_id" ON "users" ("location_id");
 
+CREATE TABLE "role_permissions" (
+    "role_id" INT NOT NULL,                  -- 關聯角色ID
+    "permission_id" INT NOT NULL,            -- 關聯權限ID
+    PRIMARY KEY("role_id", "permission_id"),
+    FOREIGN KEY("role_id") REFERENCES "roles"("id"),
+    FOREIGN KEY("permission_id") REFERENCES "permissions"("id")
+);
 
 
 -- 新增用戶和身份的聯接表
@@ -82,6 +90,64 @@ CREATE TABLE "user_positions" (
     FOREIGN KEY ("position_id") REFERENCES "position"("id")
 );
 
+-- 用於管理 個別用戶 的 額外權限 或 限制權限，即覆蓋預設角色權限的功能。
+CREATE TABLE "user_permissions" ( 
+    "user_id" INT NOT NULL,                  -- 關聯用戶ID
+    "permission_id" INT NOT NULL,            -- 關聯權限ID
+    PRIMARY KEY("user_id", "permission_id"),
+    FOREIGN KEY("user_id") REFERENCES "users"("id"),
+    FOREIGN KEY("permission_id") REFERENCES "permissions"("id")
+);
+
+
+-- Guest
+INSERT INTO "role_permissions" ("role_id", "permission_id") VALUES
+(1, 1); -- Guest: 瀏覽頁面
+
+-- User
+INSERT INTO "role_permissions" ("role_id", "permission_id") VALUES
+(2, 1), -- 瀏覽頁面
+(2, 2), -- 聯繫功能
+(2, 3), -- 發布揪團
+(2, 4); -- 分享資源與心得
+
+-- Participant
+INSERT INTO "role_permissions" ("role_id", "permission_id") VALUES
+(3, 1), -- 瀏覽頁面
+(3, 2), -- 聯繫功能
+(3, 3), -- 發布揪團
+(3, 4), -- 分享資源與心得
+(3, 5); -- 使用學習計畫功能
+
+-- Mentor
+INSERT INTO "role_permissions" ("role_id", "permission_id") VALUES
+(4, 1), -- 瀏覽頁面
+(4, 2), -- 聯繫功能
+(4, 3), -- 發布揪團
+(4, 4), -- 分享資源與心得
+(4, 5), -- 使用學習計畫功能
+(4, 6); -- 查詢所有馬拉松參與者資訊
+
+-- Admin
+INSERT INTO "role_permissions" ("role_id", "permission_id") VALUES
+(5, 1), -- 瀏覽頁面
+(5, 2), -- 聯繫功能
+(5, 3), -- 發布揪團
+(5, 4), -- 分享資源與心得
+(5, 5), -- 使用學習計畫功能
+(5, 6), -- 查詢所有馬拉松參與者資訊
+(5, 7); -- 查看所有資料
+
+-- SuperAdmin
+INSERT INTO "role_permissions" ("role_id", "permission_id") VALUES
+(6, 1), -- 瀏覽頁面
+(6, 2), -- 聯繫功能
+(6, 3), -- 發布揪團
+(6, 4), -- 分享資源與心得
+(6, 5), -- 使用學習計畫功能
+(6, 6), -- 查詢所有馬拉松參與者資訊
+(6, 7), -- 查看所有資料
+(6, 8); -- 修改、刪除所有資料
 
 -- 找夥伴功能
 -- 雖然數組設計簡潔，但對於需要精細化查詢的情況可能會有性能問題

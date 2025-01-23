@@ -187,7 +187,6 @@ def process_and_migrate_users(**kwargs):
                     tag_list=user_record['tagList'],
                     is_open_location=user_record['isOpenLocation'],
                     nickname=user_record['name'] if user_record['name'] else None,
-                    # identity_list=cast(array(valid_values, type_=identity_list_t), ARRAY(identity_list_t)),
                     is_open_profile=user_record['isOpenProfile'],
                     birth_date=birth_day,
                     contact_id=contact.id,
