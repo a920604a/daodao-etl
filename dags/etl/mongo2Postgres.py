@@ -77,7 +77,21 @@ class MongoToPostgresETL:
         # json_columns = ['category', 'area', 'partnerEducationStep', 'tagList']
         # for column in json_columns:
         #     df[column] = df[column].apply(lambda x: json.dumps(x) if isinstance(x, list) else None)
-
+        
+        
+        
+        def parse_date(date_dict):
+            if isinstance(date_dict, dict) and "$date" in date_dict:
+                date_str = date_dict["$date"]
+                return datetime.fromisoformat(date_str[:-3])
+            return pd.NaT
+            
+        df["deadline"] = df["deadline"].apply(parse_date)
+        if "deadline" in df.columns:
+            df["deadline"] = pd.to_datetime(
+                df["deadline"], errors="coerce"
+            ).dt.strftime("%Y-%m-%d %H:%M:%S")
+            
         print("Activities transformation complete")
         kwargs["ti"].xcom_push(
             key="transform_activities", value=df.to_dict(orient="records")

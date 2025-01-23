@@ -30,9 +30,9 @@ docker exec mongo-daodao mongorestore /backup
 
 ## Airflow setting
 Airflow Admin -> Variable
-- mongo_uri=.env.MONGO_URI
-- postgres_uri =.env.POSTGRES_URI
-- table_name=.env.MONGO_DB_NAME
+- MONGO_URI=.env.MONGO_URI
+- POSTGRES_URI =.env.POSTGRES_URI
+- MONGO_DB_NAME=.env.MONGO_DB_NAME
 - NOTION_API_KEY=.env.NOTION_API_KEY
 - NOTION_DATABASE_RESOURCE_ID=.env.NOTION_DATABASE_RESOURCE_ID
 - NOTION_DATABASE_STORE_ID=.env.NOTION_DATABASE_STORE_ID
@@ -55,6 +55,8 @@ Airflow Admin -> Variable
 - review 馬拉松。活動規劃、報名資料、分享區、公告
 - 使用者、角色、權限、個人名片
 
+
+migrate_user -> migrate_groups
 1. users
 2. groups
 3. 馬拉松

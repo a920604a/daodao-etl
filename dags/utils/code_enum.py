@@ -21,7 +21,20 @@ city_t = ENUM(
 
 
 partnerEducationStep_t = Enum(
-    'high school','other', 'University', name = "partnerEducationStep_t"    
+    'high school','other', 'University', name = "partner_education_step_t"    
+)
+
+group_type_t  = ENUM (
+    'reading club',
+    'workshop',
+    'project',
+    'competition',
+    'Activity',
+    'Societies',
+    'course',
+    'practice',
+    'other', 
+    name = "group_type_t"   
 )
 
 want_to_do_list_t = ENUM(
