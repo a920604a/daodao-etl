@@ -6,7 +6,7 @@ CREATE TABLE "eligibility" (
 );
 
 CREATE TABLE "marathon" (
-    "id" serial PRIMARY KEY,
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), -- 使用 UUID 作为主键
     "event_id" varchar(50) NOT NULL UNIQUE, -- 活動代碼，例如 "2024S1"
     "title" varchar(255) NOT NULL, -- 活動標題
     "description" text, -- 活動描述
@@ -28,9 +28,9 @@ CREATE INDEX idx_marathon_start_date ON "marathon"("start_date");
 
 
 CREATE TABLE "project_marathon" (
-    "id" serial PRIMARY KEY,
-    "project_id" int NOT NULL, -- 專案 ID
-    "marathon_id" int NOT NULL, -- 馬拉松 ID
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), -- 使用 UUID 作为主键
+    "project_id" UUID NOT NULL, -- 專案 ID，改为 UUID
+    "marathon_id" UUID NOT NULL, -- 馬拉松 ID，改为 UUID
     "project_registration_date" timestamp DEFAULT current_timestamp, -- 某個專案報名此馬拉松的日期。
     "status" varchar(50) CHECK ("status" IN ('Pending', 'Approved', 'Rejected')), -- 專案報名的審核狀態
     "feedback" text, -- 評審意見或備註

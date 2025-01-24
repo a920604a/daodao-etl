@@ -39,6 +39,7 @@ COMMENT ON COLUMN basic_info.share_list IS 'split(、)';
 -- 等待 找夥伴 與 個人名片 resume 規格明確 在作拆分。
 CREATE TABLE "users" (
     "id" serial NOT NULL UNIQUE,
+    "external_id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), -- 使用 UUID 作为主键
     "_id" text NOT NULL UNIQUE,
     "uuid" uuid NOT NULL UNIQUE,
     "gender" gender_t,

@@ -1,5 +1,5 @@
 CREATE TABLE "project" (
-    "id" serial PRIMARY KEY,
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), -- 使用 UUID 作为主键
     "user_id" int NOT NULL,
     "img_url" varchar(255),
     "topic" varchar(255),
@@ -26,17 +26,17 @@ CREATE TABLE "project" (
 
 CREATE TABLE "user_project" (
     "id" serial NOT NULL UNIQUE,
-    "user_id" INT,
-    "project_id" int,
+    "user_external_id" UUID, -- 改为 UUID
+    "project_id" UUID, -- 改为 UUID
     PRIMARY KEY("id"),
-    FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE,
-    FOREIGN KEY ("project_id") REFERENCES "project" ("id") ON DELETE CASCADE
+    FOREIGN KEY ("user_external_id") REFERENCES "users"("external_id") ON DELETE CASCADE,
+    FOREIGN KEY ("project_id") REFERENCES "project"("id") ON DELETE CASCADE
 );
 
 
 CREATE TABLE "milestone"(
     "id" serial PRIMARY KEY,
-    "project_id" int NOT NULL, -- 專案 ID
+    "project_id" UUID NOT NULL, -- 改为 UUID    "project_id" int NOT NULL, -- 專案 ID
     "start_date" date, -- 開始日期
     "end_date" date CHECK ("start_date" < "end_date"), -- 結束日期
     "interval" int CHECK ("interval" > 0), -- 週期間隔（單位：週，必須大於 0）
