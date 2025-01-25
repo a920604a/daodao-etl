@@ -180,7 +180,6 @@ def process_and_migrate_users(**kwargs):
                 # 插入用戶數據到 user 表
                 user = Users(
                     _id=user_record["_id"],
-                    uuid=uuid.uuid4(),
                     gender=user_record["gender"] if user_record["gender"] else 'other',
                     language=None,
                     education_stage=user_record["educationStage"] if user_record["educationStage"] else None,

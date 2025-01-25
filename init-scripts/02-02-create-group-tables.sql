@@ -27,8 +27,8 @@ CREATE TABLE "groups" (
     "hold_time" time,
     "is_online" boolean,
     "TBD" boolean,
-    PRIMARY KEY("id"),
-    FOREIGN KEY("created_by") REFERENCES "users"("external_id") ON UPDATE NO ACTION ON DELETE NO ACTION
+    PRIMARY KEY("external_id"),
+    FOREIGN KEY("created_by") REFERENCES "users"("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 COMMENT ON TABLE "groups" IS 'need to normalize 需要維護 熱門學習領域 ';
 COMMENT ON COLUMN "groups".category IS '學習領域 split(,)';
