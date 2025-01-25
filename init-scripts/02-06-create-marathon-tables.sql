@@ -1,4 +1,4 @@
-CREATE TABLE "eligibility" (
+ CREATE TABLE "eligibility" (
     "id" serial NOT NULL UNIQUE,
     "qualifications" qualifications_t,
     "qualification_file_path" VARCHAR(255),

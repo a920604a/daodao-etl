@@ -43,3 +43,23 @@ group_type_mapping = {
     '實習':'practice',
     '其他':'other', 
 }
+
+motivation_mapping = {
+    'driven_by_curiosity',
+    'interest_and_passion',
+    'self_challenge',
+    'personal_growth',
+    'career_development',
+    'pursuing_education_or_qualifications',
+    'social_recognition',
+    'exploring_possibilities',
+    'preparing_for_the_future',
+    'innovation_and_development',
+    'practical_needs',
+    'inspired_by_events',
+    'interpersonal_connections',
+    'life_changes',
+    'impact_on_society',
+    'influenced_by_a_group',
+    'others'
+}

@@ -51,3 +51,58 @@ group_participation_role_t = ENUM('Initiator', 'Participant', name="group_partic
 qualifications_t = ENUM(
     'low_income', 'discount', 'personal', 'double', 'three', 'four', name="qualifications_t"
 )
+
+motivation_t = ENUM(
+    'driven_by_curiosity',
+    'interest_and_passion',
+    'self_challenge',
+    'personal_growth',
+    'career_development',
+    'pursuing_education_or_qualifications',
+    'social_recognition',
+    'exploring_possibilities',
+    'preparing_for_the_future',
+    'innovation_and_development',
+    'practical_needs',
+    'inspired_by_events',
+    'interpersonal_connections',
+    'life_changes',
+    'impact_on_society',
+    'influenced_by_a_group',
+    'others',
+    name = "motivation_t"
+)
+policy_t = ENUM(
+    'data_collection_research_analysis',
+    'book_reading',
+    'watching_videos',
+    'listening_to_podcasts',
+    'examinations',
+    'participating_in_competitions',
+    'finding_study_partners',
+    'joining_communities',
+    'consulting_experts_and_scholars',
+    'doing_projects',
+    'initiating_actions',
+    'field_internship',
+    'organizing_events_or_courses',
+    'attending_events_or_courses',
+    'field_research',
+    'conducting_interviews',
+    'conducting_surveys',
+    'others',
+    name ="plolicy_t"
+)
+presentation_t = ENUM(
+    'building_websites',
+    'managing_social_media',
+    'writing_research_reports',
+    'artistic_creation',
+    'initiating_projects_or_organizations',
+    'making_videos',
+    'organizing_events',
+    'teaching_courses',
+    'participating_in_competitions',
+    'others',
+    name = "presentation_t"
+)
