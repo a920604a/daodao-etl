@@ -150,7 +150,6 @@ class MongoToPostgresETL:
         )
     
 
-    
     def transform_marathons(self, **kwargs):
         """
         转换 MongoDB 中的马拉松数据，使其适合加载到 PostgreSQL
@@ -166,49 +165,58 @@ class MongoToPostgresETL:
 
         def is_valid_json(data):
             """检查字符串是否是有效的 JSON 格式"""
-            if not data:
-                return False
             try:
                 json.loads(data)
                 return True
-            except json.JSONDecodeError:
+            except (TypeError, json.JSONDecodeError):
                 return False
+
+        def json_serial(obj):
+            """处理 datetime 的序列化"""
+            if isinstance(obj, datetime):
+                return obj.isoformat()
+            raise TypeError(f"Type {type(obj)} not serializable")
+
+        def process_nested_structure(value):
+            """递归处理嵌套结构，解析日期并转换为 JSON"""
+            if isinstance(value, dict):
+                for key, val in value.items():
+                    if isinstance(val, dict) and "$date" in val:
+                        # 处理 MongoDB 的日期格式
+                        value[key] = datetime.fromisoformat(val["$date"][:-3])
+                    else:
+                        value[key] = process_nested_structure(val)
+            elif isinstance(value, list):
+                return [process_nested_structure(item) for item in value]
+            return value
 
         def process_json_column(value):
             """处理 JSON 字段，包括解析嵌套对象和日期格式"""
             if isinstance(value, dict) or isinstance(value, list):
                 # 如果是嵌套结构，直接转换为 JSON 字符串
-                return json.dumps(value, ensure_ascii=False)
+                return json.dumps(value, ensure_ascii=False, default=json_serial)
             if isinstance(value, str) and is_valid_json(value):
                 # 如果是有效的 JSON 字符串，保持原样
-                return json.dumps(json.loads(value), ensure_ascii=False)
+                return json.dumps(json.loads(value), ensure_ascii=False, default=json_serial)
             return None
-
-        def convert_dates(obj):
-            """递归处理 MongoDB 日期格式"""
-            if isinstance(obj, dict):
-                for key, val in obj.items():
-                    if isinstance(val, dict) and "$date" in val:
-                        # 处理 MongoDB 的日期格式
-                        obj[key] = datetime.strptime(val["$date"], "%Y-%m-%dT%H:%M:%SZ").isoformat()
-                    else:
-                        convert_dates(val)
-            elif isinstance(obj, list):
-                for item in obj:
-                    convert_dates(item)
 
         # 检查并处理需要转换的列
         for column in json_columns:
             if column in df.columns:
                 # 先解析 MongoDB 日期格式
-                df[column] = df[column].apply(lambda x: convert_dates(x) or x)
+                df[column] = df[column].apply(lambda x: process_nested_structure(x) or x)
                 # 转换为 JSON 字符串
                 df[column] = df[column].apply(process_json_column)
 
         # 输出第一个记录查看是否转换正确
         print(df.head())
+        kwargs["ti"].xcom_push(
+            key="transform_marathons", value=df.to_dict(orient="records")
+        )
 
         return df
+
+    
     def load_data(self, table_name,target_table_name,  **kwargs):
         transform_data = kwargs["ti"].xcom_pull(key=f"transform_{table_name}")
         df = pd.DataFrame(transform_data)
