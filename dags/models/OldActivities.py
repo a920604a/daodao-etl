@@ -6,7 +6,7 @@ from sqlalchemy.dialects.postgresql import UUID
 
 class OldActivities(Base):
     __tablename__ = 'old_activities'
-    _id = Column(Text, primary_key=True)
+    mongo_id = Column(Text, primary_key=True)
     userId = Column(Text)
     title = Column(Text)
     photoURL = Column(Text)

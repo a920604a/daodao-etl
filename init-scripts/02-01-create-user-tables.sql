@@ -40,7 +40,7 @@ COMMENT ON COLUMN basic_info.share_list IS 'split(、)';
 CREATE TABLE "users" (
     "id" serial NOT NULL UNIQUE,
     "external_id" UUID DEFAULT gen_random_uuid(), -- 使用 UUID 作为主键
-    "_id" text NOT NULL UNIQUE,
+    "mongo_id" text NOT NULL UNIQUE,
     "gender" gender_t,
     "language" VARCHAR(255),
     "education_stage" education_stage_t DEFAULT 'other',

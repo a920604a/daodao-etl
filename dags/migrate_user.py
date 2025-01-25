@@ -7,7 +7,6 @@ from sqlalchemy.exc import IntegrityError
 from models import Users, Contact, BasicInfo, Location, Area, Position
 from config import postgres_uri
 import json
-import uuid
 from utils.code_enum import want_to_do_list_t, identity_list_t
 from utils.code import city_mapping
 from sqlalchemy.sql.expression import cast
@@ -82,7 +81,7 @@ def process_and_migrate_users(**kwargs):
                         # 合併解析後的 contact_list 和預設的 contact_list
                         contact_list.update(parsed_contact_list)
                     except json.JSONDecodeError:
-                        print(f"Invalid JSON format in contactList for user {user_record['_id']}.")
+                        print(f"Invalid JSON format in contactList for user {user_record['mongo_id']}.")
                         # 解析失敗時可以選擇保留 contact_list 為空字典，或者根據需求處理
                         
                 print(f'contact_list {contact_list}')
@@ -179,7 +178,7 @@ def process_and_migrate_users(**kwargs):
                     birth_day = None
                 # 插入用戶數據到 user 表
                 user = Users(
-                    _id=user_record["_id"],
+                    mongo_id=user_record["mongo_id"],
                     gender=user_record["gender"] if user_record["gender"] else 'other',
                     language=None,
                     education_stage=user_record["educationStage"] if user_record["educationStage"] else None,
