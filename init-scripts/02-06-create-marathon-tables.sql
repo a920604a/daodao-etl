@@ -61,8 +61,8 @@ CREATE INDEX idx_project_marathon_status ON "project_marathon"("status");
 INSERT INTO "fee_plans" (fee_plan_type, name, discount)
 VALUES
     ('low_income'::qualifications_t, 'Student Discount', 0.00),
-    ('discount'::qualifications_t, 'Personal Early Plan', 8000.00),
-    ('personal'::qualifications_t,  'Standard Plan', 6000.00),
+    ('discount'::qualifications_t, 'Personal Early Plan', 6000.00),
+    ('personal'::qualifications_t,  'Standard Plan', 8000.00),
     ('double'::qualifications_t, 'Couple Discount', 10000.00),
     ('three'::qualifications_t, 'Three Plan', 12000.00),
     ('four'::qualifications_t, 'Family Plan', 12000.00);
