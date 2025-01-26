@@ -39,8 +39,8 @@ COMMENT ON COLUMN basic_info.share_list IS 'split(、)';
 -- 等待 找夥伴 與 個人名片 resume 規格明確 在作拆分。
 CREATE TABLE "users" (
     "id" serial NOT NULL UNIQUE,
-    "_id" text NOT NULL UNIQUE,
-    "uuid" uuid NOT NULL UNIQUE,
+    "external_id" UUID DEFAULT gen_random_uuid(), -- 使用 UUID 作为主键
+    "mongo_id" text NOT NULL UNIQUE,
     "gender" gender_t,
     "language" VARCHAR(255),
     "education_stage" education_stage_t DEFAULT 'other',
@@ -59,7 +59,7 @@ CREATE TABLE "users" (
     "created_at" TIMESTAMPTZ,
     "updated_by" varchar(255),
     "updated_at" TIMESTAMPTZ,
-    PRIMARY KEY("id", "uuid"),
+    PRIMARY KEY("external_id"),
     FOREIGN KEY("location_id") REFERENCES "location"("id"),
     FOREIGN KEY("contact_id") REFERENCES "contacts"("id"),
     FOREIGN KEY("basic_info_id") REFERENCES "basic_info"("id"),
@@ -148,6 +148,19 @@ INSERT INTO "role_permissions" ("role_id", "permission_id") VALUES
 (6, 6), -- 查詢所有馬拉松參與者資訊
 (6, 7), -- 查看所有資料
 (6, 8); -- 修改、刪除所有資料
+
+
+INSERT INTO users (
+    external_id,
+    mongo_id,
+    nickname,
+    role_id
+) VALUES (
+    gen_random_uuid(),
+    1,
+    'SuperAdmin',
+    6
+);
 
 -- 找夥伴功能
 -- 雖然數組設計簡潔，但對於需要精細化查詢的情況可能會有性能問題

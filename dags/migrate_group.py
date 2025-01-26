@@ -59,7 +59,7 @@ def transform_and_load_data(**kwargs):
                 # print(f"row {row}")
                 try:
                     # 查找對應的 user
-                    user = session.query(Users).filter_by(_id=row['userId']).first()
+                    user = session.query(Users).filter_by(mongo_id=row['userId']).first()
                     if user is None:
                         logger.error(f"User with UUID {row['userId']} not found!")
                         continue

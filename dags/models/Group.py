@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Integer,TIMESTAMP, String, Text, Date, Boolean, Time, ForeignKey, ARRAY
 from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.sql import func
 from .base import Base  # 引用分離出的 Base
 from utils.code_enum import partnerEducationStep_t, group_type_t

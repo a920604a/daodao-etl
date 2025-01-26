@@ -1,5 +1,6 @@
 CREATE TABLE "groups" (
     "id" serial NOT NULL UNIQUE,
+    "external_id" UUID DEFAULT gen_random_uuid(), -- 使用 UUID 作为主键
     "title" text,
     "photo_url" varchar(255),
     "photo_alt" varchar(255),
@@ -26,7 +27,7 @@ CREATE TABLE "groups" (
     "hold_time" time,
     "is_online" boolean,
     "TBD" boolean,
-    PRIMARY KEY("id"),
+    PRIMARY KEY("external_id"),
     FOREIGN KEY("created_by") REFERENCES "users"("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 COMMENT ON TABLE "groups" IS 'need to normalize 需要維護 熱門學習領域 ';

@@ -1,4 +1,5 @@
-
+-- 生成 UUID 的函数
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE TABLE "roles" (
     "id" SERIAL NOT NULL UNIQUE,
     "name" VARCHAR(255) NOT NULL UNIQUE,     -- 角色名稱，如 'User', 'Admin', 'SuperAdmin'
