@@ -45,21 +45,66 @@ group_type_mapping = {
 }
 
 motivation_mapping = {
-    'driven_by_curiosity',
-    'interest_and_passion',
-    'self_challenge',
-    'personal_growth',
-    'career_development',
-    'pursuing_education_or_qualifications',
-    'social_recognition',
-    'exploring_possibilities',
-    'preparing_for_the_future',
-    'innovation_and_development',
-    'practical_needs',
-    'inspired_by_events',
-    'interpersonal_connections',
-    'life_changes',
-    'impact_on_society',
-    'influenced_by_a_group',
-    'others'
+    '好奇心驅動': 'driven_by_curiosity',
+    '興趣熱情': 'interest_and_passion',
+    '自我挑戰': 'self_challenge',
+    '個人成長': 'personal_growth',
+    '職涯發展': 'career_development',
+    '升學或資格獲取': 'pursuing_education_or_qualifications',
+    '社會認可': 'social_recognition',
+    '探索可能性': 'exploring_possibilities',
+    '應對未來': 'preparing_for_the_future',
+    '創新發展': 'innovation_and_development',
+    '實用需求': 'practical_needs',
+    '受事件啟發': 'inspired_by_events',
+    '人際連結': 'interpersonal_connections',
+    '生活發生變化': 'life_changes',
+    '影響社會': 'impact_on_society',
+    '受群體影響': 'influenced_by_a_group',
+    '其他': 'others'
+}
+
+
+policy_mapping = {
+    '資料蒐集/研究/分析': 'data_collection_research_analysis',  # 包含資料搜集、研究設計、數據分析等全流程
+    '書籍閱讀': 'book_reading',
+    '觀看影片': 'watching_videos',
+    '聽取Podcast': 'listening_to_podcasts',
+    '考試': 'examinations',
+    '參與競賽': 'participating_in_competitions',
+    '找學伴共學': 'finding_study_partners',  # 更強調尋找學習夥伴的目的
+    '參與社群': 'joining_communities',
+    '找專家學者': 'consulting_experts_and_scholars',
+    '做專案': 'doing_projects',  # 更強調專案的執行過程
+    '發起行動': 'initiating_actions',
+    '場域實習': 'field_internship',
+    '舉辦活動或課程': 'organizing_events_or_courses',
+    '參與活動或課程': 'attending_events_or_courses',
+    '田野調查': 'field_research',
+    '訪談': 'conducting_interviews',
+    '問卷調查': 'conducting_surveys',
+    '其他': 'others',
+}
+
+
+presentation_mapping = {
+    '架設網站': 'building_websites',
+    '經營社群媒體': 'managing_social_media',
+    '撰寫研究報告': 'writing_research_reports',
+    '藝術創作': 'artistic_creation',
+    '發起專案或組織' : 'initiating_projects_or_organizations',
+    '拍影片' : 'making_videos',
+    '舉辦活動' : 'organizing_events',
+    '開課' : 'teaching_courses',
+    '參與競賽':'participating_in_competitions',
+    '其他' : 'others',
+}
+
+qualifications_mapping = {
+    '中低收入戶': 'low_income',
+    '優惠價': 'discount', 
+    '個人早鳥價':'personal',
+    '2人團報價': 'double',
+    '3人團報價': 'three',
+    '4人團報價': 'four'
 }

@@ -3,7 +3,7 @@ CREATE TABLE "project" (
     "user_id" int NOT NULL,
     "img_url" varchar(255),
     "topic" varchar(255),
-    "project_description" text,
+    "description" text,
     "motivation" motivation_t[],
     "motivation_description" text,
     "goal" varchar(255),
@@ -67,6 +67,7 @@ CREATE TABLE "subtask" (
     "id" serial PRIMARY KEY,
     "task_id" int NOT NULL,
     "name" varchar(255),
+    "description" text,
     "days_of_week" day_enum[], -- 限定只能存 ENUM 類型值的陣列
     "is_completed" boolean DEFAULT false, -- 是否完成，預設為 false，用於進度條使用
     "is_deleted" boolean DEFAULT false, -- 是否已刪除，預設為 false

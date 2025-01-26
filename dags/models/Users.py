@@ -1,7 +1,6 @@
-from sqlalchemy import create_engine, Column, TIMESTAMP, ARRAY, Integer, String, Boolean, ForeignKey, Text, Enum, Table, MetaData, Date
+from sqlalchemy import create_engine, Column, TIMESTAMP, Integer, String, Boolean, ForeignKey, Text, Date
 from sqlalchemy.dialects.postgresql import  UUID
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
 from utils.code_enum import education_stage_t, gender_t
 
 from .base import Base  # 引用分離出的 Base

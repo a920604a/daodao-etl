@@ -1,8 +1,7 @@
 from sqlalchemy import (
-    Column, Integer, String, Text, Boolean, Date, Time, ForeignKey, Enum
+    Column, Text, Boolean
 )
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.dialects.postgresql import UUID
+
 
 class OldActivities(Base):
     __tablename__ = 'old_activities'

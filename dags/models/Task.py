@@ -1,12 +1,6 @@
-
-# 用戶身份聯接表
-from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, Enum
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship, backref
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Enum
+from sqlalchemy import Column, Integer, String, Date, Text, ForeignKey, Boolean, TIMESTAMP
 from .base import Base  # 引用分離出的 Base
-
+from sqlalchemy.orm import relationship
 class Task(Base):
     __tablename__ = "task"
 
@@ -20,3 +14,15 @@ class Task(Base):
     is_deleted = Column(Boolean, default=False, comment="是否已刪除")
     created_at = Column(TIMESTAMP, default="now()", comment="建立時間")
     updated_at = Column(TIMESTAMP, default="now()", onupdate="now()", comment="更新時間")
+
+
+    # 關聯
+    milestone = relationship("Milestone", back_populates="tasks")
+    subtasks = relationship("SubTask", back_populates="task", cascade="all, delete-orphan")
+
+    # 這裡是使用 primaryjoin 與 secondary 來讓 Task 透過 Milestone 與 Project 關聯
+    project = relationship(
+        "Project",
+        secondary="milestone",  # 使用 milestone 作為中介表
+        back_populates="tasks",
+    )

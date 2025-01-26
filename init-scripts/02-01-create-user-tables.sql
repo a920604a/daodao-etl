@@ -149,6 +149,19 @@ INSERT INTO "role_permissions" ("role_id", "permission_id") VALUES
 (6, 7), -- 查看所有資料
 (6, 8); -- 修改、刪除所有資料
 
+
+INSERT INTO users (
+    external_id,
+    mongo_id,
+    nickname,
+    role_id
+) VALUES (
+    gen_random_uuid(),
+    1,
+    'SuperAdmin',
+    6
+);
+
 -- 找夥伴功能
 -- 雖然數組設計簡潔，但對於需要精細化查詢的情況可能會有性能問題
 CREATE TABLE user_profiles (

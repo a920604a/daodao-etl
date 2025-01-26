@@ -1,5 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, ForeignKey, Text, Enum, Table, MetaData
-from sqlalchemy.dialects.postgresql import ENUM, UUID
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, ForeignKey, Text, Table, MetaData
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 

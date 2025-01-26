@@ -1,6 +1,5 @@
-from sqlalchemy import create_engine, Column, Integer, Enum, Table, MetaData
+from sqlalchemy import create_engine, Column, Integer, Table, MetaData
 from sqlalchemy.dialects.postgresql import ENUM
-
 metadata = MetaData()
 
 gender_t = ENUM('male', 'female', 'other', name="gender_t")
@@ -19,7 +18,7 @@ city_t = ENUM(
 )
 
 
-partnerEducationStep_t = Enum(
+partnerEducationStep_t = ENUM(
     'high school','other', 'University', name = "partner_education_step_t"    
 )
 
@@ -40,16 +39,21 @@ want_to_do_list_t = ENUM(
     'interaction', 'do-project', 'make-group-class',
     'find-student', 'find-teacher', 'find-group', name="want_to_do_list_t"
 )
-age_t = Enum(
+age_t = ENUM(
     'preschool', 'Elementary', 'high', 'University', name="age_t"
 )
 
-cost_t = Enum('free', 'part', 'payment', name="cost_t")
+cost_t = ENUM('free', 'part', 'payment', name="cost_t")
 
 
 group_participation_role_t = ENUM('Initiator', 'Participant', name="group_participation_role_t")
 qualifications_t = ENUM(
     'low_income', 'discount', 'personal', 'double', 'three', 'four', name="qualifications_t"
+)
+
+day_t = ENUM(
+    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
+    name = "day_enum"
 )
 
 motivation_t = ENUM(
@@ -91,7 +95,7 @@ policy_t = ENUM(
     'conducting_interviews',
     'conducting_surveys',
     'others',
-    name ="plolicy_t"
+    name ="policy_t"
 )
 presentation_t = ENUM(
     'building_websites',
@@ -106,3 +110,4 @@ presentation_t = ENUM(
     'others',
     name = "presentation_t"
 )
+

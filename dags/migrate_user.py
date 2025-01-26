@@ -7,10 +7,16 @@ from sqlalchemy.exc import IntegrityError
 from models import Users, Contact, BasicInfo, Location, Area, Position
 from config import postgres_uri
 import json
+import logging
 from utils.code_enum import want_to_do_list_t, identity_list_t
 from utils.code import city_mapping
 from sqlalchemy.sql.expression import cast
 from sqlalchemy.dialects.postgresql import array, ARRAY
+
+# 設定日誌
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 # 設置 DAG 預設參數
 default_args = {
@@ -60,16 +66,16 @@ def process_and_migrate_users(**kwargs):
         old_user = session.execute("SELECT * FROM old_user").fetchall()
 
         # 輸出結果集，檢查所有欄位名稱
-        print("Fetched old_user data:")
+        logger.info("Fetched old_user data:")
         for row in old_user:
-            print(dict(row))  # 輸出資料結果檢查欄位名稱
+            logger.info(dict(row))  # 輸出資料結果檢查欄位名稱
 
         for i, user_record in enumerate(old_user):
             total_processed += 1
             try:
                 # Debug輸出，查看是否存在欄位問題
-                print(type(user_record))
-                print(f"Processing {i} user_record:", dict(user_record))
+                logger.info(type(user_record))
+                logger.info(f"Processing {i} user_record:", dict(user_record))
                 i += 1
                 
                 
@@ -81,10 +87,10 @@ def process_and_migrate_users(**kwargs):
                         # 合併解析後的 contact_list 和預設的 contact_list
                         contact_list.update(parsed_contact_list)
                     except json.JSONDecodeError:
-                        print(f"Invalid JSON format in contactList for user {user_record['mongo_id']}.")
+                        logger.info(f"Invalid JSON format in contactList for user {user_record['mongo_id']}.")
                         # 解析失敗時可以選擇保留 contact_list 為空字典，或者根據需求處理
                         
-                print(f'contact_list {contact_list}')
+                logger.info(f'contact_list {contact_list}')
 
 
                 # 將數據插入到 Contact 表
@@ -108,7 +114,7 @@ def process_and_migrate_users(**kwargs):
                     item for item in json.loads(user_record['wantToDoList'])
                     if item in valid_enum_values
                 ]
-                print(valid_values)
+                logger.info(valid_values)
 
                 # 將數據插入到 BasicInfo 表
                 basic_info = BasicInfo(
@@ -125,7 +131,7 @@ def process_and_migrate_users(**kwargs):
 
                 # 獲取區域和位置數據
                 area_name = user_record["location"]
-                print(area_name)
+                logger.info(area_name)
                 if area_name:
                     if "@" in area_name:
                         city, region = city_mapping.get(area_name.split('@')[1], "Other"), area_name.split('@')[-1]
@@ -152,13 +158,13 @@ def process_and_migrate_users(**kwargs):
                 session.flush()
                 location_inserted += 1  # 更新 location 表插入數量
 
-                print(user_record["roleList"])
+                logger.info(user_record["roleList"])
                 valid_enum_values = set(identity_list_t.enums)
                 valid_values = [
                     item for item in json.loads(user_record['roleList'])
                     if item in valid_enum_values
                 ]
-                print(valid_values)
+                logger.info(valid_values)
 
                 # 處理 birthDay
                 birth_day_str = user_record['birthDay']
@@ -172,7 +178,7 @@ def process_and_migrate_users(**kwargs):
                         else:
                             birth_day = None
                     except ValueError as e:
-                        print(f"Invalid date format for birthDay: {birth_day_str}. Error: {e}")
+                        logger.info(f"Invalid date format for birthDay: {birth_day_str}. Error: {e}")
                         birth_day = None
                 else:
                     birth_day = None
@@ -204,9 +210,9 @@ def process_and_migrate_users(**kwargs):
                     if _identity:
                         l.append(_identity)
                     else:
-                        print(f"Position not found for: {id}")
+                        logger.info(f"Position not found for: {id}")
 
-                print(f"_identity {l}")
+                logger.info(f"_identity {l}")
                 user.identities = l
                                 
                 
@@ -217,35 +223,35 @@ def process_and_migrate_users(**kwargs):
                 session.commit()
                 total_successful += 1
             except KeyError as e:
-                print(f"KeyError: Missing column {e} in user_record:", user_record)
+                logger.info(f"KeyError: Missing column {e} in user_record:", user_record)
                 session.rollback()
                 total_failed += 1
                 failed_records.append(str(user_record))
             except IntegrityError as e:
-                print(f"Integrity error: {e}")
+                logger.info(f"Integrity error: {e}")
                 session.rollback()
                 total_failed += 1
                 failed_records.append(str(user_record))
             except Exception as e:
-                print(f"Unexpected error: {e}")
+                logger.info(f"Unexpected error: {e}")
                 session.rollback()
                 total_failed += 1
                 failed_records.append(str(user_record))
 
         # 統計報告
-        print(f"Migration Summary Report:")
-        print(f"Total processed user: {total_processed}")
-        print(f"Total successful migrations: {total_successful}")
-        print(f"Total failed migrations: {total_failed}")
-        print(f"Contact table insertions: {contact_inserted}")
-        print(f"BasicInfo table insertions: {basic_info_inserted}")
-        print(f"Location table insertions: {location_inserted}")
-        print(f"Area table insertions: {area_inserted}")
-        print(f"User table insertions: {user_inserted}")
+        logger.info(f"Migration Summary Report:")
+        logger.info(f"Total processed user: {total_processed}")
+        logger.info(f"Total successful migrations: {total_successful}")
+        logger.info(f"Total failed migrations: {total_failed}")
+        logger.info(f"Contact table insertions: {contact_inserted}")
+        logger.info(f"BasicInfo table insertions: {basic_info_inserted}")
+        logger.info(f"Location table insertions: {location_inserted}")
+        logger.info(f"Area table insertions: {area_inserted}")
+        logger.info(f"User table insertions: {user_inserted}")
         if total_failed > 0:
-            print(f"Failed records:")
+            logger.info(f"Failed records:")
             for failed_record in failed_records:
-                print(failed_record)
+                logger.info(failed_record)
 
     finally:
         session.close()
