@@ -12,7 +12,7 @@ class Position(Base):
     name = Column(String(100), nullable=False, unique=True)
 
     # 與 UserPosition 關聯
-    users = relationship("Users",secondary="user_positions",back_populates="identities", overlaps="user_positions")
+    users = relationship("User",secondary="user_positions",back_populates="identities", overlaps="user_positions")
 
 
     def __repr__(self):

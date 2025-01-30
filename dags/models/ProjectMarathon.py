@@ -15,9 +15,9 @@ class ProjectMarathon(Base):
         UniqueConstraint("project_id", "marathon_id", name="unique_project_marathon"),  # 唯一約束
     )
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, comment="使用 UUID 作為主鍵")
-    project_id = Column(UUID(as_uuid=True), ForeignKey("project.id", ondelete="CASCADE"), nullable=False, comment="專案 ID，指向 project 表的 id")
-    marathon_id = Column(UUID(as_uuid=True), ForeignKey("marathon.id", ondelete="CASCADE"), nullable=False, comment="馬拉松 ID，指向 marathon 表的 id")
+    id = Column(Integer, primary_key=True, autoincrement=True, unique=True, comment="主鍵")
+    project_id = Column(Integer, ForeignKey("project.id", ondelete="CASCADE"), nullable=False, comment="專案 ID，指向 project 表的 id")
+    marathon_id = Column(Integer, ForeignKey("marathon.id", ondelete="CASCADE"), nullable=False, comment="馬拉松 ID，指向 marathon 表的 id")
     eligibility_id = Column(Integer, ForeignKey("eligibility.id"), nullable=True, comment="收費計劃")
     project_registration_date = Column(TIMESTAMP, default="now()", comment="專案報名此馬拉松的日期")
     status = Column(ENUM('Pending', 'Approved', 'Rejected'), nullable=False, comment="專案報名的審核狀態")

@@ -1,4 +1,4 @@
-## Users
+## User
 - id NOT NULL
 - birthDay
 - gender

@@ -1,16 +1,15 @@
-# 用戶身份聯接表
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, ARRAY, Boolean, TIMESTAMP
-from sqlalchemy.dialects.postgresql import ENUM, UUID
-from sqlalchemy.orm import relationship, backref
-from sqlalchemy.ext.declarative import declarative_base
-from .base import Base  # 引用分離出的 Base
-from utils.code_enum import motivation_t, policy_t, presentation_t
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, ARRAY, Boolean, TIMESTAMP, Date, Enum, CheckConstraint
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
+from .base import Base
+from utils.code_enum import motivation_t, strategy_t, outcome_t
 import uuid
-# 定義新表結構
+
 class Project(Base):
     __tablename__ = 'project'
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    external_id = Column(UUID(as_uuid=True), default=uuid.uuid4, unique=True, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     img_url = Column(String(255))
     topic = Column(String(255))
@@ -19,24 +18,28 @@ class Project(Base):
     motivation_description = Column(Text)
     goal = Column(String(255))
     content = Column(Text)
-    policy = Column(ARRAY(policy_t))
-    policy_description = Column(Text)
+    strategy = Column(ARRAY(strategy_t))
+    strategy_description = Column(Text)
     resource_name = Column(ARRAY(Text))
     resource_url = Column(ARRAY(Text))
-    presentation = Column(ARRAY(presentation_t))
-    presentation_description = Column(Text)
+    outcome = Column(ARRAY(outcome_t))
+    outcome_description = Column(Text)
     is_public = Column(Boolean, default=False)
-    status = Column(ENUM('Ongoing', 'Completed', 'Not Started', 'Canceled'), default='Not Started')
-    created_at = Column(TIMESTAMP, default='now()')
+    status = Column(Enum('Ongoing', 'Completed', 'Not Started', 'Canceled'), default='Not Started')
+    start_date = Column(Date)
+    end_date = Column(Date)
+    interval = Column(Integer)
+    created_at = Column(TIMESTAMP, server_default='CURRENT_TIMESTAMP')
     created_by = Column(Integer)
-    updated_at = Column(TIMESTAMP, default='now()', onupdate='now()')
+    updated_at = Column(TIMESTAMP, server_default='CURRENT_TIMESTAMP', onupdate='CURRENT_TIMESTAMP')
     updated_by = Column(Integer)
+    version = Column(Integer)
 
-    
-    # 關聯
-    milestones = relationship("Milestone", back_populates="project")
-    tasks = relationship(
-        "Task",
-        secondary="milestone",  # 使用 Milestone 作為中介表
-        back_populates="project",
+    __table_args__ = (
+        CheckConstraint("start_date < end_date", name="check_start_date_end_date"),
+        CheckConstraint("interval > 0", name="check_interval_positive"),
     )
+
+    milestones = relationship("Milestone", back_populates="project")
+    tasks = relationship("Task", secondary="milestone", back_populates="project")
+

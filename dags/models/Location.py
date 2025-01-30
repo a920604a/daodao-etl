@@ -16,4 +16,4 @@ class Location(Base):
     # 與 Area 建立一對一關聯
     area = relationship("Area", back_populates="locations")
     # 與 user 關聯
-    user = relationship("Users", back_populates="location")
+    user = relationship("User", back_populates="location")

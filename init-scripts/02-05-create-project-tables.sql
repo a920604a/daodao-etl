@@ -1,5 +1,6 @@
 CREATE TABLE "project" (
-    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), -- 使用 UUID 作为主键
+    "id" serial NOT NULL UNIQUE,
+    "external_id" UUID DEFAULT gen_random_uuid(), -- 使用 UUID 作为主键
     "user_id" int NOT NULL,
     "img_url" varchar(255),
     "topic" varchar(255),
@@ -24,13 +25,14 @@ CREATE TABLE "project" (
     "updated_at" timestamp DEFAULT current_timestamp,
     "updated_by" int,
     "version" int,
+    PRIMARY KEY("external_id"),
     FOREIGN KEY ("user_id") REFERENCES "users"("id")
 );
 
 CREATE TABLE "user_project" (
     "id" serial NOT NULL UNIQUE,
     "user_external_id" UUID, -- 改为 UUID
-    "project_id" UUID, -- 改为 UUID
+    "project_id" int, -- 改为 UUID
     PRIMARY KEY("id"),
     FOREIGN KEY ("user_external_id") REFERENCES "users"("external_id") ON DELETE CASCADE,
     FOREIGN KEY ("project_id") REFERENCES "project"("id") ON DELETE CASCADE
@@ -40,8 +42,8 @@ CREATE TABLE "user_project" (
 -- 創建 milestone 表
 CREATE TABLE "milestone" (
     "id" serial PRIMARY KEY,
-    "project_id" UUID NOT NULL, -- 對應的專案 ID
-    "week" int NOT NULL, -- 第幾週
+    "project_id" int, -- 對應的專案 ID
+    "week" int , -- 第幾週
     "name" varchar(255), -- 里程碑名稱
     "description" text, -- 里程碑描述
     "start_date" date, -- 開始日期
@@ -77,7 +79,7 @@ CREATE INDEX idx_task_milestone_id ON "task"("milestone_id");
 -- 創建學習成果(outcome)表
 CREATE TABLE "outcome" (
     "id" serial PRIMARY KEY,
-    "project_id" UUID NOT NULL, -- 關聯的學習計畫 ID
+    "project_id" int, -- 關聯的學習計畫 ID
     "week" int NOT NULL, -- 第幾週
     "title" varchar(255) NOT NULL, -- 學習計畫標題
     "description" text, -- 描述
@@ -91,7 +93,7 @@ CREATE TABLE "outcome" (
 -- 創建便利貼(note)表
 CREATE TABLE "note" (
     "id" serial PRIMARY KEY,
-    "project_id" UUID NOT NULL, -- 關聯的學習計畫 ID
+    "project_id" int, -- 關聯的學習計畫 ID
     "week" int NOT NULL, -- 第幾週
     "title" varchar(255) NOT NULL, -- 學習計畫標題
     "description" text, -- 描述
@@ -107,7 +109,7 @@ CREATE TABLE "note" (
 CREATE TYPE mood_enum AS ENUM ('happy', 'calm', 'anxious', 'tired', 'frustrated');
 CREATE TABLE "review" (
     "id" serial PRIMARY KEY,
-    "project_id" UUID NOT NULL, -- 關聯的學習計畫 ID
+    "project_id" int, -- 關聯的學習計畫 ID
     "week" int NOT NULL, -- 第幾週
     "title" varchar(255) NOT NULL, -- 學習計畫標題
     "mood" mood_enum NOT NULL, -- 心情（英文存儲）

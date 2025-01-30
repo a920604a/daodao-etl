@@ -8,7 +8,7 @@ import uuid
 
 
 # User 表
-class Users(Base):
+class User(Base):
     __tablename__ = "users"
 
     # 欄位定義
@@ -53,6 +53,9 @@ class Users(Base):
     
     # 用來反向查詢User加入的群組
     user_join_group = relationship("UserJoinGroup", back_populates="user")
+    
+    profile = relationship('UserProfile', back_populates='user', uselist=False)
+
 
     def __repr__(self):
         return f"<User(id={self.id}, external_id='{self.external_id}', nickname='{self.nickname}')>"

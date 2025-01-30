@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
-from models import Users, Marathon, ProjectMarathon, Project, Milestone, Task, SubTask, UserProject, Eligibility, FeePlan
+from models import User, Marathon, ProjectMarathon, Project, Milestone, Task, UserProject, Eligibility, FeePlan
 from config import postgres_uri
 import pandas as pd
 import logging
@@ -44,9 +44,9 @@ def fetch_old_marathons(engine):
     return pd.read_sql(query, engine)
 
 def process_user(row, session):
-    user = session.query(Users).filter_by(mongo_id=row["userId"]).first()
+    user = session.query(User).filter_by(mongo_id=row["userId"]).first()
     if not user:
-        user = Users(
+        user = User(
             mongo_id=row["userId"],
             created_at=row["created_at"],
             updated_at=row["updated_at"],
@@ -79,13 +79,13 @@ def process_eligibility(row, session):
 def process_project(row, user, session):
     motivation_str = row.get("motivation", "{}") or "{}"
     strategies_str = row.get("strategies", "{}") or "{}"
-    presentation_str = row.get("outcomes", "{}") or "{}"
+    outcome_str = row.get("outcomes", "{}") or "{}"
     resources_str = row.get("resources", "[]") or "[]"
 
     # 處理可能是空字串或 None 的情況
     motivation = json.loads(motivation_str if motivation_str not in [None, ""] else "{}")
     strategies = json.loads(strategies_str if strategies_str not in [None, ""] else "{}")
-    presentation = json.loads(presentation_str if presentation_str not in [None, ""] else "{}")
+    outcome = json.loads(outcome_str if outcome_str not in [None, ""] else "{}")
     resources = json.loads(resources_str if resources_str not in [None, ""] else "[]")
 
     # 使用映射表進行轉換
@@ -100,7 +100,7 @@ def process_project(row, user, session):
     
     presentation_tags = [
         presentation_mapping.get(tag[:2], tag[:2]) if tag.startswith("其他") else presentation_mapping.get(tag, tag)
-        for tag in presentation.get("tags", [])
+        for tag in outcome.get("tags", [])
     ]
 
 
@@ -113,13 +113,16 @@ def process_project(row, user, session):
         motivation_description=motivation.get("description"),
         goal=row.get("goal", ""),
         content=row.get("content", ""),
-        policy=policy_tags,
-        policy_description=strategies.get("description"),
+        strategy=policy_tags,
+        strategy_description=strategies.get("description"),
         resource_name=[res.get("name", "") for res in resources],
         resource_url=[res.get("url", "") for res in resources],
-        presentation=presentation_tags,
-        presentation_description=presentation.get("description"),
+        outcome=presentation_tags,
+        outcome_description=outcome.get("description"),
         is_public=row.get("isPublic", False),
+        # start_date=
+        # end_date=
+        version = 1,
     )
     session.add(project)
     session.flush()
@@ -127,33 +130,31 @@ def process_project(row, user, session):
     return project
 
 def process_milestones(row, project, session):
-    milestone_data = json.loads(row.get("milestones", "[]"))
-    milestone = Milestone(project_id=project.id)
-    logger.info(f"關聯 Milestone ID: {milestone.id}")
-    for task_data in milestone_data:
-        
+    milestone_datas = json.loads(row.get("milestones", "[]"))
+    # milestone = Milestone(project_id=project.id)
+    for milestone_data in milestone_datas:
+    
+        milestone = Milestone(
+            name=milestone_data.get("name"),
+            project_id=project.id,
+            start_date=milestone_data.get("startDate"),
+            end_date=milestone_data.get("endDate"),
+        )
         session.add(milestone)
         session.flush()
-        task = Task(
-            name=task_data.get("name"),
-            milestone_id=milestone.id,
-            start_date=task_data.get("startDate"),
-            end_date=task_data.get("endDate"),
-        )
-        session.add(task)
-        session.flush()
-        logger.info(f"新增 Task ID: {task.id}")
+        logger.info(f"新增 Task ID: {milestone.id}")
 
-        for subtask_data in task_data.get("subMilestones", []):
-            logger.info(f"subtask_data {subtask_data}")
-            subtask = SubTask(
-                task_id=task.id,
-                name=subtask_data.get("name"),
-                description=subtask_data.get("description"),
+        for task_data in milestone_data.get("subMilestones", []):
+            logger.info(f"task_data {task_data}")
+            task = Task(
+                milestone_id=milestone.id,
+                name=task_data.get("name"),
+                description=task_data.get("description"),
             )
-            session.add(subtask)
-            logger.info(f"新增 SubTask ID: {subtask.id}")
+            session.add(task)
+            logger.info(f"新增 Task ID: {task.id}")
 
+    logger.info(f"關聯 Milestone ID: {milestone.id}")
         
 def link_user_project(user, project, session):
     user_project = UserProject(user_external_id=user.external_id, project_id=project.id)

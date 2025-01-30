@@ -18,4 +18,4 @@ class Contact(Base):
     fb = Column(String(255), nullable=True)
 
     # 與 user 關聯
-    user = relationship("Users", back_populates="contact")
+    user = relationship("User", back_populates="contact")
