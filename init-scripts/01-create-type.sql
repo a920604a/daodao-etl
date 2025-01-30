@@ -138,7 +138,7 @@ CREATE TYPE "motivation_t" AS ENUM (
     'others'
 );
 
-CREATE TYPE "policy_t" AS ENUM (
+CREATE TYPE "strategy_t" AS ENUM (
     'data_collection_research_analysis',
     'book_reading',
     'watching_videos',
@@ -158,7 +158,7 @@ CREATE TYPE "policy_t" AS ENUM (
     'conducting_surveys',
     'others'
 );
-CREATE TYPE "presentation_t" AS ENUM (
+CREATE TYPE "outcome_t" AS ENUM (
     'building_websites',
     'managing_social_media',
     'writing_research_reports',
