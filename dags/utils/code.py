@@ -65,11 +65,11 @@ motivation_mapping = {
 }
 
 
-policy_mapping = {
+strategy_mapping = {
     '資料蒐集/研究/分析': 'data_collection_research_analysis',  # 包含資料搜集、研究設計、數據分析等全流程
     '書籍閱讀': 'book_reading',
     '觀看影片': 'watching_videos',
-    '聽取Podcast': 'listening_to_podcasts',
+    '聽Podcast': 'listening_to_podcasts',
     '考試': 'examinations',
     '參與競賽': 'participating_in_competitions',
     '找學伴共學': 'finding_study_partners',  # 更強調尋找學習夥伴的目的
@@ -87,7 +87,7 @@ policy_mapping = {
 }
 
 
-presentation_mapping = {
+outcome_mapping = {
     '架設網站': 'building_websites',
     '經營社群媒體': 'managing_social_media',
     '撰寫研究報告': 'writing_research_reports',

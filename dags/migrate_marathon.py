@@ -10,7 +10,7 @@ import pandas as pd
 import logging
 import json
 import re
-from utils.code import qualifications_mapping,motivation_mapping, policy_mapping, presentation_mapping
+from utils.code import qualifications_mapping,motivation_mapping, strategy_mapping, outcome_mapping
 from utils.code_enum import qualifications_t
 
 # 設定日誌
@@ -94,12 +94,12 @@ def process_project(row, user, session):
         for tag in motivation.get("tags", [])
     ]
     policy_tags = [
-        policy_mapping.get(tag[:2], tag[:2]) if tag.startswith("其他") else policy_mapping.get(tag, tag)
+        strategy_mapping.get(tag[:2], tag[:2]) if tag.startswith("其他") else strategy_mapping.get(tag, tag)
         for tag in strategies.get("tags", [])
     ]
     
     presentation_tags = [
-        presentation_mapping.get(tag[:2], tag[:2]) if tag.startswith("其他") else presentation_mapping.get(tag, tag)
+        outcome_mapping.get(tag[:2], tag[:2]) if tag.startswith("其他") else outcome_mapping.get(tag, tag)
         for tag in outcome.get("tags", [])
     ]
 
