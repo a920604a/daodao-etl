@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from config import postgres_uri
-from models import Users, Contact, BasicInfo, Location, Area, UserPosition
+from models import User, Contact, BasicInfo, Location, Area, UserPosition
 
 # 設置 DAG 預設參數
 default_args = {
@@ -39,14 +39,14 @@ def delete_related_records():
     try:
         # 1. 刪除 user_position 中的紀錄
         user_position_count = session.query(UserPosition).filter(UserPosition.user_id.in_(
-            session.query(Users.id)
+            session.query(User.id)
         )).delete(synchronize_session=False)
         print(f"Deleted {user_position_count} user_position records.")
 
-        # 刪除 Users 表中的紀錄
-        user_ids = session.query(Users.id).all()
+        # 刪除 User 表中的紀錄
+        user_ids = session.query(User.id).all()
         print(f"Deleting {len(user_ids)} user.")
-        session.query(Users).delete(synchronize_session=False)
+        session.query(User).delete(synchronize_session=False)
         session.flush()
 
         # 刪除 Contact 表中的紀錄

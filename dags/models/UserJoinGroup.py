@@ -15,7 +15,7 @@ class UserJoinGroup(Base):
     participated_at = Column(TIMESTAMP, default=func.now())
 
     # Relationships
-    user = relationship("Users", back_populates="user_join_group")
+    user = relationship("User", back_populates="user_join_group")
     group = relationship("Group", back_populates="user_join_group")
 
     def __repr__(self):

@@ -40,7 +40,7 @@ class Group(Base):
     TBD = Column(Boolean)
     
     # Relationships
-    created_by_user = relationship("Users", back_populates="groups_created")
+    created_by_user = relationship("User", back_populates="groups_created")
     user_join_group = relationship("UserJoinGroup", back_populates="group")
     
     def __repr__(self):

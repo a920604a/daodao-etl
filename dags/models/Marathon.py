@@ -1,5 +1,5 @@
 # 用戶身份聯接表
-from sqlalchemy import Column, Integer, String, Date, Text, ForeignKey, Boolean, TIMESTAMP, Index
+from sqlalchemy import Column, Integer, String, Date, Text, ForeignKey, Boolean, TIMESTAMP, Index, Date
 from sqlalchemy.dialects.postgresql import UUID, ENUM
 from sqlalchemy.orm import relationship, backref
 

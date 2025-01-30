@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
-from models import Group, Users, UserJoinGroup, Area  # 假設模型已經更新
+from models import Group, User, UserJoinGroup, Area  # 假設模型已經更新
 from config import postgres_uri
 import pandas as pd
 import logging
@@ -59,7 +59,7 @@ def transform_and_load_data(**kwargs):
                 # print(f"row {row}")
                 try:
                     # 查找對應的 user
-                    user = session.query(Users).filter_by(mongo_id=row['userId']).first()
+                    user = session.query(User).filter_by(mongo_id=row['userId']).first()
                     if user is None:
                         logger.error(f"User with UUID {row['userId']} not found!")
                         continue

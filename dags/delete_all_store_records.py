@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
-from models import Users, Contact, BasicInfo, Location, Area, Store
+from models import User, Contact, BasicInfo, Location, Area, Store
 from config import postgres_uri
 from sqlalchemy.dialects.postgresql import array, ARRAY
 import logging

@@ -76,7 +76,7 @@ motivation_t = ENUM(
     'others',
     name = "motivation_t"
 )
-policy_t = ENUM(
+strategy_t = ENUM(
     'data_collection_research_analysis',
     'book_reading',
     'watching_videos',
@@ -95,9 +95,9 @@ policy_t = ENUM(
     'conducting_interviews',
     'conducting_surveys',
     'others',
-    name ="policy_t"
+    name ="strategy_t"
 )
-presentation_t = ENUM(
+outcome_t = ENUM(
     'building_websites',
     'managing_social_media',
     'writing_research_reports',
@@ -108,6 +108,6 @@ presentation_t = ENUM(
     'teaching_courses',
     'participating_in_competitions',
     'others',
-    name = "presentation_t"
+    name = "outcome_t"
 )
 

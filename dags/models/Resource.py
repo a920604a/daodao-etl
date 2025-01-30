@@ -23,4 +23,4 @@ class Resource(Base):
     area = Column(Text)
     supplement = Column(Text)
 
-    user = relationship("Users", back_populates="resource")
+    user = relationship("User", back_populates="resource")

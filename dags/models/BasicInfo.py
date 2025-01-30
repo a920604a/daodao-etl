@@ -13,5 +13,5 @@ class BasicInfo(Base):
     share_list = Column("share_list", String, nullable=True)  # text
     want_to_do_list = Column("want_to_do_list", ARRAY(want_to_do_list_t), nullable=True)
 
-    # 與 Users 關聯
-    user = relationship("Users", back_populates="basic_info")
+    # 與 User 關聯
+    user = relationship("User", back_populates="basic_info")
