@@ -80,13 +80,13 @@ def process_project(row, user, session):
     motivation_str = row.get("motivation", "{}") or "{}"
     strategies_str = row.get("strategies", "{}") or "{}"
     outcome_str = row.get("outcomes", "{}") or "{}"
-    resources_str = row.get("resources", "[]") or "[]"
+    resources_str = row.get("resources", "")
 
     # 處理可能是空字串或 None 的情況
     motivation = json.loads(motivation_str if motivation_str not in [None, ""] else "{}")
     strategies = json.loads(strategies_str if strategies_str not in [None, ""] else "{}")
     outcome = json.loads(outcome_str if outcome_str not in [None, ""] else "{}")
-    resources = json.loads(resources_str if resources_str not in [None, ""] else "[]")
+    # resources = json.loads(resources_str if resources_str not in [None, ""] else "[]")
 
     # 使用映射表進行轉換
     motivation_tags = [
@@ -115,8 +115,9 @@ def process_project(row, user, session):
         content=row.get("content", ""),
         strategy=policy_tags,
         strategy_description=strategies.get("description"),
-        resource_name=[res.get("name", "") for res in resources],
-        resource_url=[res.get("url", "") for res in resources],
+        # resource_name=[res.get("name", "") for res in resources],
+        # resource_url=[res.get("url", "") for res in resources],
+        resource = resources_str,
         outcome=presentation_tags,
         outcome_description=outcome.get("description"),
         is_public=row.get("isPublic", False),

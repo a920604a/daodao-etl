@@ -160,7 +160,7 @@ class MongoToPostgresETL:
 
         # 需要转为 JSON 字符串的列
         json_columns = [
-            "motivation", "strategies", "resources", "milestones", "outcomes", "pricing"
+            "motivation", "strategies", "milestones", "outcomes", "pricing"
         ]
 
         def is_valid_json(data):
