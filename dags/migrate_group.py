@@ -8,7 +8,7 @@ from models import Group, User, UserJoinGroup, City  # 假設模型已經更新
 from config import postgres_uri
 import pandas as pd
 import logging
-from utils.code import partnerEducationStep_mapping, group_type_mapping
+from utils.code import partnerEducationStep_mapping, group_type_mapping, group_category_mapping
 
 # 設定日誌
 logging.basicConfig(level=logging.INFO)
@@ -78,6 +78,16 @@ def transform_and_load_data(**kwargs):
                         
                     else:
                         group_type_list = []
+                        
+                    if pd.notna(row.get('category')):
+                        cleaned_activity_category = str(row['category']).strip('{}')  # 移除大括號
+                        group_category_list = [value.strip() for value in cleaned_activity_category.split(',') if value.strip()]
+                        print(f"group_category_list {group_category_list}")
+                        # 就地修改
+                        for i, item in enumerate(group_category_list):
+                            group_category_list[i] = group_category_mapping.get(item, "未知")
+                    else:
+                        group_category_list = []
 
                     # 移除大括號，解析 partnerEducationStep
                     if pd.notna(row.get('partnerEducationStep')):
@@ -99,11 +109,11 @@ def transform_and_load_data(**kwargs):
                     print(f"deadline {str(row['deadline']).strip('{}')}")
                     # 查詢 public.city 表的所有 city 與 id
                     city_mapping = {
-                        city.city: city.id for city in session.query(City).all()
+                        city.name: city.id for city in session.query(City).all()
                     }
 
                     # 將 row['city'] 分割為列表
-                    city_list = str(row['city']).split(',')
+                    city_list = str(row['area']).split(',')
 
                     # 獲取對應的 city_id 列表
                     city_ids = [city_mapping.get(city.strip()) for city in city_list if city.strip() in city_mapping]
@@ -118,7 +128,7 @@ def transform_and_load_data(**kwargs):
                         title=str(row['title'])[:255] if pd.notna(row['title']) else None,
                         photo_url=str(row['photoURL'])[:255] if pd.notna(row['photoURL']) else None,
                         photo_alt=str(row['photoAlt'])[:255] if pd.notna(row['photoAlt']) else None,
-                        category=str(row['category'])[:255] if pd.notna(row['category']) else None,
+                        category=group_category_list,
                         group_type=group_type_list,  # 使用處理後的 group_type_list
                         partner_education_step=partner_education_step_list,  # 使用處理後的 partner_education_step_list
                         description=str(row['description'])[:255] if pd.notna(row['description']) else None,

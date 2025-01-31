@@ -152,10 +152,20 @@ def process_location(user_record, session, statistics):
             logger.info(f"Country not found for: {country_name}")
             statistics["county_inserted"] += 1
         
-        if country:
+        if country and city:
             location = Location(
                 city_id=city.id,
                 country_id=country.id,
+                isTaiwan=True,
+            )
+        elif country:
+            location = Location(
+                country_id=country.id,
+                isTaiwan=True,
+            )
+        else:
+            location = Location(
+                city_id=city.id,
                 isTaiwan=True,
             )
     elif city_name == '國外':
@@ -163,7 +173,8 @@ def process_location(user_record, session, statistics):
         location = Location(isTaiwan=False)
     else:
         logger.info("city_name is None or empty")  # 如果 city_name 是 None 或空字符串，記錄日志
-        location = None  # 避免在無效 city_name 時創建 Location
+        location = Location(isTaiwan=False)
+
 
 
     return location, statistics
