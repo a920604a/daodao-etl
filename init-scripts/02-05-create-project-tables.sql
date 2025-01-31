@@ -11,8 +11,9 @@ CREATE TABLE "project" (
     "content" text,
     "strategy" strategy_t[],
     "strategy_description" text,
-    "resource_name" text[],
-    "resource_url" text[],
+    -- "resource_name" text[],
+    -- "resource_url" text[],
+    resource TEXT,  -- 這邊之後要跟找資源的resource資料表串一起
     "outcome" outcome_t[],
     "outcome_description" text,
     "is_public" boolean DEFAULT false,  -- 是否公開

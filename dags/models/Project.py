@@ -20,8 +20,10 @@ class Project(Base):
     content = Column(Text)
     strategy = Column(ARRAY(strategy_t))
     strategy_description = Column(Text)
-    resource_name = Column(ARRAY(Text))
-    resource_url = Column(ARRAY(Text))
+    # resource_name = Column(ARRAY(Text))
+    # resource_url = Column(ARRAY(Text))
+    # 這邊之後要跟找資源的resource資料表串一起
+    resource = Column(Text)
     outcome = Column(ARRAY(outcome_t))
     outcome_description = Column(Text)
     is_public = Column(Boolean, default=False)
