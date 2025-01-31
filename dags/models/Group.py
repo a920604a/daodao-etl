@@ -16,7 +16,7 @@ class Group(Base):
     partner_education_step = Column('partner_education_step', ARRAY(partnerEducationStep_t))
     
     description = Column(String(255))
-    area_id = Column(ARRAY(Integer))
+    city_id = Column(ARRAY(Integer))
     is_grouping = Column('is_grouping', Boolean)
     createdDate = Column('created_date', TIMESTAMP(timezone=False), nullable=False)
     updatedDate = Column('updated_date', TIMESTAMP(timezone=False), nullable=False)

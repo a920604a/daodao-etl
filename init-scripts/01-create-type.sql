@@ -50,32 +50,33 @@ INSERT INTO "position" (name) VALUES
 
 
 CREATE TYPE "city_t" AS ENUM (
-    'Taipei City',
-    'Keelung City',
-    'New Taipei City',
-    'Lianjiang County',
-    'Taoyuan City',
-    'Hsinchu City',
-    'Hsinchu County',
-    'Miaoli County',
-    'Taichung City',
-    'Changhua County',
-    'Yunlin County',
-    'Chiayi County',
-    'Chiayi City',
-    'Tainan City',
+    'taipei_city',
+    'keelung_city',
+    'new_taipei_city',
+    'lianjiang_county',
+    'taoyuan_city',
+    'hsinchu_city',
+    'hsinchu_county',
+    'miaoli_county',
+    'taichung_city',
+    'changhua_county',
+    'yunlin_county',
+    'chiayi_county',
+    'chiayi_city',
+    'tainan_city',
     'nantou county',
     'kaohsiung city',
-    'Pingtung County',
-    'Hainan Island',
-    'Penghu County',
-    'Kinmen County',
-    'Yilan County',
-    'Hualien County',
-    'Taitung County',
-    'Other'
+    'pingtung_county',
+    'hainan_island',
+    'penghu_county',
+    'kinmen_county',
+    'yilan_county',
+    'hualien_county',
+    'taitung_county',
+    'other',
+    'tbd',
+    'online'
 );
-
 
 CREATE TYPE "want_to_do_list_t" AS ENUM (
     'interaction',
@@ -86,22 +87,38 @@ CREATE TYPE "want_to_do_list_t" AS ENUM (
     'find-group'
 );
 
+CREATE TYPE group_category_t AS ENUM (
+    'language',
+    'math',
+    'computer-science',
+    'humanity',
+    'nature-science',
+    'art',
+    'education',
+    'life',
+    'health',
+    'business',
+    'diversity',
+    'learningtools'
+);
+
+
 CREATE TYPE "group_type_t" AS ENUM (
-    'reading club',
+    'study_group',
     'workshop',
     'project',
     'competition',
-    'Activity',
-    'Societies',
+    'event',
+    'club',
     'course',
-    'practice',
+    'internship',
     'other'
 );
-CREATE TYPE "partner_education_step_t" AS ENUM ('high school', 'other', 'University');
+CREATE TYPE "partner_education_step_t" AS ENUM ('high', 'other', 'university');
 
 
 CREATE TYPE "cost_t" AS ENUM ('free', 'part', 'payment');
-CREATE TYPE "age_t" AS ENUM ('preschool', 'Elementary', 'high', 'University');
+CREATE TYPE "age_t" AS ENUM ('preschool', 'elementary', 'high', 'university');
 
 
 CREATE TYPE "freqency_t" AS ENUM ( 'two', 'one', 'three', 'month');

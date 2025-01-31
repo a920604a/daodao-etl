@@ -4,12 +4,12 @@ from datetime import datetime, timedelta
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
-from models import User, Contact, BasicInfo, Location, Area, Position, UserProfile
+from models import User, Contact, BasicInfo, Location, City, Position, UserProfile, Country
 from config import postgres_uri
 import json
 import logging
 from utils.code_enum import want_to_do_list_t, identity_list_t
-from utils.code import city_mapping
+from utils.code import city_mapping, country_mapping
 from sqlalchemy.sql.expression import cast
 from sqlalchemy.dialects.postgresql import array, ARRAY
 
@@ -48,7 +48,8 @@ statistics = {
     "basic_info_inserted": 0,
     "location_inserted": 0,
     "user_inserted": 0,
-    "area_inserted": 0,
+    "city_inserted": 0,
+    "county_inserted": 0,
     "user_profile_inserted": 0,
 }
 
@@ -94,28 +95,45 @@ def process_basic_info(user_record):
     return basic_info
 
 def process_location(user_record, session, statistics):
-    area_name = user_record["location"]
-    if area_name:
-        if "@" in area_name:
-            city, region = city_mapping.get(area_name.split('@')[1], "Other"), area_name.split('@')[-1]
+    city_name = user_record["location"]
+    print(f"city_name {city_name}")
+    
+    if city_name is not '國外':
+        if "@" in city_name:
+            city_str = city_mapping.get(city_name.split('@')[1], "other")
+        
         else:
-            city, region = "Other", "Unknown"
-
-        area = session.execute(
-            'SELECT * FROM area WHERE "city" = :city', {"city": city}
+            city_str = "other"
+            
+        city = session.execute(
+            'SELECT * FROM city WHERE "name" = :name', {"name": city_str}
         ).fetchone()
-        if not area:
-            area = Area(city=city)
-            session.add(area)
+        if not city:
+            city = City(name=city_str)
+            session.add(city)
             session.flush()
-            statistics["area_inserted"] += 1
+            statistics["city_inserted"] += 1
+            
+        logger.info("city_str: " + city_str)
+            
+        country_str =  country_mapping.get(city_name.split('@')[0], "other")
+        logger.info("country_str: " + country_str)
+        country = session.execute(
+            'SELECT * FROM country WHERE "name" = :name', {"name": country_str}
+        ).fetchone()
+        if not country:
+            logger.info(f"Country not found for: {country_str}")
+            statistics["county_inserted"] += 1
+        
         location = Location(
-            area_id=area.id,
+            city_id=city.id,
+            country_id=country.id,
             isTaiwan=True,
-            region=region,
-        )
-    else:
-        location = Location(isTaiwan=False, region=None)
+    )
+    elif city_name == '國外':
+        # 國外的情況
+        location = Location(isTaiwan=False)
+    
     return location, statistics
 
 def process_identity(user_record, session):
@@ -250,7 +268,7 @@ def process_and_migrate_users(**kwargs):
         logger.info(f"Contact table insertions: {statistics['contact_inserted']}")
         logger.info(f"BasicInfo table insertions: {statistics['basic_info_inserted']}")
         logger.info(f"Location table insertions: {statistics['location_inserted']}")
-        logger.info(f"Area table insertions: {statistics['area_inserted']}")
+        logger.info(f"City table insertions: {statistics['city_inserted']}")
         logger.info(f"User table insertions: {statistics['user_inserted']}")
         logger.info(f"User Profile table insertions: {statistics['user_profile_inserted']}")
         if statistics['total_failed'] > 0:

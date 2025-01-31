@@ -1,17 +1,29 @@
 -- Misc TABLE 
-CREATE TABLE "area" (
+CREATE TABLE "city" (
     "id" serial NOT NULL UNIQUE,
-    "city" "city_t",
+    "name" "city_t",
     PRIMARY KEY("id")
 );
-CREATE INDEX "idx_area_city" ON "area" ("city");
+CREATE INDEX "idx_city_name" ON "city" ("name");
+CREATE TABLE "country" (
+    id SERIAL PRIMARY KEY,          -- 唯一識別碼
+    alpha2 CHAR(2) NOT NULL,        -- ISO 3166-1 alpha-2 代碼
+    alpha3 CHAR(3) NOT NULL,        -- ISO 3166-1 alpha-3 代碼
+    name VARCHAR(100) NOT NULL     -- 國家名稱
+);
+-- 確保唯一性約束
+CREATE UNIQUE INDEX idx_country_alpha2 ON country(alpha2);
+CREATE UNIQUE INDEX idx_country_alpha3 ON country(alpha3);
+
+
 CREATE TABLE "location" (
     "id" serial NOT NULL UNIQUE,
-    "area_id" int,
+    "city_id" int,
+    "country_id" int,
     "isTaiwan" boolean,
-    "region" VARCHAR(64),
     PRIMARY KEY("id"),
-    FOREIGN KEY ("area_id") REFERENCES "area"("id")
+    FOREIGN KEY ("city_id") REFERENCES "city"("id"),
+    FOREIGN KEY ("country_id") REFERENCES "country"("id")
 );
 CREATE TABLE "contacts" (
     "id" serial NOT NULL UNIQUE,
@@ -100,67 +112,6 @@ CREATE TABLE "user_permissions" (
 );
 
 
--- Guest
-INSERT INTO "role_permissions" ("role_id", "permission_id") VALUES
-(1, 1); -- Guest: 瀏覽頁面
-
--- User
-INSERT INTO "role_permissions" ("role_id", "permission_id") VALUES
-(2, 1), -- 瀏覽頁面
-(2, 2), -- 聯繫功能
-(2, 3), -- 發布揪團
-(2, 4); -- 分享資源與心得
-
--- Participant
-INSERT INTO "role_permissions" ("role_id", "permission_id") VALUES
-(3, 1), -- 瀏覽頁面
-(3, 2), -- 聯繫功能
-(3, 3), -- 發布揪團
-(3, 4), -- 分享資源與心得
-(3, 5); -- 使用學習計畫功能
-
--- Mentor
-INSERT INTO "role_permissions" ("role_id", "permission_id") VALUES
-(4, 1), -- 瀏覽頁面
-(4, 2), -- 聯繫功能
-(4, 3), -- 發布揪團
-(4, 4), -- 分享資源與心得
-(4, 5), -- 使用學習計畫功能
-(4, 6); -- 查詢所有馬拉松參與者資訊
-
--- Admin
-INSERT INTO "role_permissions" ("role_id", "permission_id") VALUES
-(5, 1), -- 瀏覽頁面
-(5, 2), -- 聯繫功能
-(5, 3), -- 發布揪團
-(5, 4), -- 分享資源與心得
-(5, 5), -- 使用學習計畫功能
-(5, 6), -- 查詢所有馬拉松參與者資訊
-(5, 7); -- 查看所有資料
-
--- SuperAdmin
-INSERT INTO "role_permissions" ("role_id", "permission_id") VALUES
-(6, 1), -- 瀏覽頁面
-(6, 2), -- 聯繫功能
-(6, 3), -- 發布揪團
-(6, 4), -- 分享資源與心得
-(6, 5), -- 使用學習計畫功能
-(6, 6), -- 查詢所有馬拉松參與者資訊
-(6, 7), -- 查看所有資料
-(6, 8); -- 修改、刪除所有資料
-
-
-INSERT INTO users (
-    external_id,
-    mongo_id,
-    nickname,
-    role_id
-) VALUES (
-    gen_random_uuid(),
-    1,
-    'SuperAdmin',
-    6
-);
 
 -- 找夥伴功能
 -- 雖然數組設計簡潔，但對於需要精細化查詢的情況可能會有性能問題

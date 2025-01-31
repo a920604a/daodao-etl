@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from config import postgres_uri
-from models import User, Contact, BasicInfo, Location, Area, UserPosition
+from models import User, Contact, BasicInfo, Location, City, UserPosition
 
 # 設置 DAG 預設參數
 default_args = {
@@ -67,13 +67,13 @@ def delete_related_records():
         session.query(Location).delete(synchronize_session=False)
         session.flush()
 
-        # 刪除 Area 表中孤立的紀錄
-        orphan_areas = session.query(Area).filter(~Area.id.in_(
-            session.query(Location.area_id).distinct()
+        # 刪除 City 表中孤立的紀錄
+        orphan_areas = session.query(City).filter(~City.id.in_(
+            session.query(Location.city_id).distinct()
         )).all()
         print(f"Deleting {len(orphan_areas)} orphan areas.")
-        session.query(Area).filter(
-            ~Area.id.in_(session.query(Location.area_id).distinct())
+        session.query(City).filter(
+            ~City.id.in_(session.query(Location.city_id).distinct())
         ).delete(synchronize_session=False)
 
         # 提交事務

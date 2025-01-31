@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
-from models import Group, User, UserJoinGroup, Area  # 假設模型已經更新
+from models import Group, User, UserJoinGroup, City  # 假設模型已經更新
 from config import postgres_uri
 import pandas as pd
 import logging
@@ -97,20 +97,20 @@ def transform_and_load_data(**kwargs):
                     print(f"row['partnerEducationStep']: {row['partnerEducationStep']}, partner_education_step_list: {partner_education_step_list}")
 
                     print(f"deadline {str(row['deadline']).strip('{}')}")
-                    # 查詢 public.area 表的所有 city 與 id
-                    area_mapping = {
-                        area.city: area.id for area in session.query(Area).all()
+                    # 查詢 public.city 表的所有 city 與 id
+                    city_mapping = {
+                        city.city: city.id for city in session.query(City).all()
                     }
 
-                    # 將 row['area'] 分割為列表
-                    area_list = str(row['area']).split(',')
+                    # 將 row['city'] 分割為列表
+                    city_list = str(row['city']).split(',')
 
-                    # 獲取對應的 area_id 列表
-                    area_ids = [area_mapping.get(area.strip()) for area in area_list if area.strip() in area_mapping]
-                    print(f"area_ids {area_ids}")
+                    # 獲取對應的 city_id 列表
+                    city_ids = [city_mapping.get(city.strip()) for city in city_list if city.strip() in city_mapping]
+                    print(f"city_ids {city_ids}")
 
                     # 判斷是否包含 '線上'
-                    is_online = '線上' in area_list
+                    is_online = '線上' in city_list
 
 
                     # 創建新的 group 記錄
@@ -122,7 +122,7 @@ def transform_and_load_data(**kwargs):
                         group_type=group_type_list,  # 使用處理後的 group_type_list
                         partner_education_step=partner_education_step_list,  # 使用處理後的 partner_education_step_list
                         description=str(row['description'])[:255] if pd.notna(row['description']) else None,
-                        area_id=area_ids,  # 根據需求調整
+                        city_id=city_ids,  # 根據需求調整
                         is_grouping=row['isGrouping'],
                         createdDate=datetime.fromisoformat(row['createdDate']).replace(tzinfo=None),
                         updatedDate=datetime.fromisoformat(row['updatedDate']).replace(tzinfo=None),
