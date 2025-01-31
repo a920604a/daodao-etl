@@ -93,47 +93,79 @@ def process_basic_info(user_record):
         want_to_do_list=cast(array(valid_values, type_=want_to_do_list_t), ARRAY(want_to_do_list_t))
     )
     return basic_info
+def get_or_create_city(session, city_name):
+    """查找或創建城市"""
+    city_str = city_mapping.get(city_name, "other")
+    city = session.execute(
+        'SELECT * FROM city WHERE "name" = :name', {"name": city_str}
+    ).fetchone()
+    
+    if not city:
+        city = City(name=city_str)
+        session.add(city)
+        session.flush()
+    
+    return city
+
+
+def get_or_create_country(session, country_name):
+    """查找或創建國家"""
+    country_str = country_name
+    country = session.execute(
+        'SELECT * FROM country WHERE "name" = :name', {"name": country_str}
+    ).fetchone()
+    
+    return country
+
 
 def process_location(user_record, session, statistics):
     city_name = user_record["location"]
-    print(f"city_name {city_name}")
+    print(f"city_name: {city_name}")
     
-    if city_name is not '國外':
-        if "@" in city_name:
-            city_str = city_mapping.get(city_name.split('@')[1], "other")
+    location = None
+
+    if city_name and city_name != '國外' :
+        # 處理拆分城市和國家的邏輯，並加入防錯機制
+        parts = city_name.split('@')
         
+        if len(parts) == 2:
+            country_name, city_name = parts
+        elif len(parts) > 2:
+            # 如果有多於兩個@，將剩餘的部分作為 city_name
+            country_name = parts[0]
+            city_name = parts[1]  # 剩餘部分視為城市名稱
         else:
-            city_str = "other"
-            
-        city = session.execute(
-            'SELECT * FROM city WHERE "name" = :name', {"name": city_str}
-        ).fetchone()
-        if not city:
-            city = City(name=city_str)
-            session.add(city)
-            session.flush()
-            statistics["city_inserted"] += 1
-            
-        logger.info("city_str: " + city_str)
-            
-        country_str =  country_mapping.get(city_name.split('@')[0], "other")
-        logger.info("country_str: " + country_str)
-        country = session.execute(
-            'SELECT * FROM country WHERE "name" = :name', {"name": country_str}
-        ).fetchone()
+            country_name, city_name = city_name, "other"
+
+        # 檢查 country_name 和 city_name 是否為空
+        if not country_name or not city_name:
+            country_name, city_name = "unknown", "unknown"  # 如果為空，設為 "unknown"
+
+        # logger.info(f"country_name, city_name  {country_name}, {city_name }")
+        city = get_or_create_city(session, city_name)
+        statistics["city_inserted"] += 1 if city.name != "other" else 0
+        
+        
+        # 處理國家部分
+        country = get_or_create_country(session, country_name)
         if not country:
-            logger.info(f"Country not found for: {country_str}")
+            logger.info(f"Country not found for: {country_name}")
             statistics["county_inserted"] += 1
         
-        location = Location(
-            city_id=city.id,
-            country_id=country.id,
-            isTaiwan=True,
-    )
+        if country:
+            location = Location(
+                city_id=city.id,
+                country_id=country.id,
+                isTaiwan=True,
+            )
     elif city_name == '國外':
         # 國外的情況
         location = Location(isTaiwan=False)
-    
+    else:
+        logger.info("city_name is None or empty")  # 如果 city_name 是 None 或空字符串，記錄日志
+        location = None  # 避免在無效 city_name 時創建 Location
+
+
     return location, statistics
 
 def process_identity(user_record, session):
