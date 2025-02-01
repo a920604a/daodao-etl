@@ -1,6 +1,6 @@
 CREATE TABLE "project" (
-    "id" serial NOT NULL UNIQUE,
-    "external_id" UUID DEFAULT gen_random_uuid(), -- 使用 UUID 作为主键
+    "id" SERIAL PRIMARY KEY,
+    "external_id" UUID DEFAULT gen_random_uuid() UNIQUE, -- 使用 UUID 作为唯一标识符并添加唯一约束
     "user_id" int NOT NULL,
     "img_url" varchar(255),
     "topic" varchar(255),
@@ -26,15 +26,13 @@ CREATE TABLE "project" (
     "updated_at" timestamp DEFAULT current_timestamp,
     "updated_by" int,
     "version" int,
-    PRIMARY KEY("external_id"),
     FOREIGN KEY ("user_id") REFERENCES "users"("id")
 );
 
 CREATE TABLE "user_project" (
-    "id" serial NOT NULL UNIQUE,
+    "id" SERIAL PRIMARY KEY,
     "user_external_id" UUID, -- 改为 UUID
     "project_id" int, -- 改为 UUID
-    PRIMARY KEY("id"),
     FOREIGN KEY ("user_external_id") REFERENCES "users"("external_id") ON DELETE CASCADE,
     FOREIGN KEY ("project_id") REFERENCES "project"("id") ON DELETE CASCADE
 );
@@ -48,7 +46,7 @@ CREATE TABLE "milestone" (
     "name" varchar(255), -- 里程碑名稱
     "description" text, -- 里程碑描述
     "start_date" date, -- 開始日期
-    "end_date" date, -- 結束日期
+    "end_date" date CHECK ("start_date" < "end_date"),
     "is_completed" boolean DEFAULT false, -- 是否完成
     "is_deleted" boolean DEFAULT false, -- 是否已刪除
     "created_at" timestamp DEFAULT current_timestamp,
@@ -93,7 +91,8 @@ CREATE TABLE "outcome" (
 
 -- 創建便利貼(note)表
 CREATE TABLE "note" (
-    "id" serial PRIMARY KEY,
+    "id" SERIAL PRIMARY KEY,
+    "external_id" UUID DEFAULT gen_random_uuid() UNIQUE, -- 使用 UUID 作为唯一标识符并添加唯一约束
     "project_id" int, -- 關聯的學習計畫 ID
     "week" int NOT NULL, -- 第幾週
     "title" varchar(255) NOT NULL, -- 學習計畫標題

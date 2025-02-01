@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer,TIMESTAMP, String, Text, Date, Boolean, T
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from .base import Base  # 引用分離出的 Base
-from utils.code_enum import partnerEducationStep_t, group_type_t
+from utils.code_enum import partnerEducationStep_t, group_type_t, group_category_t
 
 class Group(Base):
     __tablename__ = 'groups'
@@ -10,13 +10,13 @@ class Group(Base):
     title = Column(Text)
     photo_url = Column('photo_url', String(255))
     photo_alt = Column('photo_alt',String(255))
-    category = Column(Text)
+    category = Column(ARRAY(group_category_t))
     
-    group_type = Column(ARRAY(group_type_t), default='other')
+    group_type = Column(ARRAY(group_type_t))
     partner_education_step = Column('partner_education_step', ARRAY(partnerEducationStep_t))
     
     description = Column(String(255))
-    area_id = Column(ARRAY(Integer))
+    city_id = Column(ARRAY(Integer))
     is_grouping = Column('is_grouping', Boolean)
     createdDate = Column('created_date', TIMESTAMP(timezone=False), nullable=False)
     updatedDate = Column('updated_date', TIMESTAMP(timezone=False), nullable=False)

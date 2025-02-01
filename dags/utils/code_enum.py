@@ -10,27 +10,46 @@ identity_list_t = ENUM(
 )
 
 city_t = ENUM(
-    'Taipei City', 'Keelung City', 'New Taipei City', 'Lianjiang County', 'Taoyuan City',
-    'Hsinchu City', 'Hsinchu County', 'Miaoli County', 'Taichung City', 'Changhua County',
-    'Yunlin County', 'Chiayi County', 'Chiayi City', 'Tainan City', 'nantou county',
-    'kaohsiung city', 'Pingtung County', 'Hainan Island', 'Penghu County', 'Kinmen County',
-    'Yilan County', 'Hualien County', 'Taitung County', 'Other', name="city_t"
+    'taipei_city', 'new_taipei_city', 'keelung_city', 'lianjiang_county', 'taoyuan_city',
+    'hsinchu_city', 'hsinchu_county', 'miaoli_county', 'taichung_city', 'changhua_county',
+    'yunlin_county', 'chiayi_county', 'chiayi_city', 'tainan_city', 'nantou_county',
+    'kaohsiung_city', 'pingtung_county', 'hainan_island', 'penghu_county', 'kinmen_county',
+    'yilan_county', 'hualien_county', 'taitung_county', 
+    'other',
+    'online', 'tbd',
+    name="city_t"
 )
 
 
 partnerEducationStep_t = ENUM(
-    'high school','other', 'University', name = "partner_education_step_t"    
+    'high','other', 'university', name = "partner_education_step_t"    
+)
+
+group_category_t = ENUM(
+    'language',
+    'math',
+    'computer-science',
+    'humanity',
+    'nature-science',
+    'art',
+    'education',
+    'life',
+    'health',
+    'business',
+    'diversity',
+    'learningtools',
+    name = "group_category_t"    
 )
 
 group_type_t  = ENUM (
-    'reading club',
+    'study_group',
     'workshop',
     'project',
     'competition',
-    'Activity',
-    'Societies',
+    'event',
+    'club',
     'course',
-    'practice',
+    'internship',
     'other', 
     name = "group_type_t"   
 )
@@ -40,7 +59,7 @@ want_to_do_list_t = ENUM(
     'find-student', 'find-teacher', 'find-group', name="want_to_do_list_t"
 )
 age_t = ENUM(
-    'preschool', 'Elementary', 'high', 'University', name="age_t"
+    'preschool', 'elementary', 'high', 'university', name="age_t"
 )
 
 cost_t = ENUM('free', 'part', 'payment', name="cost_t")
