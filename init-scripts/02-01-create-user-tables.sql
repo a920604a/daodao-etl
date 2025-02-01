@@ -1,14 +1,13 @@
 -- Misc TABLE 
 CREATE TABLE "city" (
-    "id" serial NOT NULL UNIQUE,
-    "name" "city_t",
-    PRIMARY KEY("id")
+    "id" SERIAL PRIMARY KEY,  
+    "name" "city_t"
 );
 CREATE INDEX "idx_city_name" ON "city" ("name");
 CREATE TABLE "country" (
     id SERIAL PRIMARY KEY,          -- 唯一識別碼
-    alpha2 CHAR(2) NOT NULL,        -- ISO 3166-1 alpha-2 代碼
-    alpha3 CHAR(3) NOT NULL,        -- ISO 3166-1 alpha-3 代碼
+    alpha2 CHAR(2) ,        -- ISO 3166-1 alpha-2 代碼
+    alpha3 CHAR(3) ,        -- ISO 3166-1 alpha-3 代碼
     name VARCHAR(100) NOT NULL     -- 國家名稱
 );
 -- 確保唯一性約束
@@ -17,16 +16,21 @@ CREATE UNIQUE INDEX idx_country_alpha3 ON country(alpha3);
 
 
 CREATE TABLE "location" (
-    "id" serial NOT NULL UNIQUE,
+    "id" SERIAL PRIMARY KEY,
     "city_id" int,
     "country_id" int,
     "isTaiwan" boolean,
-    PRIMARY KEY("id"),
     FOREIGN KEY ("city_id") REFERENCES "city"("id"),
     FOREIGN KEY ("country_id") REFERENCES "country"("id")
 );
+
+-- 添加索引以提高查詢性能
+CREATE INDEX idx_location_city_id ON "location"("city_id");
+CREATE INDEX idx_location_country_id ON "location"("country_id");
+
+
 CREATE TABLE "contacts" (
-    "id" serial NOT NULL UNIQUE,
+    "id" SERIAL PRIMARY KEY,
     "google_id" varchar(255),
     "photo_url" text,
     "is_subscribe_email" boolean,
@@ -34,15 +38,13 @@ CREATE TABLE "contacts" (
     "ig" varchar(255),
     "discord" varchar(255),
     "line" varchar(255),
-    "fb" varchar(255),
-    PRIMARY KEY("id")
+    "fb" varchar(255)
 );
 CREATE TABLE "basic_info" (
-    "id" serial NOT NULL UNIQUE,
+    "id" SERIAL PRIMARY KEY,
     "self_introduction" text,
     "share_list" text,
-    "want_to_do_list" want_to_do_list_t [],
-    PRIMARY KEY("id")
+    "want_to_do_list" want_to_do_list_t []
 );
 COMMENT ON COLUMN basic_info.share_list IS 'split(、)';
 
@@ -50,8 +52,8 @@ COMMENT ON COLUMN basic_info.share_list IS 'split(、)';
 -- main tables
 -- 等待 找夥伴 與 個人名片 resume 規格明確 在作拆分。
 CREATE TABLE "users" (
-    "id" serial NOT NULL UNIQUE,
-    "external_id" UUID DEFAULT gen_random_uuid(), -- 使用 UUID 作为主键
+    "id" SERIAL PRIMARY KEY,
+    "external_id" UUID DEFAULT gen_random_uuid() UNIQUE, -- 使用 UUID 作为唯一标识符并添加唯一约束
     "mongo_id" text NOT NULL UNIQUE,
     "gender" gender_t,
     "language" VARCHAR(255),
@@ -71,7 +73,6 @@ CREATE TABLE "users" (
     "created_at" TIMESTAMPTZ,
     "updated_by" varchar(255),
     "updated_at" TIMESTAMPTZ,
-    PRIMARY KEY("external_id"),
     FOREIGN KEY("location_id") REFERENCES "location"("id"),
     FOREIGN KEY("contact_id") REFERENCES "contacts"("id"),
     FOREIGN KEY("basic_info_id") REFERENCES "basic_info"("id"),

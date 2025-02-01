@@ -7,8 +7,8 @@ class Country(Base):
     __tablename__ = "country"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    alpha2 = Column(String(2), nullable=False, unique=True)
-    alpha3 = Column(String(3), nullable=False, unique=True)
+    alpha2 = Column(String(2))
+    alpha3 = Column(String(3) )
     name = Column(String(100), nullable=False)
     
     

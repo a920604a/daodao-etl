@@ -186,7 +186,8 @@ def migrate_old_marathons(**kwargs):
             process_milestones(row, project, session)
 
             # 將 User 與 Project 連結
-            link_user_project(user, project, session)
+            # 目前 UserProject 一對多 所以不需要
+            # link_user_project(user, project, session)
 
             # 將 Project 與 Marathon 連結
             marathon = session.query(Marathon).filter_by(event_id=row["eventId"]).first()

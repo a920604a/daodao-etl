@@ -19,7 +19,7 @@ CREATE TABLE "eligibility" (
 
 CREATE TABLE "marathon" (
     "id" SERIAL PRIMARY KEY,
-    "external_id" UUID DEFAULT gen_random_uuid(), -- 使用 UUID 作为主键
+    "external_id" UUID DEFAULT gen_random_uuid() UNIQUE, -- 使用 UUID 作为唯一标识符并添加唯一约束
     "event_id" varchar(50) NOT NULL UNIQUE, -- 活動代碼，例如 "2024S1"
     "title" varchar(255) NOT NULL, -- 活動標題
     "description" text, -- 活動描述

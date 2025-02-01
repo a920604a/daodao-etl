@@ -1,6 +1,6 @@
 CREATE TABLE "store" (
-    "id" serial PRIMARY KEY, -- 内部使用的自增 ID
-    "external_id" UUID UNIQUE NOT NULL DEFAULT gen_random_uuid(), -- 外部使用的 UUID
+    "id" SERIAL PRIMARY KEY,
+    "external_id" UUID DEFAULT gen_random_uuid() UNIQUE, -- 使用 UUID 作为唯一标识符并添加唯一约束
     "user_id" INT UNIQUE,
     "image_url" varchar(255),
     "author_list" text,

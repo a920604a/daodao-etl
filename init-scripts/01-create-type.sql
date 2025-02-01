@@ -1,10 +1,9 @@
 -- 生成 UUID 的函数
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE TABLE "roles" (
-    "id" SERIAL NOT NULL UNIQUE,
+    "id" SERIAL PRIMARY KEY,  
     "name" VARCHAR(255) NOT NULL UNIQUE,     -- 角色名稱，如 'User', 'Admin', 'SuperAdmin'
-    "description" TEXT,                      -- 角色描述
-    PRIMARY KEY("id")
+    "description" TEXT                       -- 角色描述
 );
 INSERT INTO "roles" ("id", "name", "description") VALUES
 (1, 'Guest', '未登入使用者'),
@@ -15,10 +14,10 @@ INSERT INTO "roles" ("id", "name", "description") VALUES
 (6, 'SuperAdmin', '系統最高權限者，擁有所有權限');
 
 CREATE TABLE "permissions" (
-    "id" SERIAL NOT NULL UNIQUE,
+    "id" SERIAL PRIMARY KEY,  
     "name" VARCHAR(255) NOT NULL UNIQUE,     -- 權限名稱，如 'view_public_info'
-    "description" TEXT,                      -- 權限描述
-    PRIMARY KEY("id")
+    "description" TEXT                       -- 權限描述
+    
 );
 INSERT INTO "permissions" ("id", "name", "description") VALUES
 (1, 'view_pages', '瀏覽頁面'),
@@ -64,8 +63,8 @@ CREATE TYPE "city_t" AS ENUM (
     'chiayi_county',
     'chiayi_city',
     'tainan_city',
-    'nantou county',
-    'kaohsiung city',
+    'nantou_county',
+    'kaohsiung_city',
     'pingtung_county',
     'hainan_island',
     'penghu_county',

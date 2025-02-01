@@ -10,11 +10,12 @@ identity_list_t = ENUM(
 )
 
 city_t = ENUM(
-    'taipei_city', 'keelung_city', 'New taipei_city', 'lianjiang_county', 'taoyuan_city',
+    'taipei_city', 'new_taipei_city', 'keelung_city', 'lianjiang_county', 'taoyuan_city',
     'hsinchu_city', 'hsinchu_county', 'miaoli_county', 'taichung_city', 'changhua_county',
-    'yunlin_county', 'chiayi_county', 'chiayi_city', 'tainan_city', 'nantou county',
-    'kaohsiung city', 'pingtung_county', 'hainan_island', 'penghu_county', 'kinmen_county',
-    'yilan_county', 'hualien_county', 'taitung_county', 'other',
+    'yunlin_county', 'chiayi_county', 'chiayi_city', 'tainan_city', 'nantou_county',
+    'kaohsiung_city', 'pingtung_county', 'hainan_island', 'penghu_county', 'kinmen_county',
+    'yilan_county', 'hualien_county', 'taitung_county', 
+    'other',
     'online', 'tbd',
     name="city_t"
 )

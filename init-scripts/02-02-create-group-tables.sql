@@ -1,6 +1,6 @@
 CREATE TABLE "groups" (
-    "id" serial NOT NULL UNIQUE,
-    "external_id" UUID DEFAULT gen_random_uuid(), -- 使用 UUID 作为主键
+    "id" SERIAL PRIMARY KEY,
+    "external_id" UUID DEFAULT gen_random_uuid() UNIQUE, -- 使用 UUID 作为唯一标识符并添加唯一约束
     "title" text,
     "photo_url" varchar(255),
     "photo_alt" varchar(255),
@@ -27,7 +27,6 @@ CREATE TABLE "groups" (
     "hold_time" time,
     "is_online" boolean,
     "TBD" boolean,
-    PRIMARY KEY("external_id"),
     FOREIGN KEY("created_by") REFERENCES "users"("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 COMMENT ON TABLE "groups" IS 'need to normalize 需要維護 熱門學習領域 ';
@@ -41,12 +40,11 @@ CREATE INDEX "idx_group_is_online" ON "groups" ("is_online");
 CREATE INDEX "idx_group_TBD" ON "groups" ("TBD");
 
 CREATE TABLE "user_join_group" (
-    "id" serial NOT NULL UNIQUE,
+    "id" SERIAL PRIMARY KEY,
     "user_id" int,
     "group_id" int,
     "group_participation_role_t" group_participation_role_t DEFAULT 'Initiator',
     "participated_at" TIMESTAMPTZ,
-    PRIMARY KEY("id"),
     FOREIGN KEY("group_id") REFERENCES "groups"("id") ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY("user_id") REFERENCES "users"("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
