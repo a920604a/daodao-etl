@@ -227,7 +227,8 @@ def process_and_migrate_users(**kwargs):
     engine = create_engine(postgres_uri)
     Session = sessionmaker(bind=engine)
     session = Session()
-
+    
+    task_instance = kwargs['ti']  # 訪問 task_instance 來推送 XCom
     statistics = kwargs["statistics"]
 
     try:
@@ -270,9 +271,9 @@ def process_and_migrate_users(**kwargs):
                     createdDate=datetime.fromisoformat(user_record['createdDate']).replace(tzinfo=None),
                     updatedDate=datetime.fromisoformat(user_record['updatedDate']).replace(tzinfo=None),
                     created_at=datetime.now(),
-                    created_by=kwargs["task_instance"].task.owner,
+                    created_by=task_instance.task.owner,
                     updated_at=datetime.now(),
-                    updated_by=kwargs["task_instance"].task.owner,
+                    updated_by=task_instance.task.owner,
                     identities=identities
                 ), "user_inserted")
 
@@ -287,7 +288,7 @@ def process_and_migrate_users(**kwargs):
                 statistics["total_successful"] += 1
                 
                 # 更新統計數據後推送 XCom
-                kwargs["task_instance"].xcom_push(key="statistics", value=statistics)
+                task_instance.xcom_push(key="statistics", value=statistics)
                 
                 
             except Exception as e:
@@ -314,8 +315,6 @@ def process_and_migrate_users(**kwargs):
                 logger.info(failed_record)
 
     finally:
-        final_statistics = kwargs["task_instance"].xcom_pull(task_ids='migrate_old_users_to_new_schema', key="statistics")
-        logger.info(f"Final Statistics: {final_statistics}")
         session.close()
 
 # 定義 PythonOperator 執行遷移過程

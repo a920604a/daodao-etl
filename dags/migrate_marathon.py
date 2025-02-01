@@ -134,6 +134,7 @@ def process_milestones(row, project, session):
     milestone_datas = json.loads(row.get("milestones", "[]"))
     # milestone = Milestone(project_id=project.id)
     for milestone_data in milestone_datas:
+
     
         milestone = Milestone(
             name=milestone_data.get("name"),
@@ -154,6 +155,7 @@ def process_milestones(row, project, session):
             )
             session.add(task)
             logger.info(f"新增 Task ID: {task.id}")
+            
 
     logger.info(f"關聯 Milestone ID: {milestone.id}")
         
@@ -173,6 +175,19 @@ def migrate_old_marathons(**kwargs):
     engine = create_engine(postgres_uri)
     Session = sessionmaker(bind=engine)
     session = Session()
+    
+    task_instance = kwargs['ti']  # 訪問 task_instance 來推送 XCom
+
+    # 初始化統計數據
+    statistics = {
+        'total_processed': 0,
+        'users_added': 0,
+        'projects_added': 0,
+        'milestones_added': 0,
+        'tasks_added': 0,
+        'errors': 0
+    }
+    
 
     try:
         old_marathons_df = fetch_old_marathons(engine)
@@ -180,22 +195,44 @@ def migrate_old_marathons(**kwargs):
 
         for idx, row in old_marathons_df.iterrows():
             logger.info(f"處理第 {idx+1} 筆資料 (User ID: {row['userId']})")
-            user = process_user(row, session)
-            eligibility = process_eligibility(row, session)
-            project = process_project(row, user, session)
-            process_milestones(row, project, session)
+            try:
+                user = process_user(row, session)
+                statistics['users_added'] += 1
 
-            # 將 User 與 Project 連結
-            # 目前 UserProject 一對多 所以不需要
-            # link_user_project(user, project, session)
+                eligibility = process_eligibility(row, session)
 
-            # 將 Project 與 Marathon 連結
-            marathon = session.query(Marathon).filter_by(event_id=row["eventId"]).first()
-            if marathon:
-                link_project_marathon(project, marathon, session)
+                project = process_project(row, user, session)
+                statistics['projects_added'] += 1            
 
+                process_milestones(row, project, session)
+                statistics['milestones_added'] += len(json.loads(row.get("milestones", "[]")))
+                
+                for milestone_data in json.loads(row.get("milestones", "[]")):
+                    statistics['tasks_added'] += len(milestone_data.get("subMilestones", []))
+
+
+                # 將 User 與 Project 連結
+                # 目前 UserProject 一對多 所以不需要
+                # link_user_project(user, project, session)
+
+                # 將 Project 與 Marathon 連結
+                marathon = session.query(Marathon).filter_by(event_id=row["eventId"]).first()
+                if marathon:
+                    link_project_marathon(project, marathon, session)
+                    
+                statistics['total_processed'] += 1
+            except Exception as e:
+                statistics['errors'] += 1
+                logger.error(f"處理第 {idx+1} 筆資料時出錯: {e}")
+                
         session.commit()
         logger.info("所有資料成功遷移至新表")
+        
+
+        # 推送統計數據到 XCom
+        task_instance.xcom_push(key="statistics", value=statistics)
+        logger.info(f"統計數據已推送至 XCom: {statistics}")
+        
     except IntegrityError as e:
         session.rollback()
         logger.error(f"資料庫完整性錯誤: {e}")
