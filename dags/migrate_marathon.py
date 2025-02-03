@@ -19,8 +19,8 @@ logger = logging.getLogger("migration_logger")
 
 
 EVENT_ID = "2025S1"
-DATE_FLAG = date(2025, 2, 10) # for develop , if today is over marathon's start date
-# DATE_FLAG = datetime.now().date()  
+# DATE_FLAG = date(2025, 2, 10) # for develop , if today is over marathon's start date
+DATE_FLAG = datetime.now().date()  
 
 # DAG 設定
 default_args = {
