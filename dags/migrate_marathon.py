@@ -12,7 +12,7 @@ import json
 import re
 from utils.code import qualifications_mapping,motivation_mapping, strategy_mapping, outcome_mapping
 from utils.code_enum import qualifications_t
-from datetime import datetime
+from datetime import datetime, date
 
 # 設定日誌
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -20,8 +20,8 @@ logger = logging.getLogger("migration_logger")
 
 
 EVENT_ID = "2025S1"
-
-
+DATE_FLAG = date(2025, 2, 10) # for develop , if today is over marathon's start date
+# DATE_FLAG = datetime.now().date()  
 
 # DAG 設定
 default_args = {
@@ -90,7 +90,7 @@ def process_project_version(session):
         logger.info(f"找不到 該 marathon EVENT_ID: {EVENT_ID}")
         return version 
     
-    today = datetime.now().date()  
+    today = DATE_FLAG
 
     if today < marathon.start_date:
         version = 1
