@@ -1,9 +1,9 @@
-
+-- 生成 UUID 的函数
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE TABLE "roles" (
-    "id" SERIAL NOT NULL UNIQUE,
+    "id" SERIAL PRIMARY KEY,  
     "name" VARCHAR(255) NOT NULL UNIQUE,     -- 角色名稱，如 'User', 'Admin', 'SuperAdmin'
-    "description" TEXT,                      -- 角色描述
-    PRIMARY KEY("id")
+    "description" TEXT                       -- 角色描述
 );
 INSERT INTO "roles" ("id", "name", "description") VALUES
 (1, 'Guest', '未登入使用者'),
@@ -14,10 +14,10 @@ INSERT INTO "roles" ("id", "name", "description") VALUES
 (6, 'SuperAdmin', '系統最高權限者，擁有所有權限');
 
 CREATE TABLE "permissions" (
-    "id" SERIAL NOT NULL UNIQUE,
+    "id" SERIAL PRIMARY KEY,  
     "name" VARCHAR(255) NOT NULL UNIQUE,     -- 權限名稱，如 'view_public_info'
-    "description" TEXT,                      -- 權限描述
-    PRIMARY KEY("id")
+    "description" TEXT                       -- 權限描述
+    
 );
 INSERT INTO "permissions" ("id", "name", "description") VALUES
 (1, 'view_pages', '瀏覽頁面'),
@@ -49,32 +49,33 @@ INSERT INTO "position" (name) VALUES
 
 
 CREATE TYPE "city_t" AS ENUM (
-    'Taipei City',
-    'Keelung City',
-    'New Taipei City',
-    'Lianjiang County',
-    'Taoyuan City',
-    'Hsinchu City',
-    'Hsinchu County',
-    'Miaoli County',
-    'Taichung City',
-    'Changhua County',
-    'Yunlin County',
-    'Chiayi County',
-    'Chiayi City',
-    'Tainan City',
-    'nantou county',
-    'kaohsiung city',
-    'Pingtung County',
-    'Hainan Island',
-    'Penghu County',
-    'Kinmen County',
-    'Yilan County',
-    'Hualien County',
-    'Taitung County',
-    'Other'
+    'taipei_city',
+    'keelung_city',
+    'new_taipei_city',
+    'lianjiang_county',
+    'taoyuan_city',
+    'hsinchu_city',
+    'hsinchu_county',
+    'miaoli_county',
+    'taichung_city',
+    'changhua_county',
+    'yunlin_county',
+    'chiayi_county',
+    'chiayi_city',
+    'tainan_city',
+    'nantou_county',
+    'kaohsiung_city',
+    'pingtung_county',
+    'hainan_island',
+    'penghu_county',
+    'kinmen_county',
+    'yilan_county',
+    'hualien_county',
+    'taitung_county',
+    'other',
+    'tbd',
+    'online'
 );
-
 
 CREATE TYPE "want_to_do_list_t" AS ENUM (
     'interaction',
@@ -85,22 +86,38 @@ CREATE TYPE "want_to_do_list_t" AS ENUM (
     'find-group'
 );
 
+CREATE TYPE group_category_t AS ENUM (
+    'language',
+    'math',
+    'computer-science',
+    'humanity',
+    'nature-science',
+    'art',
+    'education',
+    'life',
+    'health',
+    'business',
+    'diversity',
+    'learningtools'
+);
+
+
 CREATE TYPE "group_type_t" AS ENUM (
-    'reading club',
+    'study_group',
     'workshop',
     'project',
     'competition',
-    'Activity',
-    'Societies',
+    'event',
+    'club',
     'course',
-    'practice',
+    'internship',
     'other'
 );
-CREATE TYPE "partner_education_step_t" AS ENUM ('high school', 'other', 'University');
+CREATE TYPE "partner_education_step_t" AS ENUM ('high', 'other', 'university');
 
 
 CREATE TYPE "cost_t" AS ENUM ('free', 'part', 'payment');
-CREATE TYPE "age_t" AS ENUM ('preschool', 'Elementary', 'high', 'University');
+CREATE TYPE "age_t" AS ENUM ('preschool', 'elementary', 'high', 'university');
 
 
 CREATE TYPE "freqency_t" AS ENUM ( 'two', 'one', 'three', 'month');
@@ -137,7 +154,7 @@ CREATE TYPE "motivation_t" AS ENUM (
     'others'
 );
 
-CREATE TYPE "policy_t" AS ENUM (
+CREATE TYPE "strategy_t" AS ENUM (
     'data_collection_research_analysis',
     'book_reading',
     'watching_videos',
@@ -157,7 +174,7 @@ CREATE TYPE "policy_t" AS ENUM (
     'conducting_surveys',
     'others'
 );
-CREATE TYPE "presentation_t" AS ENUM (
+CREATE TYPE "outcome_t" AS ENUM (
     'building_websites',
     'managing_social_media',
     'writing_research_reports',

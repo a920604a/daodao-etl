@@ -1,5 +1,5 @@
 CREATE TABLE "resources" (
-    "id" serial NOT NULL UNIQUE,
+    "id" SERIAL PRIMARY KEY,
     "created_by_user_id" INT UNIQUE,
     "image_url" varchar(255),
     "resource_name" varchar(255),
@@ -14,7 +14,6 @@ CREATE TABLE "resources" (
     "introduction" text,
     "area" varchar(255),
     "supplement" text,
-    PRIMARY KEY("id"),
     FOREIGN KEY ("created_by_user_id") REFERENCES "users"("id") 
 );
 

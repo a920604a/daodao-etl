@@ -1,8 +1,6 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, Enum
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Enum
 from .base import Base  # 引用分離出的 Base
 
 
@@ -14,7 +12,7 @@ class Position(Base):
     name = Column(String(100), nullable=False, unique=True)
 
     # 與 UserPosition 關聯
-    users = relationship("Users",secondary="user_positions",back_populates="identities", overlaps="user_positions")
+    users = relationship("User",secondary="user_positions",back_populates="identities", overlaps="user_positions")
 
 
     def __repr__(self):

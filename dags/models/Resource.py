@@ -1,7 +1,5 @@
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, ForeignKey, Text, Enum, Table, MetaData
-from sqlalchemy.dialects.postgresql import  UUID
+from sqlalchemy import create_engine, Column, Integer, ForeignKey, Text
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
 from utils.code_enum import cost_t, age_t
 from .base import Base  # 引用分離出的 Base
 
@@ -25,4 +23,4 @@ class Resource(Base):
     area = Column(Text)
     supplement = Column(Text)
 
-    user = relationship("Users", back_populates="resource")
+    user = relationship("User", back_populates="resource")

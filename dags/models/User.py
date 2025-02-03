@@ -1,7 +1,6 @@
-from sqlalchemy import create_engine, Column, TIMESTAMP, ARRAY, Integer, String, Boolean, ForeignKey, Text, Enum, Table, MetaData, Date
+from sqlalchemy import create_engine, Column, TIMESTAMP, Integer, String, Boolean, ForeignKey, Text, Date
 from sqlalchemy.dialects.postgresql import  UUID
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
 from utils.code_enum import education_stage_t, gender_t
 
 from .base import Base  # 引用分離出的 Base
@@ -9,13 +8,13 @@ import uuid
 
 
 # User 表
-class Users(Base):
+class User(Base):
     __tablename__ = "users"
 
     # 欄位定義
     id = Column(Integer, primary_key=True, autoincrement=True, nullable=False, unique=True)  # Primary Key
-    _id = Column(Text, nullable=False, unique=True)
-    uuid = Column(UUID(as_uuid=True), default=uuid.uuid4, nullable=False)
+    mongo_id = Column(Text, nullable=False, unique=True)
+    external_id = Column(UUID(as_uuid=True), default=uuid.uuid4, unique=True, nullable=False)
 
     gender = Column("gender", gender_t, nullable=True)  # 對應 gender_t
     language = Column(String(255), nullable=True)
@@ -54,15 +53,18 @@ class Users(Base):
     
     # 用來反向查詢User加入的群組
     user_join_group = relationship("UserJoinGroup", back_populates="user")
+    
+    profile = relationship('UserProfile', back_populates='user', uselist=False)
+
 
     def __repr__(self):
-        return f"<User(id={self.id}, uuid='{self.uuid}', nickname='{self.nickname}')>"
+        return f"<User(id={self.id}, external_id='{self.external_id}', nickname='{self.nickname}')>"
 
 
     @classmethod
     def from_dict(cls, data):
         return cls(
-            uuid=data.get('uuid'),
+            external_id=data.get('external_id'),
             gender=data.get('gender'),
             language=data.get('language'),
             education_stage=data.get('education_stage'),
@@ -86,7 +88,7 @@ class Users(Base):
     def to_dict(self):
         return {
             'id': self.id,
-            'uuid': str(self.uuid) if self.uuid else None,
+            'external_id': str(self.external_id) if self.external_id else None,
             'gender': self.gender,
             'language': self.language,
             'education_stage': self.education_stage,

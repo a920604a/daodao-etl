@@ -8,7 +8,7 @@ log() {
 
 # 停止並刪除所有 Docker 容器、卷和鏡像
 log "開始停止並刪除 Docker 容器、卷和鏡像..."
-docker compose down --volumes --remove-orphans --rmi all
+docker compose down --volumes --remove-orphans
 log "Docker 容器、卷和鏡像刪除完成。"
 
 
