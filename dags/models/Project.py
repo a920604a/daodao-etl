@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, ARRAY, Boolean, TIMESTAMP, Date, Enum, CheckConstraint
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, ARRAY, Boolean, TIMESTAMP, Date, Enum, CheckConstraint, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from .base import Base
@@ -12,7 +12,7 @@ class Project(Base):
     external_id = Column(UUID(as_uuid=True), default=uuid.uuid4, unique=True, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     img_url = Column(String(255))
-    topic = Column(String(255))
+    title = Column(String(255))
     description = Column(Text)
     motivation = Column(ARRAY(motivation_t))
     motivation_description = Column(Text)
@@ -40,6 +40,7 @@ class Project(Base):
     __table_args__ = (
         CheckConstraint("start_date < end_date", name="check_start_date_end_date"),
         CheckConstraint("interval > 0", name="check_interval_positive"),
+        UniqueConstraint("user_id", "title", "version", name="uq_user_project_version"),
     )
 
     milestones = relationship("Milestone", back_populates="project")
