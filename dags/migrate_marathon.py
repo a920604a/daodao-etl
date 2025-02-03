@@ -105,9 +105,9 @@ def process_project(row, user, session):
     version = process_project_version(session)
     
     # 判斷是否重複專案新增
-    if existing_project := session.query(Project).filter_by(user_id=user.id, topic=row.get("title"), version=version).first():
+    if existing_project := session.query(Project).filter_by(user_id=user.id, title=row.get("title"), version=version).first():
 
-        logger.info(f"專案已存在，跳過新增: {existing_project.id} {existing_project.topic} {existing_project.version}")
+        logger.info(f"專案已存在，跳過新增: {existing_project.id} {existing_project.title} {existing_project.version}")
         return None  # 直接回傳已存在的專案
     
     
@@ -141,7 +141,7 @@ def process_project(row, user, session):
     try:    
         project = Project(
             user_id=user.id,
-            topic=row.get("title"),
+            title=row.get("title"),
             description=row.get("description"),
             motivation=motivation_tags,
             motivation_description=motivation.get("description"),

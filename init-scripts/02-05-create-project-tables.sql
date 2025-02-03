@@ -3,7 +3,7 @@ CREATE TABLE "project" (
     "external_id" UUID DEFAULT gen_random_uuid() UNIQUE, -- 使用 UUID 作为唯一标识符并添加唯一约束
     "user_id" int NOT NULL,
     "img_url" varchar(255),
-    "topic" varchar(255),
+    "title" varchar(255),
     "description" text,
     "motivation" motivation_t[],
     "motivation_description" text,
@@ -27,7 +27,7 @@ CREATE TABLE "project" (
     "updated_by" int,
     "version" int,
     FOREIGN KEY ("user_id") REFERENCES "users"("id"),
-    UNIQUE ("user_id", "topic", "version")
+    UNIQUE ("user_id", "title", "version")
 );
 
 CREATE TABLE "user_project" (

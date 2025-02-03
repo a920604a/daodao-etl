@@ -2,7 +2,7 @@
 -- INSERT INTO "project" (
 --     "user_id", 
 --     "img_url", 
---     "topic", 
+--     "title", 
 --     "project_description", 
 --     "motivation", 
 --     "motivation_description", 
