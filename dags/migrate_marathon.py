@@ -12,10 +12,16 @@ import json
 import re
 from utils.code import qualifications_mapping,motivation_mapping, strategy_mapping, outcome_mapping
 from utils.code_enum import qualifications_t
+from datetime import datetime
 
 # 設定日誌
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("migration_logger")
+
+
+EVENT_ID = "2025S1"
+
+
 
 # DAG 設定
 default_args = {
@@ -76,6 +82,25 @@ def process_eligibility(row, session):
     logger.info(f"新增 Eligibility ID: {eligibility.id}")
     return eligibility
 
+def process_project_version(session):
+    version = -1  # 預設值
+    marathon = session.query(Marathon).filter_by(event_id=EVENT_ID).first()
+
+    if not marathon:    
+        logger.info(f"找不到 該 marathon EVENT_ID: {EVENT_ID}")
+        return version 
+    
+    today = datetime.now().date()  
+
+    if today < marathon.start_date:
+        version = 1
+    elif today < marathon.end_date:
+        version = 2
+    else:
+        version = 3
+
+    return version
+
 def process_project(row, user, session):
     motivation_str = row.get("motivation", "{}") or "{}"
     strategies_str = row.get("strategies", "{}") or "{}"
@@ -104,6 +129,7 @@ def process_project(row, user, session):
     ]
 
 
+    version = process_project_version(session)
     
     project = Project(
         user_id=user.id,
@@ -123,7 +149,7 @@ def process_project(row, user, session):
         is_public=row.get("isPublic", False),
         # start_date=
         # end_date=
-        version = 1,
+        version = version, # depend on marathon 
     )
     session.add(project)
     session.flush()
