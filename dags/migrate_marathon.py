@@ -11,7 +11,6 @@ import logging
 import json
 import re
 from utils.code import qualifications_mapping,motivation_mapping, strategy_mapping, outcome_mapping
-from utils.code_enum import qualifications_t
 from datetime import datetime, date
 
 # 設定日誌
@@ -102,6 +101,17 @@ def process_project_version(session):
     return version
 
 def process_project(row, user, session):
+    
+    version = process_project_version(session)
+    
+    # 判斷是否重複專案新增
+    existing_project = session.query(Project).filter_by(user_id=user.id, topic=row.get("title"), version=version).first()
+
+    if existing_project:
+        logger.info(f"專案已存在，跳過新增: {existing_project.id} {existing_project.topic} {existing_project.version}")
+        return None  # 直接回傳已存在的專案
+    
+    
     motivation_str = row.get("motivation", "{}") or "{}"
     strategies_str = row.get("strategies", "{}") or "{}"
     outcome_str = row.get("outcomes", "{}") or "{}"
@@ -129,32 +139,34 @@ def process_project(row, user, session):
     ]
 
 
-    version = process_project_version(session)
-    
-    project = Project(
-        user_id=user.id,
-        topic=row.get("title"),
-        description=row.get("description"),
-        motivation=motivation_tags,
-        motivation_description=motivation.get("description"),
-        goal=row.get("goal", ""),
-        content=row.get("content", ""),
-        strategy=policy_tags,
-        strategy_description=strategies.get("description"),
-        # resource_name=[res.get("name", "") for res in resources],
-        # resource_url=[res.get("url", "") for res in resources],
-        resource = resources_str,
-        outcome=presentation_tags,
-        outcome_description=outcome.get("description"),
-        is_public=row.get("isPublic", False),
-        # start_date=
-        # end_date=
-        version = version, # depend on marathon 
-    )
-    session.add(project)
-    session.flush()
-    logger.info(f"新增 Project ID: {project.id}")
-    return project
+    try:    
+        project = Project(
+            user_id=user.id,
+            topic=row.get("title"),
+            description=row.get("description"),
+            motivation=motivation_tags,
+            motivation_description=motivation.get("description"),
+            goal=row.get("goal", ""),
+            content=row.get("content", ""),
+            strategy=policy_tags,
+            strategy_description=strategies.get("description"),
+            # resource_name=[res.get("name", "") for res in resources],
+            # resource_url=[res.get("url", "") for res in resources],
+            resource = resources_str,
+            outcome=presentation_tags,
+            outcome_description=outcome.get("description"),
+            is_public=row.get("isPublic", False),
+            # start_date=
+            # end_date=
+            version = version, # depend on marathon 
+        )
+        session.add(project)
+        session.flush()
+        logger.info(f"新增 Project ID: {project.id}")
+        return project
+    except IntegrityError:
+        session.rollback()  # 回滾變更
+        logger.info(f"發現重複專案，跳過: {row.get('title')} (User ID: {user.id})")
 
 def process_milestones(row, project, session):
     milestone_datas = json.loads(row.get("milestones", "[]"))
@@ -228,7 +240,9 @@ def migrate_old_marathons(**kwargs):
                 eligibility = process_eligibility(row, session)
 
                 project = process_project(row, user, session)
-                statistics['projects_added'] += 1            
+                statistics['projects_added'] += 1        
+                if project is None:
+                    continue   
 
                 process_milestones(row, project, session)
                 statistics['milestones_added'] += len(json.loads(row.get("milestones", "[]")))

@@ -26,7 +26,8 @@ CREATE TABLE "project" (
     "updated_at" timestamp DEFAULT current_timestamp,
     "updated_by" int,
     "version" int,
-    FOREIGN KEY ("user_id") REFERENCES "users"("id")
+    FOREIGN KEY ("user_id") REFERENCES "users"("id"),
+    UNIQUE ("user_id", "topic", "version")
 );
 
 CREATE TABLE "user_project" (
