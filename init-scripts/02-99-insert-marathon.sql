@@ -25,7 +25,7 @@ INSERT INTO "marathon" (
     '2025S1', 
     'Daodao Marathon', 
     'Helps you create a personalized learning plan.', 
-    '2025-02-10', 
+    '2025-02-09', 
     '2025-07-12', 
     'Open', 
     20, 
