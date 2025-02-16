@@ -30,7 +30,7 @@
 3. 計算每個 Project Milestone 的最早開始日期和最晚結束日期
 ```sql
 select
-	p.id,
+    p.id,
     p.title AS project_title,
     MIN(m.start_date) AS earliest_milestone_start_date,
     MAX(m.end_date) AS latest_milestone_end_date
