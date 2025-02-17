@@ -6,13 +6,15 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 from models import User, Marathon, ProjectMarathon, Project, Milestone, Task, UserProject, Eligibility, FeePlan
 from serivces import get_valid_contestants, set_player_role_id, set_mentor_role_id, get_marthon_user_list
-from config import postgres_uri
+from config import postgres_uri, mongo_old_db_name, mongo_db_name
 import pandas as pd
 import logging
 import json
 import re
-from utils.code import qualifications_mapping,motivation_mapping, strategy_mapping, outcome_mapping
+from utils.code import qualifications_mapping, motivation_mapping, strategy_mapping, outcome_mapping
 from datetime import datetime, date
+from airflow.models import Variable
+
 
 # 設定日誌
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -20,8 +22,15 @@ logger = logging.getLogger("migration_logger")
 
 
 EVENT_ID = "2025S1"
-# DATE_FLAG = date(2025, 2, 10) # for develop , if today is over marathon's start date
-DATE_FLAG = datetime.now().date()  
+date_part = mongo_old_db_name.split("-prod")[0] # replace mongo_db_name, mongo_old_db_name
+date_obj = datetime.strptime(date_part, "%Y-%m-%d")
+timestamp = int(date_obj.timestamp())  # 轉成秒數
+
+DATE_FLAG = datetime.fromtimestamp(timestamp).date()  # 2025-01-30
+Variable.set("DATE_FLAG", str(DATE_FLAG))  # 變數存成字串格式 "2025-01-30"
+
+# DATE_FLAG = date(2025, 2, 17) # for develop , if today is over marathon's start date, for 
+
 
 # DAG 設定
 default_args = {
@@ -37,8 +46,8 @@ default_args = {
 
 # --- 模組化方法 ---
 def fetch_old_marathons(engine):
-    logger.info("開始提取 old_marathons 資料...")
-    query = "SELECT * FROM old_marathons"
+    logger.info("開始提取 old_marathons_v1 資料...")
+    query = "SELECT * FROM old_marathons_v1"
     return pd.read_sql(query, engine)
 
 def process_user(row, session):
@@ -297,30 +306,20 @@ def set_mentor_role():
     set_mentor_role_id(session)
     
 with DAG(
-    "migrate_old_marathon_to_marathons",
+    "migrate_old_marathon_v1_to_marathons",
     tags=["migrate", "marathon", "project"],
     default_args=default_args,
-    description="Migrate data from old_marathon table to marathon, project task tables",
+    description="Migrate data from old_marathon_v1 table to marathon, project task tables",
     schedule_interval=None,
     start_date=datetime(2023, 12, 9),
     catchup=False,
 ) as dag:
     # --- DAG 定義 ---
     migrate_marathon_task = PythonOperator(
-        task_id="migrate_old_marathons_to_projects",
+        task_id="migrate_old_marathons_v1_to_projects",
         python_callable=migrate_old_marathons,
         dag=dag
     )
 
-    set_player_role_task = PythonOperator(
-        task_id="set_player_the_right_role_id",
-        python_callable=set_player_role,
-        dag=dag
-    )
-    set_mentor_role_task =  PythonOperator(
-        task_id="set_mentor_the_right_role_id",
-        python_callable=set_mentor_role,
-        dag=dag
-    )
-    migrate_marathon_task >> set_player_role_task >> set_mentor_role_task
- 
+    
+    migrate_marathon_task

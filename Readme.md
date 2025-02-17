@@ -59,7 +59,6 @@ Airflow Admin -> Variable
 ## metadata setting
 `.marathon.json` 
 ```
-
 {
     "paid_names_list": [
         "username_1",
@@ -77,7 +76,8 @@ Airflow Admin -> Variable
 ```json
 {
   "MONGO_URI": "",
-  "MONGO_DB_NAME": "",
+  "MONGO_OLD_DB_NAME": "2025-01-30-prod",
+  "MONGO_DB_NAME": "2025-02-17-prod",
   "POSTGRES_URI": "",
   "NOTION_API_KEY": "",
   "NOTION_DATABASE_RESOURCE_ID": "",

@@ -1,7 +1,7 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime
-from config import default_args, mongo_uri, mongo_db_name, postgres_uri
+from config import default_args
 from etl.notion2Postgresql import NotionToPostgresETL, create_etl_tasks
 from airflow.utils.dates import days_ago
 from airflow.models import Variable
