@@ -27,7 +27,7 @@ date_obj = datetime.strptime(date_part, "%Y-%m-%d")
 timestamp = int(date_obj.timestamp())  # 轉成秒數
 
 DATE_FLAG = datetime.fromtimestamp(timestamp).date()  # 2025-01-30
-Variable.set("DATE_FLAG", str(DATE_FLAG))  # 變數存成字串格式 "2025-01-30"
+# Variable.set("DATE_FLAG", str(DATE_FLAG))  # 變數存成字串格式 "2025-01-30"
 
 # DATE_FLAG = date(2025, 2, 17) # for develop , if today is over marathon's start date, for 
 
@@ -320,6 +320,16 @@ with DAG(
         python_callable=migrate_old_marathons,
         dag=dag
     )
-
+    set_player_role_task = PythonOperator(
+            task_id="set_player_the_right_role_id",
+            python_callable=set_player_role,
+            dag=dag
+        )
+    set_mentor_role_task =  PythonOperator(
+        task_id="set_mentor_the_right_role_id",
+        python_callable=set_mentor_role,
+        dag=dag
+    )
     
-    migrate_marathon_task
+    migrate_marathon_task >> set_player_role_task >> set_mentor_role_task
+ 

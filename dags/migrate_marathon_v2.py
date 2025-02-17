@@ -27,7 +27,7 @@ date_obj = datetime.strptime(date_part, "%Y-%m-%d")
 timestamp = int(date_obj.timestamp())  # 轉成秒數
 
 DATE_FLAG = datetime.fromtimestamp(timestamp).date()  # 2025-01-30
-Variable.set("DATE_FLAG", str(DATE_FLAG))  # 變數存成字串格式 "2025-01-30"
+# Variable.set("DATE_FLAG", str(DATE_FLAG))  # 變數存成字串格式 "2025-01-30"
 
 # DATE_FLAG = date(2025, 2, 17) # for develop , if today is over marathon's start date, for 
 
@@ -284,27 +284,6 @@ def migrate_old_marathons(**kwargs):
         session.close()
 
 
-def set_player_role():
-    engine = create_engine(postgres_uri)
-    Session = sessionmaker(bind=engine)
-    session = Session()
-    
-    valid_user_list = get_valid_contestants(session)
-    logger.info(f"已繳款的使用者 ID : {valid_user_list} {len(valid_user_list)}")
-    
-    marthon_user_list = get_marthon_user_list(session)
-    logger.info(f"註冊馬拉松的使用者 ID : {marthon_user_list}, {len(marthon_user_list)}")
-    
-    logger.info("將已繳款的使用者 設定role_id = 3")
-    set_player_role_id(session, get_valid_contestants(session))
-
-def set_mentor_role():
-    engine = create_engine(postgres_uri)
-    Session = sessionmaker(bind=engine)
-    session = Session()
-    
-    set_mentor_role_id(session)
-    
 with DAG(
     "migrate_old_marathon_v2_to_marathons",
     tags=["migrate", "marathon", "project"],
@@ -321,15 +300,4 @@ with DAG(
         dag=dag
     )
 
-    set_player_role_task = PythonOperator(
-        task_id="set_player_the_right_role_id",
-        python_callable=set_player_role,
-        dag=dag
-    )
-    set_mentor_role_task =  PythonOperator(
-        task_id="set_mentor_the_right_role_id",
-        python_callable=set_mentor_role,
-        dag=dag
-    )
-    migrate_marathon_task >> set_player_role_task >> set_mentor_role_task
- 
+    migrate_marathon_task 
