@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 from models import User, Marathon, ProjectMarathon, Project, Milestone, Task, UserProject, Eligibility, FeePlan
+from serivces import get_valid_contestants, set_player_role_id, set_mentor_role_id, get_marthon_user_list
 from config import postgres_uri
 import pandas as pd
 import logging
@@ -32,15 +33,7 @@ default_args = {
     "retry_delay": timedelta(minutes=5),
 }
 
-dag = DAG(
-    "migrate_old_marathon_to_marathons",
-    tags=["migrate", "marathon", "project"],
-    default_args=default_args,
-    description="Migrate data from old_marathon table to marathon, project task tables",
-    schedule_interval=None,
-    start_date=datetime(2023, 12, 9),
-    catchup=False,
-)
+
 
 # --- 模組化方法 ---
 def fetch_old_marathons(engine):
@@ -281,9 +274,53 @@ def migrate_old_marathons(**kwargs):
     finally:
         session.close()
 
-# --- DAG 定義 ---
-migrate_marathon_task = PythonOperator(
-    task_id="migrate_old_marathons_to_projects",
-    python_callable=migrate_old_marathons,
-    dag=dag,
-)
+
+def set_player_role():
+    engine = create_engine(postgres_uri)
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    
+    valid_user_list = get_valid_contestants(session)
+    logger.info(f"已繳款的使用者 ID : {valid_user_list} {len(valid_user_list)}")
+    
+    marthon_user_list = get_marthon_user_list(session)
+    logger.info(f"註冊馬拉松的使用者 ID : {marthon_user_list}, {len(marthon_user_list)}")
+    
+    logger.info("將已繳款的使用者 設定role_id = 3")
+    set_player_role_id(session, get_valid_contestants(session))
+
+def set_mentor_role():
+    engine = create_engine(postgres_uri)
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    
+    set_mentor_role_id(session)
+    
+with DAG(
+    "migrate_old_marathon_to_marathons",
+    tags=["migrate", "marathon", "project"],
+    default_args=default_args,
+    description="Migrate data from old_marathon table to marathon, project task tables",
+    schedule_interval=None,
+    start_date=datetime(2023, 12, 9),
+    catchup=False,
+) as dag:
+    # --- DAG 定義 ---
+    migrate_marathon_task = PythonOperator(
+        task_id="migrate_old_marathons_to_projects",
+        python_callable=migrate_old_marathons,
+        dag=dag
+    )
+
+    set_player_role_task = PythonOperator(
+        task_id="set_player_the_right_role_id",
+        python_callable=set_player_role,
+        dag=dag
+    )
+    set_mentor_role_task =  PythonOperator(
+        task_id="set_mentor_the_right_role_id",
+        python_callable=set_mentor_role,
+        dag=dag
+    )
+    migrate_marathon_task >> set_player_role_task >> set_mentor_role_task
+ 
