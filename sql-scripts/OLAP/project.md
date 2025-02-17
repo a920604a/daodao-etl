@@ -100,27 +100,32 @@ RETURNS TABLE(
     project_id integer, 
     project_title text, 
     milestone_start_date date, 
-    milestone_end_date date
+    milestone_end_date date, 
+    week_number integer,
+    is_completed boolean 
 )
 LANGUAGE plpgsql
 AS $function$
 BEGIN
     RETURN QUERY
     SELECT
-        p.id AS project_id,
-        p.title::TEXT AS project_title,  -- 明確轉換為 TEXT
+        p.id AS project_id,  
+        p.title::TEXT AS project_title,
         m.start_date AS milestone_start_date,
-        m.end_date AS milestone_end_date
+        m.end_date AS milestone_end_date,
+        ((EXTRACT(DAY FROM (m.start_date::timestamp - (SELECT MIN(m2.start_date) FROM public.milestone m2 WHERE m2.project_id = p.id))) / 7) + 1)::integer AS week_number,
+        m.is_completed 
     FROM
         public.project p
     JOIN
         public.milestone m ON p.id = m.project_id
     WHERE
-        (p_project_id IS NULL OR p.id = p_project_id)  -- 如果傳入 p_project_id，則過濾相應專案
+        (p_project_id IS NULL OR p.id = p_project_id)  
     ORDER BY
         p.id, m.start_date;
 END;
 $function$;
+
 
 ```
 ```sql
