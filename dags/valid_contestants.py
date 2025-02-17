@@ -1,10 +1,11 @@
 from config import default_args, mongo_uri, mongo_db_name, postgres_uri
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, update
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 from models import User, Contact, Project
 import json
 import os
+from typing import List
 
 engine = create_engine(postgres_uri)
 Session = sessionmaker(bind=engine)
@@ -51,6 +52,12 @@ def get_marthon_user_list():
     user_ids = [row[0] for row in result]
     return sorted(user_ids)
 
+def set_player_role_id(user_list : List, role_id = 3):
+    session.execute(
+            update(User).where(User.id.in_(user_list)).values(role_id=role_id)
+        )
+    session.commit()
+    session.close()
 
 if __name__ == "__main__":
     valid_user_list = get_valid_contestants()
@@ -64,6 +71,10 @@ if __name__ == "__main__":
     print("「沒繳費」和「沒入選」的使用者 ID :", invalid_users, len(invalid_users))
     
     
+    # 將已繳款的使用者 設定role_id = 3
+    print("將已繳款的使用者 設定role_id = 3")
+    set_player_role_id(valid_user_list)
+        
     # 將繳費的使用者 並且 豬案在 project_marathon 的專案都設定為 公開
     
     # 未繳費 可以使用一個學習計畫，馬拉松參與者且繳費的 可以使用3個
