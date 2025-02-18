@@ -1,7 +1,6 @@
-from airflow import DAG
 from airflow.operators.python import PythonOperator
-from datetime import datetime, timedelta
-from sqlalchemy import create_engine
+from datetime import datetime, date, timedelta
+from sqlalchemy import create_engine, and_
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 from models import User, Marathon, ProjectMarathon, Project, Milestone, Task, UserProject, Eligibility, FeePlan
@@ -11,17 +10,13 @@ import pandas as pd
 import logging
 import json
 import re
-from utils.code import qualifications_mapping,motivation_mapping, strategy_mapping, outcome_mapping
-from datetime import datetime, date
+from utils.code import qualifications_mapping, motivation_mapping, strategy_mapping, outcome_mapping
+from datetime import datetime
+
 
 # 設定日誌
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("migration_logger")
-
-
-EVENT_ID = "2025S1"
-# DATE_FLAG = date(2025, 2, 10) # for develop , if today is over marathon's start date
-DATE_FLAG = datetime.now().date()  
 
 # DAG 設定
 default_args = {
@@ -35,10 +30,24 @@ default_args = {
 
 
 
+
+def get_date_flag(mongo_db_name):
+    try:
+        if "-prod" not in mongo_db_name:
+            raise ValueError("Input string must contain '-prod' delimiter.")
+        date_part = mongo_db_name.split("-prod")[0]  # replace mongo_db_name, mongo_old_db_name
+        date_obj = datetime.strptime(date_part, "%Y-%m-%d")
+    except Exception as e:
+        raise ValueError(f"Invalid mongo_db_name format: {mongo_db_name}") from e
+    timestamp = int(date_obj.timestamp())  
+
+    return datetime.fromtimestamp(timestamp).date() # 2025-01-30
+
+
 # --- 模組化方法 ---
 def fetch_old_marathons(engine):
-    logger.info("開始提取 old_marathons 資料...")
-    query = "SELECT * FROM old_marathons"
+    logger.info("開始提取 old_marathons_v1 資料...")
+    query = "SELECT * FROM old_marathons_v1"
     return pd.read_sql(query, engine)
 
 def process_user(row, session):
@@ -74,15 +83,25 @@ def process_eligibility(row, session):
     logger.info(f"新增 Eligibility ID: {eligibility.id}")
     return eligibility
 
-def process_project_version(session):
+def process_project_version(session, date_flag):
     version = -1  # 預設值
-    marathon = session.query(Marathon).filter_by(event_id=EVENT_ID).first()
+    # 查询今天的马拉松记录
+    today = date.today()
+    marathon = session.query(Marathon).filter(
+        and_(
+            Marathon.start_date <= today,
+            Marathon.end_date >= today
+        )
+    ).first()
+
 
     if not marathon:    
-        logger.info(f"找不到 該 marathon EVENT_ID: {EVENT_ID}")
+        logger.info(f"No marathon found for today's date: {today}")
         return version 
+    else:
+        logger.info(f"Found marathon: {marathon.title} (Event ID: {marathon.event_id})")
     
-    today = DATE_FLAG
+    today = date_flag
 
     if today < marathon.start_date:
         version = 1
@@ -93,9 +112,9 @@ def process_project_version(session):
 
     return version
 
-def process_project(row, user, session):
+def process_project(row, user, session, date_flag):
     
-    version = process_project_version(session)
+    version = process_project_version(session, date_flag)
     
     # 判斷是否重複專案新增
     if existing_project := session.query(Project).filter_by(user_id=user.id, title=row.get("title"), version=version).first():
@@ -231,7 +250,7 @@ def migrate_old_marathons(**kwargs):
 
                 eligibility = process_eligibility(row, session)
 
-                project = process_project(row, user, session)
+                project = process_project(row, user, session, kwargs['date_flag'])
                 statistics['projects_added'] += 1        
                 if project is None:
                     continue   
@@ -288,6 +307,8 @@ def set_player_role():
     
     logger.info("將已繳款的使用者 設定role_id = 3")
     set_player_role_id(session, get_valid_contestants(session))
+    
+    # 將註冊馬拉松的使用者但繳款的使用者 設定role_id = ??
 
 def set_mentor_role():
     engine = create_engine(postgres_uri)
@@ -295,32 +316,3 @@ def set_mentor_role():
     session = Session()
     
     set_mentor_role_id(session)
-    
-with DAG(
-    "migrate_old_marathon_to_marathons",
-    tags=["migrate", "marathon", "project"],
-    default_args=default_args,
-    description="Migrate data from old_marathon table to marathon, project task tables",
-    schedule_interval=None,
-    start_date=datetime(2023, 12, 9),
-    catchup=False,
-) as dag:
-    # --- DAG 定義 ---
-    migrate_marathon_task = PythonOperator(
-        task_id="migrate_old_marathons_to_projects",
-        python_callable=migrate_old_marathons,
-        dag=dag
-    )
-
-    set_player_role_task = PythonOperator(
-        task_id="set_player_the_right_role_id",
-        python_callable=set_player_role,
-        dag=dag
-    )
-    set_mentor_role_task =  PythonOperator(
-        task_id="set_mentor_the_right_role_id",
-        python_callable=set_mentor_role,
-        dag=dag
-    )
-    migrate_marathon_task >> set_player_role_task >> set_mentor_role_task
- 
