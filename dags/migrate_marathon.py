@@ -1,12 +1,12 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from datetime import datetime
-from sqlalchemy import create_engine
+from datetime import datetime, date
+from sqlalchemy import create_engine, and_
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 from models import User, Marathon, ProjectMarathon, Project, Milestone, Task, UserProject, Eligibility, FeePlan
 from serivces import get_valid_contestants, set_player_role_id, set_mentor_role_id, get_marthon_user_list
-from config import postgres_uri, EVENT_ID
+from config import postgres_uri
 import pandas as pd
 import logging
 import json
@@ -21,12 +21,16 @@ logger = logging.getLogger("migration_logger")
 
 
 def get_date_flag(mongo_db_name):
-    date_part = mongo_db_name.split("-prod")[0] # replace mongo_db_name, mongo_old_db_name
-    date_obj = datetime.strptime(date_part, "%Y-%m-%d")
+    try:
+        if "-prod" not in mongo_db_name:
+            raise ValueError("Input string must contain '-prod' delimiter.")
+        date_part = mongo_db_name.split("-prod")[0]  # replace mongo_db_name, mongo_old_db_name
+        date_obj = datetime.strptime(date_part, "%Y-%m-%d")
+    except Exception as e:
+        raise ValueError(f"Invalid mongo_db_name format: {mongo_db_name}") from e
     timestamp = int(date_obj.timestamp())  
 
-    date_flag = datetime.fromtimestamp(timestamp).date()  # 2025-01-30
-    return date_flag
+    return datetime.fromtimestamp(timestamp).date() # 2025-01-30
 
 
 # --- 模組化方法 ---
@@ -70,11 +74,21 @@ def process_eligibility(row, session):
 
 def process_project_version(session, date_flag):
     version = -1  # 預設值
-    marathon = session.query(Marathon).filter_by(event_id=EVENT_ID).first()
+    # 查询今天的马拉松记录
+    today = date.today()
+    marathon = session.query(Marathon).filter(
+        and_(
+            Marathon.start_date <= today,
+            Marathon.end_date >= today
+        )
+    ).first()
+
 
     if not marathon:    
-        logger.info(f"找不到 該 marathon EVENT_ID: {EVENT_ID}")
+        logger.info(f"No marathon found for today's date: {today}")
         return version 
+    else:
+        logger.info(f"Found marathon: {marathon.title} (Event ID: {marathon.event_id})")
     
     today = date_flag
 

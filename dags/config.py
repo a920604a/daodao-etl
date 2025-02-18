@@ -13,5 +13,3 @@ mongo_old_db_name = Variable.get("MONGO_OLD_DB_NAME")
 mongo_db_name = Variable.get("MONGO_DB_NAME")
 postgres_uri = Variable.get("POSTGRES_URI")
 notion_api_key = Variable.get("NOTION_API_KEY")
-
-EVENT_ID = "2025S1"
