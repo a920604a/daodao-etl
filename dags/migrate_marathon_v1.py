@@ -1,18 +1,8 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from datetime import datetime, timedelta
-from migrate_marathon import migrate_old_marathons, set_player_role, set_mentor_role, get_date_flag
+from datetime import datetime
+from migrate_marathon import migrate_old_marathons, set_player_role, set_mentor_role, get_date_flag, default_args
 from config import mongo_old_db_name
-
-# DAG 設定
-default_args = {
-    "owner": "airflow",
-    "depends_on_past": False,
-    "email_on_failure": False,
-    "email_on_retry": False,
-    "retries": 1,
-    "retry_delay": timedelta(minutes=5),
-}
 
 
 
@@ -26,6 +16,7 @@ with DAG(
     catchup=False,
 ) as dag:
     date_flag = get_date_flag(mongo_old_db_name)
+    
     # --- DAG 定義 ---
     migrate_marathon_task = PythonOperator(
         task_id="migrate_old_marathons_v1_to_projects",

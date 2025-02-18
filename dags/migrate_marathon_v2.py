@@ -1,19 +1,9 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
-from migrate_marathon import migrate_old_marathons, get_date_flag
+from migrate_marathon import migrate_old_marathons, get_date_flag, default_args
 from config import mongo_db_name
 
-
-# DAG 設定
-default_args = {
-    "owner": "airflow",
-    "depends_on_past": False,
-    "email_on_failure": False,
-    "email_on_retry": False,
-    "retries": 1,
-    "retry_delay": timedelta(minutes=5),
-}
 
 
 with DAG(
