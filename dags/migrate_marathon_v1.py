@@ -18,23 +18,23 @@ with DAG(
 ) as dag:
     date_flag = get_date_flag(mongo_old_db_name)
     
-    # --- DAG 定義 ---
-    # migrate_marathon_task = PythonOperator(
-    #     task_id="migrate_old_marathons_v1_to_projects",
-    #     python_callable=migrate_old_marathons,
-    #     op_kwargs={'date_flag': date_flag},  # 傳遞 date_flag 參數
-    #     dag=dag
-    # )
-    # set_player_role_task = PythonOperator(
-    #         task_id="set_player_the_right_role_id",
-    #         python_callable=set_player_role,
-    #         dag=dag
-    #     )
-    # set_mentor_role_task =  PythonOperator(
-    #     task_id="set_mentor_the_right_role_id",
-    #     python_callable=set_mentor_role,
-    #     dag=dag
-    # )
+    --- DAG 定義 ---
+    migrate_marathon_task = PythonOperator(
+        task_id="migrate_old_marathons_v1_to_projects",
+        python_callable=migrate_old_marathons,
+        op_kwargs={'date_flag': date_flag},  # 傳遞 date_flag 參數
+        dag=dag
+    )
+    set_player_role_task = PythonOperator(
+            task_id="set_player_the_right_role_id",
+            python_callable=set_player_role,
+            dag=dag
+        )
+    set_mentor_role_task =  PythonOperator(
+        task_id="set_mentor_the_right_role_id",
+        python_callable=set_mentor_role,
+        dag=dag
+    )
     
     set_mentor_mapping_player = PythonOperator(
         task_id="set_mentor_mapping_player",
@@ -42,6 +42,5 @@ with DAG(
         dag=dag
     )
     
-    # migrate_marathon_task >> set_player_role_task >> set_mentor_role_task
-    set_mentor_mapping_player
+    migrate_marathon_task >> set_player_role_task >> set_mentor_role_task >> set_mentor_mapping_player
  
