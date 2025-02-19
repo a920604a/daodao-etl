@@ -88,7 +88,7 @@ CREATE TABLE post (
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-CREATE INDEX idx_posts_study_plan_status ON posts(study_plan_id, status);
+CREATE INDEX idx_posts_study_plan_status ON post(study_plan_id, status);
 
 -- 學習成果(outcome)表
 CREATE TABLE outcome (
@@ -99,8 +99,10 @@ CREATE TABLE outcome (
     visibility VARCHAR(10) CHECK (visibility IN ('public', 'private')) DEFAULT 'private',
     created_at timestamp DEFAULT current_timestamp,
     updated_at timestamp DEFAULT current_timestamp,
-    FOREIGN KEY ("post_id") REFERENCES "posts"("id") ON DELETE CASCADE
+    FOREIGN KEY ("post_id") REFERENCES "post"("id") ON DELETE CASCADE
 );
+CREATE INDEX idx_outcome_post_id ON outcome(post_id);
+
 
 -- 便利貼(note)表。目前便利貼是針對專案相關。
 CREATE TABLE note (
@@ -111,8 +113,9 @@ CREATE TABLE note (
     visibility VARCHAR(10) CHECK (visibility IN ('public', 'private')) DEFAULT 'private',
     created_at timestamp DEFAULT current_timestamp,
     updated_at timestamp DEFAULT current_timestamp,
-    FOREIGN KEY ("post_id") REFERENCES "posts"("id") ON DELETE CASCADE
+    FOREIGN KEY ("post_id") REFERENCES "post"("id") ON DELETE CASCADE
 );
+CREATE INDEX idx_note_post_id ON note(post_id);
 
 -- 覆盤
 CREATE TABLE review (
@@ -125,13 +128,14 @@ CREATE TABLE review (
     visibility VARCHAR(10) CHECK (visibility IN ('public', 'private')) DEFAULT 'private',
     created_at timestamp DEFAULT current_timestamp,
     updated_at timestamp DEFAULT current_timestamp,
-    FOREIGN KEY ("post_id") REFERENCES "posts"("id") ON DELETE CASCADE
+    FOREIGN KEY ("post_id") REFERENCES "post"("id") ON DELETE CASCADE
 );
+CREATE INDEX idx_review_post_id ON review(post_id);
 
 -- 儲存回覆資訊。
 CREATE TABLE comments (
     id SERIAL PRIMARY KEY,
-    post_id INT REFERENCES posts(id) ON DELETE CASCADE,
+    post_id INT REFERENCES post(id) ON DELETE CASCADE,
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
     visibility VARCHAR(10) CHECK (visibility IN ('public', 'private')) DEFAULT 'private',
