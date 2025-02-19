@@ -5,6 +5,7 @@ CREATE TABLE posts (
     user_id  INT REFERENCES users(id) ON DELETE CASCADE,
     type VARCHAR(20) CHECK (type IN ('learning_outcome', 'sticky_note', 'review')) NOT NULL,
     content TEXT NOT NULL,
+    "date" date NOT NULL, 
     status VARCHAR(20) CHECK (status IN ('draft', 'published')) DEFAULT 'draft',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

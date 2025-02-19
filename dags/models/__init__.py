@@ -20,11 +20,13 @@ from .Eligibility import Eligibility
 from .ProjectMarathon import ProjectMarathon
 from .UserProfile import UserProfile
 from .Country import Country
+from .MentorParticipants import MentorParticipants
 
 # 導出所有類別
 __all__ = [ "User", "Contact", "BasicInfo", "Location", "Country", "City", "Base", 
            "Store", "Resource", "Position", "UserPosition", "Group", "UserJoinGroup",
            "Project", "Milestone", "Marathon", "Task", "UserProject",
-           "FeePlan","Eligibility", "ProjectMarathon", "UserProfile"
+           "FeePlan","Eligibility", "ProjectMarathon", "UserProfile",
+           "MentorParticipants"
            ]
 

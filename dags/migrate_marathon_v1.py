@@ -1,8 +1,9 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime
-from migrate_marathon import migrate_old_marathons, set_player_role, set_mentor_role, get_date_flag, default_args
+from migrate_marathon import migrate_old_marathons, set_player_role, set_mentor_role, get_date_flag, default_args, set_mentor_map_player
 from config import mongo_old_db_name
+
 
 
 
@@ -35,5 +36,11 @@ with DAG(
         dag=dag
     )
     
-    migrate_marathon_task >> set_player_role_task >> set_mentor_role_task
+    set_mentor_mapping_player = PythonOperator(
+        task_id="set_mentor_mapping_player",
+        python_callable=set_mentor_map_player,
+        dag=dag
+    )
+    
+    migrate_marathon_task >> set_player_role_task >> set_mentor_role_task >> set_mentor_mapping_player
  
