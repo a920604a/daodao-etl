@@ -35,14 +35,13 @@ def set_mentor_role_id(session, role_id = 4):
     
 def get_mentor_info(session, role_id):
     users = session.query(User).filter_by(role_id=role_id).all()
-    print("\n".join(str(user) for user in users))
+    # print("\n".join(str(user) for user in users))
     return users
 
 def get_mentor_map_dict(session):
     
     mentor_mapping = Variable.get("mentor_mapping")
     mentor_map = json.loads(mentor_mapping)
-    print(mentor_map)
     ret = {}
     for mentor_email, player_names in mentor_map.items():
         
@@ -50,7 +49,7 @@ def get_mentor_map_dict(session):
         if mentor_contact:
             mentor_user = session.query(User).filter_by(contact_id = mentor_contact.id).first()
         
-            ret[mentor_user.id] = list()
+            ret[mentor_user.id] = []
             
             for name in player_names:
                     isExist = False
@@ -84,7 +83,7 @@ def insert_participant_into_mentor(session, mentor_participant:dict):
                 mentor_id = mentor,
                 participant_id = participant
             ))
-            session.commit()
+    session.commit()
             # print(f" mentor is { mentor }, participant {participant}")
       
     
