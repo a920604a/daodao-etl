@@ -157,7 +157,7 @@ def process_project(row, user, session, date_flag):
             description=row.get("description"),
             motivation=motivation_tags,
             motivation_description=motivation.get("description"),
-            goal=row.get("goal", ""),
+            goal=row.get("goals", ""),
             content=row.get("content", ""),
             strategy=policy_tags,
             strategy_description=strategies.get("description"),
