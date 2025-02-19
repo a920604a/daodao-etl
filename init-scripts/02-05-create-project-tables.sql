@@ -83,6 +83,7 @@ CREATE TABLE post (
     "type" VARCHAR(20) CHECK (type IN ('outcome', 'note', 'review')) NOT NULL,
     "content" TEXT NOT NULL,
     "date" date NOT NULL, 
+    "visibility" VARCHAR(10) CHECK (visibility IN ('public', 'private')) DEFAULT 'private',
     "status" VARCHAR(20) CHECK (status IN ('draft', 'published')) DEFAULT 'draft',
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -95,6 +96,7 @@ CREATE TABLE outcome (
     post_id INT,
     image_urls TEXT[],  -- 儲存圖片 URL
     video_urls TEXT[] ,  -- 儲存影片 URL
+    visibility VARCHAR(10) CHECK (visibility IN ('public', 'private')) DEFAULT 'private',
     created_at timestamp DEFAULT current_timestamp,
     updated_at timestamp DEFAULT current_timestamp,
     FOREIGN KEY ("post_id") REFERENCES "posts"("id") ON DELETE CASCADE
@@ -106,6 +108,7 @@ CREATE TABLE note (
     post_id INT,
     image_urls TEXT[],  -- 儲存圖片 URL
     video_urls TEXT[],   -- 儲存影片 URL
+    visibility VARCHAR(10) CHECK (visibility IN ('public', 'private')) DEFAULT 'private',
     created_at timestamp DEFAULT current_timestamp,
     updated_at timestamp DEFAULT current_timestamp,
     FOREIGN KEY ("post_id") REFERENCES "posts"("id") ON DELETE CASCADE
@@ -119,6 +122,7 @@ CREATE TABLE review (
     stress_level SMALLINT CHECK (stress_level BETWEEN 1 AND 10) NOT NULL,
     learning_review SMALLINT CHECK (learning_review BETWEEN 1 AND 10) NOT NULL,
     adjustment_plan text, -- 調整與規劃
+    visibility VARCHAR(10) CHECK (visibility IN ('public', 'private')) DEFAULT 'private',
     created_at timestamp DEFAULT current_timestamp,
     updated_at timestamp DEFAULT current_timestamp,
     FOREIGN KEY ("post_id") REFERENCES "posts"("id") ON DELETE CASCADE
@@ -130,56 +134,57 @@ CREATE TABLE comments (
     post_id INT REFERENCES posts(id) ON DELETE CASCADE,
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
+    visibility VARCHAR(10) CHECK (visibility IN ('public', 'private')) DEFAULT 'private',
     created_at timestamp DEFAULT current_timestamp,
     updated_at timestamp DEFAULT current_timestamp
 );
 CREATE INDEX idx_comments_post_user ON comments(post_id, user_id);
 
 
--- 創建學習成果(outcome)表
-CREATE TABLE "outcome" (
-    "id" serial PRIMARY KEY,
-    "project_id" int, -- 關聯的學習計畫 ID
-    "week" int NOT NULL, -- 第幾週
-    "title" varchar(255) NOT NULL, -- 學習計畫標題
-    "description" text, -- 描述
-    "date" date NOT NULL, -- 日期
-    "img_url" varchar(255), -- 圖片網址
-    "created_at" timestamp DEFAULT current_timestamp,
-    "updated_at" timestamp DEFAULT current_timestamp,
-    FOREIGN KEY ("project_id") REFERENCES "project"("id") ON DELETE CASCADE
-);
+-- -- 創建學習成果(outcome)表
+-- CREATE TABLE "outcome" (
+--     "id" serial PRIMARY KEY,
+--     "project_id" int, -- 關聯的學習計畫 ID
+--     "week" int NOT NULL, -- 第幾週
+--     "title" varchar(255) NOT NULL, -- 學習計畫標題
+--     "description" text, -- 描述
+--     "date" date NOT NULL, -- 日期
+--     "img_url" varchar(255), -- 圖片網址
+--     "created_at" timestamp DEFAULT current_timestamp,
+--     "updated_at" timestamp DEFAULT current_timestamp,
+--     FOREIGN KEY ("project_id") REFERENCES "project"("id") ON DELETE CASCADE
+-- );
 
--- 創建便利貼(note)表
-CREATE TABLE "note" (
-    "id" SERIAL PRIMARY KEY,
-    "external_id" UUID DEFAULT gen_random_uuid() UNIQUE, -- 使用 UUID 作为唯一标识符并添加唯一约束
-    "project_id" int, -- 關聯的學習計畫 ID
-    "week" int NOT NULL, -- 第幾週
-    "title" varchar(255) NOT NULL, -- 學習計畫標題
-    "description" text, -- 描述
-    "date" date NOT NULL, -- 日期
-    "img_url" varchar(255), -- 圖片網址
-    "created_at" timestamp DEFAULT current_timestamp,
-    "updated_at" timestamp DEFAULT current_timestamp,
-    FOREIGN KEY ("project_id") REFERENCES "project"("id") ON DELETE CASCADE
-);
+-- -- 創建便利貼(note)表
+-- CREATE TABLE "note" (
+--     "id" SERIAL PRIMARY KEY,
+--     "external_id" UUID DEFAULT gen_random_uuid() UNIQUE, -- 使用 UUID 作为唯一标识符并添加唯一约束
+--     "project_id" int, -- 關聯的學習計畫 ID
+--     "week" int NOT NULL, -- 第幾週
+--     "title" varchar(255) NOT NULL, -- 學習計畫標題
+--     "description" text, -- 描述
+--     "date" date NOT NULL, -- 日期
+--     "img_url" varchar(255), -- 圖片網址
+--     "created_at" timestamp DEFAULT current_timestamp,
+--     "updated_at" timestamp DEFAULT current_timestamp,
+--     FOREIGN KEY ("project_id") REFERENCES "project"("id") ON DELETE CASCADE
+-- );
 
--- 創建覆盤(review)表
--- 創建 ENUM 類型來存儲心情選項（使用英文）
-CREATE TYPE mood_enum AS ENUM ('happy', 'calm', 'anxious', 'tired', 'frustrated');
-CREATE TABLE "review" (
-    "id" serial PRIMARY KEY,
-    "project_id" int, -- 關聯的學習計畫 ID
-    "week" int NOT NULL, -- 第幾週
-    "title" varchar(255) NOT NULL, -- 學習計畫標題
-    "mood" mood_enum NOT NULL, -- 心情（英文存儲）
-    "mood_description" text, -- 針對心情的補充
-    "stress_level" int CHECK ("stress_level" BETWEEN 1 AND 10), -- 壓力程度（1-10）
-    "learning_review" int CHECK ("learning_review" BETWEEN 1 AND 10), -- 學習回顧（1-10）
-    "learning_feedback" text, -- 針對學習回饋補充
-    "adjustment_plan" text, -- 調整與規劃
-    "created_at" timestamp DEFAULT current_timestamp,
-    "updated_at" timestamp DEFAULT current_timestamp,
-    FOREIGN KEY ("project_id") REFERENCES "project"("id") ON DELETE CASCADE
-);
+-- -- 創建覆盤(review)表
+-- -- 創建 ENUM 類型來存儲心情選項（使用英文）
+-- CREATE TYPE mood_enum AS ENUM ('happy', 'calm', 'anxious', 'tired', 'frustrated');
+-- CREATE TABLE "review" (
+--     "id" serial PRIMARY KEY,
+--     "project_id" int, -- 關聯的學習計畫 ID
+--     "week" int NOT NULL, -- 第幾週
+--     "title" varchar(255) NOT NULL, -- 學習計畫標題
+--     "mood" mood_enum NOT NULL, -- 心情（英文存儲）
+--     "mood_description" text, -- 針對心情的補充
+--     "stress_level" int CHECK ("stress_level" BETWEEN 1 AND 10), -- 壓力程度（1-10）
+--     "learning_review" int CHECK ("learning_review" BETWEEN 1 AND 10), -- 學習回顧（1-10）
+--     "learning_feedback" text, -- 針對學習回饋補充
+--     "adjustment_plan" text, -- 調整與規劃
+--     "created_at" timestamp DEFAULT current_timestamp,
+--     "updated_at" timestamp DEFAULT current_timestamp,
+--     FOREIGN KEY ("project_id") REFERENCES "project"("id") ON DELETE CASCADE
+-- );

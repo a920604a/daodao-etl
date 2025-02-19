@@ -2,7 +2,7 @@
 from config import postgres_uri
 from sqlalchemy import create_engine, update, select
 from sqlalchemy.orm import sessionmaker
-from models import User, Contact
+from models import User, Contact, MentorParticipants
 import json
 from airflow.models import Variable
 
@@ -38,7 +38,7 @@ def get_mentor_info(session):
     print("\n".join(str(user) for user in users))
     return users
 
-def get_memtor_map_dict(session):
+def get_mentor_map_dict(session):
     
     mentor_mapping = Variable.get("mentor_mapping")
     mentor_map = json.loads(mentor_mapping)
@@ -71,6 +71,22 @@ def get_memtor_map_dict(session):
                     if not isExist:
                         print(f"User with nickname '{name}' does not exist.")
         print(f"{mentor_email} :{ret}")
+        
+    return ret
+    
+    
+def insert_participant_into_mentor(session, mentor_participant:dict):
+    # mentor_participants
+    for mentor, participants in mentor_participant.items():
+        print(f"mentor :{mentor}")
+        for participant in participants:
+            session.add(MentorParticipants(
+                mentor_id = mentor,
+                participant_id = participant
+            ))
+            session.commit()
+            # print(f" mentor is { mentor }, participant {participant}")
+      
     
     
     

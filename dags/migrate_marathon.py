@@ -4,7 +4,7 @@ from sqlalchemy import create_engine, and_
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 from models import User, Marathon, ProjectMarathon, Project, Milestone, Task, UserProject, Eligibility, FeePlan
-from serivces import get_valid_contestants, set_player_role_id, set_mentor_role_id, get_marthon_user_list, get_mentor_info, get_memtor_map_dict
+from serivces import get_valid_contestants, set_player_role_id, set_mentor_role_id, get_marthon_user_list, get_mentor_info, get_mentor_map_dict, insert_participant_into_mentor
 from config import postgres_uri
 import pandas as pd
 import logging
@@ -323,8 +323,8 @@ def set_mentor_map_player():
     Session = sessionmaker(bind=engine)
     session = Session()
     
-    # valid_user_list = get_valid_contestants(session)
-    valid_mentor_list = get_mentor_info(session)
-    memtor_dict = get_memtor_map_dict(session)
+    mentor_dict = get_mentor_map_dict(session)
+    insert_participant_into_mentor(session, mentor_dict)
+    
     
     
