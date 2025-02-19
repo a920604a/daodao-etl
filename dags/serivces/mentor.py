@@ -43,7 +43,7 @@ def get_mentor_map_dict(session):
     mentor_mapping = Variable.get("mentor_mapping")
     mentor_map = json.loads(mentor_mapping)
     print(mentor_map)
-    ret = dict()
+    ret = {}
     for mentor_email, player_names in mentor_map.items():
         
         mentor_contact = session.query(Contact).filter_by(email = mentor_email).first()
