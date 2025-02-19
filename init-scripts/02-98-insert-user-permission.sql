@@ -60,3 +60,6 @@ INSERT INTO users (
     'SuperAdmin',
     6
 );
+
+
+-- insert mentor's user_id mapping player user_id

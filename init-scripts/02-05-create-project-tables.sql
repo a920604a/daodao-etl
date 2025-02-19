@@ -75,6 +75,66 @@ CREATE TABLE "task" (
 
 CREATE INDEX idx_task_milestone_id ON "task"("milestone_id");
 
+-- 通用文章表，包含學習成果、便利貼、覆盤。
+CREATE TABLE post (
+    "id" SERIAL PRIMARY KEY,
+    "study_plan_id" INT REFERENCES project(id) ON DELETE CASCADE,
+    "user_id"  INT REFERENCES users(id) ON DELETE CASCADE,
+    "type" VARCHAR(20) CHECK (type IN ('outcome', 'note', 'review')) NOT NULL,
+    "content" TEXT NOT NULL,
+    "date" date NOT NULL, 
+    "status" VARCHAR(20) CHECK (status IN ('draft', 'published')) DEFAULT 'draft',
+    "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_posts_study_plan_status ON posts(study_plan_id, status);
+
+-- 學習成果(outcome)表
+CREATE TABLE outcome (
+    id SERIAL PRIMARY KEY,
+    post_id INT,
+    image_urls TEXT[],  -- 儲存圖片 URL
+    video_urls TEXT[] ,  -- 儲存影片 URL
+    created_at timestamp DEFAULT current_timestamp,
+    updated_at timestamp DEFAULT current_timestamp,
+    FOREIGN KEY ("post_id") REFERENCES "posts"("id") ON DELETE CASCADE
+);
+
+-- 便利貼(note)表。目前便利貼是針對專案相關。
+CREATE TABLE note (
+    id SERIAL PRIMARY KEY,
+    post_id INT,
+    image_urls TEXT[],  -- 儲存圖片 URL
+    video_urls TEXT[],   -- 儲存影片 URL
+    created_at timestamp DEFAULT current_timestamp,
+    updated_at timestamp DEFAULT current_timestamp,
+    FOREIGN KEY ("post_id") REFERENCES "posts"("id") ON DELETE CASCADE
+);
+
+-- 覆盤
+CREATE TABLE review (
+    id SERIAL PRIMARY KEY,
+    post_id INT,
+    mood VARCHAR(20) CHECK (mood IN ('happy', 'calm', 'anxious', 'tired', 'frustrated')) NOT NULL,
+    stress_level SMALLINT CHECK (stress_level BETWEEN 1 AND 10) NOT NULL,
+    learning_review SMALLINT CHECK (learning_review BETWEEN 1 AND 10) NOT NULL,
+    adjustment_plan text, -- 調整與規劃
+    created_at timestamp DEFAULT current_timestamp,
+    updated_at timestamp DEFAULT current_timestamp,
+    FOREIGN KEY ("post_id") REFERENCES "posts"("id") ON DELETE CASCADE
+);
+
+-- 儲存回覆資訊。
+CREATE TABLE comments (
+    id SERIAL PRIMARY KEY,
+    post_id INT REFERENCES posts(id) ON DELETE CASCADE,
+    user_id INT REFERENCES users(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    created_at timestamp DEFAULT current_timestamp,
+    updated_at timestamp DEFAULT current_timestamp
+);
+CREATE INDEX idx_comments_post_user ON comments(post_id, user_id);
+
 
 -- 創建學習成果(outcome)表
 CREATE TABLE "outcome" (

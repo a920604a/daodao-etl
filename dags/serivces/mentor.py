@@ -36,6 +36,45 @@ def set_mentor_role_id(session, role_id = 4):
 def get_mentor_info(session):
     users = session.query(User).filter_by(role_id=4).all()
     print("\n".join(str(user) for user in users))
+    return users
+
+def get_memtor_map_dict(session):
+    
+    mentor_mapping = Variable.get("mentor_mapping")
+    mentor_map = json.loads(mentor_mapping)
+    print(mentor_map)
+    ret = dict()
+    for mentor_email, player_names in mentor_map.items():
+        
+        mentor_contact = session.query(Contact).filter_by(email = mentor_email).first()
+        if mentor_contact:
+            mentor_user = session.query(User).filter_by(contact_id = mentor_contact.id).first()
+        
+            ret[mentor_user.id] = list()
+            
+            for name in player_names:
+                    isExist = False
+                    for u in name.split("/"):
+                        users = session.query(User).filter_by(nickname=u).all()
+                        if users:
+                            isExist = True
+                            ret[mentor_user.id].extend([user.id for user in users])
+                            break  
+                        else:
+                            last_two_chars = u[-2:] 
+                            users = session.query(User).filter(User.nickname.like(f'%{last_two_chars}%')).all()
+                            if users:
+                                isExist = True
+                                ret[mentor_user.id].extend([user.id for user in users])
+                                break 
+
+                    if not isExist:
+                        print(f"User with nickname '{name}' does not exist.")
+        print(f"{mentor_email} :{ret}")
+    
+    
+    
+    
     
 # if __name__ == "__main__":
 #     set_mentor_role_id()
