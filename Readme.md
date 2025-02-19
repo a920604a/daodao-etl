@@ -56,6 +56,45 @@ Airflow Admin -> Variable
 - 使用者、角色、權限、個人名片
 
 
+## metadata setting
+`.marathon.json` 
+```
+{
+    "paid_names_list": [
+        "username_1",
+        "username_2",
+        "username_3"
+    ],
+    "mentor_list": [
+        "mentor1@gmail.com",
+        "mentor2@gmail.com",
+        "mentor3@gmail.com",
+    ]
+     "mentor_mapping": {
+        "mentor1@gmail.com": [
+            "username_1",
+            "username_2"
+        ],
+        "mentor2@gmail.com": [
+            "username_3"
+        ]
+    }
+}
+```
+`.env.json`
+```json
+{
+  "MONGO_URI": "",
+  "MONGO_OLD_DB_NAME": "2025-01-30-prod",
+  "MONGO_DB_NAME": "2025-02-17-prod",
+  "POSTGRES_URI": "",
+  "NOTION_API_KEY": "",
+  "NOTION_DATABASE_RESOURCE_ID": "",
+  "NOTION_DATABASE_STORE_ID": ""
+}
+
+```
+
 migrate_user -> migrate_groups
 1. users
 2. groups

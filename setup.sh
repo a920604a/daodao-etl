@@ -11,7 +11,6 @@ log "開始停止並刪除 Docker 容器、卷和鏡像..."
 docker compose down --volumes --remove-orphans
 log "Docker 容器、卷和鏡像刪除完成。"
 
-
 # 刪除舊的目錄
 log "開始刪除舊的目錄..."
 rm -rf ./logs ./plugins ./config ./data
@@ -21,8 +20,6 @@ log "舊的目錄刪除完成。"
 log "開始創建必要的目錄..."
 mkdir -p ./logs ./plugins ./config ./data ./data/airflow-db-volume
 log "目錄創建完成。"
-
-
 
 # 初始化 Airflow
 log "開始初始化 Airflow..."
@@ -41,7 +38,10 @@ log "MongoDB 容器啟動完成。"
 
 # 恢復 MongoDB 數據
 log "開始恢復 MongoDB 數據..."
-docker exec mongo-daodao mongorestore /backup
+# docker exec mongo-daodao mongorestore /backup
+docker exec mongo-daodao mongorestore --drop --db=2025-01-30-prod /backup/2025-01-30/prod
+docker exec mongo-daodao mongorestore --drop --db=2025-02-19-prod /backup/2025-02-19/prod
+
 log "MongoDB 數據恢復完成。"
 
 log "腳本執行完畢！"
