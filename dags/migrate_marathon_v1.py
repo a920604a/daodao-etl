@@ -18,7 +18,7 @@ with DAG(
 ) as dag:
     date_flag = get_date_flag(mongo_old_db_name)
     
-    --- DAG 定義 ---
+    # --- DAG 定義 ---
     migrate_marathon_task = PythonOperator(
         task_id="migrate_old_marathons_v1_to_projects",
         python_callable=migrate_old_marathons,
