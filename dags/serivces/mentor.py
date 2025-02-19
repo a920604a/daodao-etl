@@ -33,8 +33,8 @@ def set_mentor_role_id(session, role_id = 4):
         session.commit()
         session.close()
     
-def get_mentor_info(session):
-    users = session.query(User).filter_by(role_id=4).all()
+def get_mentor_info(session, role_id):
+    users = session.query(User).filter_by(role_id=role_id).all()
     print("\n".join(str(user) for user in users))
     return users
 
