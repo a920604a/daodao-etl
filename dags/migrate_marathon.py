@@ -163,7 +163,7 @@ def process_project(row, user, session, date_flag):
             strategy_description=strategies.get("description"),
             # resource_name=[res.get("name", "") for res in resources],
             # resource_url=[res.get("url", "") for res in resources],
-            resource = resources_str,
+            resourceName = resources_str,
             outcome=presentation_tags,
             outcome_description=outcome.get("description"),
             is_public=row.get("isPublic", False),
