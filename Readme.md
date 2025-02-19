@@ -70,6 +70,15 @@ Airflow Admin -> Variable
         "mentor2@gmail.com",
         "mentor3@gmail.com",
     ]
+     "mentor_mapping": {
+        "mentor1@gmail.com": [
+            "username_1",
+            "username_2"
+        ],
+        "mentor2@gmail.com": [
+            "username_3"
+        ]
+    }
 }
 ```
 `.env.json`
