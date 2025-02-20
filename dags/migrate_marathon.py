@@ -12,7 +12,8 @@ import json
 import re
 from utils.code import qualifications_mapping, motivation_mapping, strategy_mapping, outcome_mapping
 from datetime import datetime
-
+from serivces import fetch_project_milestones
+from sqlalchemy import text, select, update, insert
 
 # 設定日誌
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -294,6 +295,42 @@ def migrate_old_marathons(**kwargs):
         session.close()
 
 
+
+def set_project_milestone_nth_week():
+    
+    engine = create_engine(postgres_uri)
+    Session = sessionmaker(bind=engine)
+    
+    with Session() as session:
+        try:
+            project_ids = session.execute(
+                text("SELECT DISTINCT project_id FROM public.milestone WHERE project_id IS NOT NULL")
+            ).fetchall()
+            
+            for (project_id,) in project_ids:
+                milestones = fetch_project_milestones(session, project_id)
+                for milestone in milestones:
+                    logger.info(f"milestones {milestone} in {project_id}")
+
+                    existing = session.execute(
+                        text("SELECT id FROM public.milestone WHERE id = :milestone_id"),
+                        {"milestone_id": milestone["milestone_id"]}
+                    ).fetchone()
+
+                    if existing:
+                        milestone_id = existing[0]
+                        session.execute(
+                            text("UPDATE public.milestone SET week = :week, updated_at = CURRENT_TIMESTAMP WHERE id = :id"),
+                            {"week": milestone["week"], "id": milestone_id}
+                        )
+            
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            logger.error(f"Error updating milestones: {e}")
+            raise
+        
+    
 def set_player_role():
     engine = create_engine(postgres_uri)
     Session = sessionmaker(bind=engine)
