@@ -40,7 +40,7 @@ log "MongoDB 容器啟動完成。"
 log "開始恢復 MongoDB 數據..."
 # docker exec mongo-daodao mongorestore /backup
 docker exec mongo-daodao mongorestore --drop --db=2025-01-30-prod /backup/2025-01-30/prod
-docker exec mongo-daodao mongorestore --drop --db=2025-02-19-prod /backup/2025-02-19/prod
+docker exec mongo-daodao mongorestore --drop --db=2025-02-21-prod /backup/2025-02-21/prod
 
 log "MongoDB 數據恢復完成。"
 
