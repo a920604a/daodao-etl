@@ -74,6 +74,7 @@ CREATE TABLE "task" (
     FOREIGN KEY ("milestone_id") REFERENCES "milestone"("id") ON DELETE CASCADE
 );
 
+CREATE INDEX idx_task_milestone_id ON "task"("milestone_id");
 
 -- 通用文章表，包含學習成果、便利貼，統一以 project_id 表示所屬專案。
 CREATE TABLE "post" (
