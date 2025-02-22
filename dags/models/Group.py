@@ -22,7 +22,7 @@ class Group(Base):
     updatedDate = Column('updated_date', TIMESTAMP(timezone=False), nullable=False)
     time = Column(Text)
     partner_style = Column('partner_style', Text)
-    tag_list = Column('tag_list', Text)
+    tag_list = Column('tag_list', ARRAY(String))
     
     created_at = Column(Date, default=func.now())
     created_by = Column(Integer, ForeignKey('users.id'))

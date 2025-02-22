@@ -22,7 +22,7 @@ CREATE TABLE "groups" (
     "contents" TEXT,
     "expectation_result" TEXT,
     "notice" TEXT,
-    "tag_list" TEXT,
+    "tag_list" TEXT[],
     "group_deadline" TIMESTAMPTZ,
     "is_need_deadline" BOOLEAN,
     "participator" INT,

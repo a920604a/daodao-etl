@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, TIMESTAMP, Integer, String, Boolean, ForeignKey, Text, Date
+from sqlalchemy import create_engine, Column, TIMESTAMP, Integer, String, Boolean, ForeignKey, Text, Date, ARRAY
 from sqlalchemy.dialects.postgresql import  UUID
 from sqlalchemy.orm import relationship
 from utils.code_enum import education_stage_t, gender_t
@@ -21,7 +21,7 @@ class User(Base):
     education_stage = Column(
         "education_stage", education_stage_t, default="other", nullable=True
     )  # Default 設定為 'other'
-    tag_list = Column("tag_list", String, nullable=True)
+    tag_list = Column("tag_list", ARRAY(String), nullable=True)
     contact_id = Column(Integer, ForeignKey("contacts.id"), nullable=True)  # 外鍵
     is_open_location = Column(Boolean, nullable=True)
     location_id = Column(Integer, ForeignKey("location.id"), nullable=True)  # 外鍵
