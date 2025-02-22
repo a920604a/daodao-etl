@@ -74,17 +74,17 @@ CREATE TABLE "task" (
     FOREIGN KEY ("milestone_id") REFERENCES "milestone"("id") ON DELETE CASCADE
 );
 
+
 -- 通用文章表，包含學習成果、便利貼，統一以 project_id 表示所屬專案。
 CREATE TABLE "post" (
     "id" SERIAL PRIMARY KEY,
     "project_id" INT NOT NULL REFERENCES "project"("id") ON DELETE CASCADE,
     "user_id" INT NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
-    "type" VARCHAR(20) NOT NULL CHECK ("type" IN ('outcome', 'note')),
+    "type" VARCHAR(20) NOT NULL CHECK ("type" IN ('outcome', 'note', 'review')),
     "week" INT NOT NULL,
     "title" VARCHAR(255) NOT NULL,
-    "content" TEXT NOT NULL,
     "date" DATE NOT NULL, 
-    "visibility" VARCHAR(10) DEFAULT 'private' CHECK ("visibility" IN ('public', 'mentor_participant', 'private')),
+    "visibility" VARCHAR(10) DEFAULT 'private' CHECK ("visibility" IN ('public', 'private')),
     "status" VARCHAR(20) DEFAULT 'draft' CHECK ("status" IN ('draft', 'published')),
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -96,6 +96,7 @@ CREATE INDEX idx_posts_project_status ON "post"("project_id", "status");
 CREATE TABLE "outcome" (
     "id" SERIAL PRIMARY KEY,
     "post_id" INT NOT NULL,
+    "content" TEXT NOT NULL,
     "image_urls" TEXT[],  -- 儲存圖片 URL
     "video_urls" TEXT[],  -- 儲存影片 URL
     "visibility" VARCHAR(10) DEFAULT 'private' CHECK ("visibility" IN ('public', 'private')),
@@ -110,6 +111,7 @@ CREATE INDEX idx_outcome_post_id ON "outcome"("post_id");
 CREATE TABLE "note" (
     "id" SERIAL PRIMARY KEY,
     "post_id" INT NOT NULL,
+    "content" TEXT NOT NULL,
     "image_urls" TEXT[],  -- 儲存圖片 URL
     "video_urls" TEXT[],  -- 儲存影片 URL
     "visibility" VARCHAR(10) DEFAULT 'private' CHECK ("visibility" IN ('public', 'private')),
@@ -123,12 +125,13 @@ CREATE INDEX idx_note_post_id ON "note"("post_id");
 -- 覆盤表，針對專案進行回顧與調整
 CREATE TABLE "review" (
     "id" SERIAL PRIMARY KEY,
-    "post_id" INT NOT NULL, -- adjust_plan
+    "post_id" INT NOT NULL, 
     "mood" VARCHAR(20) NOT NULL CHECK ("mood" IN ('happy', 'calm', 'anxious', 'tired', 'frustrated')),
     "mood_description" TEXT,
     "stress_level" SMALLINT NOT NULL CHECK ("stress_level" BETWEEN 1 AND 10),
     "learning_review" SMALLINT NOT NULL CHECK ("learning_review" BETWEEN 1 AND 10),
     "learning_feedback" TEXT,
+    "adjustment_plan" TEXT, -- 調整與規劃
     "visibility" VARCHAR(10) DEFAULT 'private' CHECK ("visibility" IN ('public', 'private')),
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -143,11 +146,19 @@ CREATE TABLE "comments" (
     "post_id" INT NOT NULL REFERENCES "post"("id") ON DELETE CASCADE,
     "user_id" INT NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
     "content" TEXT NOT NULL,
-    "visibility" VARCHAR(10) DEFAULT 'private' CHECK ("visibility" IN ('public','mentor_participant','private')),
-    "mentor_id" INTEGER,
+    "visibility" VARCHAR(10) DEFAULT 'private' CHECK ("visibility" IN ('public','private')),
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_comments_post_user ON "comments"("post_id", "user_id");
+CREATE INDEX idx_comments_visibility ON "comments"("visibility");
 
+
+CREATE TABLE "likes" (
+    "id" SERIAL PRIMARY KEY,
+    "post_id" INT REFERENCES posts(id) ON DELETE CASCADE,
+    "user_id" INT REFERENCES users(id) ON DELETE CASCADE,
+    "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+);
+CREATE INDEX idx_likes_post_user ON "likes"("post_id", "user_id");
