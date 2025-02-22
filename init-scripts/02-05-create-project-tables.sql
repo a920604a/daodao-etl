@@ -43,7 +43,7 @@ CREATE TABLE "user_project" (
 CREATE TABLE "milestone" (
     "id" SERIAL PRIMARY KEY,
     "project_id" INT NOT NULL, -- 對應的專案 ID
-    "week" INT NOT NULL, -- 第幾週（必須為正數）
+    "week" INT, -- 第幾週（必須為正數）
     "name" VARCHAR(255) NOT NULL,
     "description" TEXT,
     "start_date" DATE NOT NULL,
@@ -64,9 +64,9 @@ CREATE TYPE "day_enum" AS ENUM ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'F
 CREATE TABLE "task" (
     "id" SERIAL PRIMARY KEY,
     "milestone_id" INT NOT NULL, -- 對應的里程碑 ID
-    "name" VARCHAR(255) NOT NULL,
+    "name" VARCHAR(255) ,
     "description" TEXT,
-    "days_of_week" day_enum[] NOT NULL, -- 限定只能存 ENUM 類型值的陣列
+    "days_of_week" day_enum[] , -- 限定只能存 ENUM 類型值的陣列
     "is_completed" BOOLEAN DEFAULT false,
     "is_deleted" BOOLEAN DEFAULT false,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -82,9 +82,9 @@ CREATE TABLE "post" (
     "project_id" INT NOT NULL REFERENCES "project"("id") ON DELETE CASCADE,
     "user_id" INT NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
     "type" VARCHAR(20) NOT NULL CHECK ("type" IN ('outcome', 'note', 'review')),
-    "week" INT NOT NULL,
+    "week" INT ,
     "title" VARCHAR(255) NOT NULL,
-    "date" DATE NOT NULL, 
+    "date" DATE, 
     "visibility" VARCHAR(10) DEFAULT 'private' CHECK ("visibility" IN ('public', 'private')),
     "status" VARCHAR(20) DEFAULT 'draft' CHECK ("status" IN ('draft', 'published')),
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -97,7 +97,7 @@ CREATE INDEX idx_posts_project_status ON "post"("project_id", "status");
 CREATE TABLE "outcome" (
     "id" SERIAL PRIMARY KEY,
     "post_id" INT NOT NULL,
-    "content" TEXT NOT NULL,
+    "content" TEXT ,
     "image_urls" TEXT[],  -- 儲存圖片 URL
     "video_urls" TEXT[],  -- 儲存影片 URL
     "visibility" VARCHAR(10) DEFAULT 'private' CHECK ("visibility" IN ('public', 'private')),
@@ -111,8 +111,8 @@ CREATE INDEX idx_outcome_post_id ON "outcome"("post_id");
 -- 便利貼表，適用於專案相關的便利貼文章
 CREATE TABLE "note" (
     "id" SERIAL PRIMARY KEY,
-    "post_id" INT NOT NULL,
-    "content" TEXT NOT NULL,
+    "post_id" INT ,
+    "content" TEXT ,
     "image_urls" TEXT[],  -- 儲存圖片 URL
     "video_urls" TEXT[],  -- 儲存影片 URL
     "visibility" VARCHAR(10) DEFAULT 'private' CHECK ("visibility" IN ('public', 'private')),
