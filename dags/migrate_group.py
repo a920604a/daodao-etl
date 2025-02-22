@@ -134,6 +134,9 @@ def transform_and_load_data(**kwargs):
                     city_id = city_ids[0] if city_ids else None
                     
                     print(f" participator {row['participator']}")
+                    
+                    tag_list = [tag for tag in row['tagList'].strip('{}').split(',')]
+                    print(f"tag_list {tag_list}")
 
 
                     # 創建新的 group 記錄
@@ -159,7 +162,7 @@ def transform_and_load_data(**kwargs):
                         contents=str(row['content'])[:255] if pd.notna(row['content']) else None,
                         expectation_result=str(row['outcome'])[:255] if pd.notna(row['outcome']) else None,
                         notice=str(row['notice'])[:255] if pd.notna(row['notice']) else None,
-                        tag_list=str(row['tagList'])[:255] if pd.notna(row['tagList']) else None,
+                        tag_list=tag_list,
                         group_deadline=pd.to_datetime(row['deadline']) if pd.notna(row['deadline']) else None,
                         is_need_deadline  = bool(row['isNeedDeadline'] and row['isNeedDeadline'] != []),
                         participator = int(row['participator']) if row['participator'] is not None else None,
