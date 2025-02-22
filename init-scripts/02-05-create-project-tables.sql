@@ -139,7 +139,7 @@ CREATE TABLE "review" (
     FOREIGN KEY ("post_id") REFERENCES "post"("id") ON DELETE CASCADE
 );
 
-CREATE INDEX idx_review_project_id ON "review"("project_id");
+CREATE INDEX idx_review_post_id ON "review"("post_id");
 
 -- 回覆評論表，存放針對文章的使用者評論
 CREATE TABLE "comments" (
@@ -158,8 +158,8 @@ CREATE INDEX idx_comments_visibility ON "comments"("visibility");
 
 CREATE TABLE "likes" (
     "id" SERIAL PRIMARY KEY,
-    "post_id" INT REFERENCES posts(id) ON DELETE CASCADE,
+    "post_id" INT REFERENCES post(id) ON DELETE CASCADE,
     "user_id" INT REFERENCES users(id) ON DELETE CASCADE,
-    "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX idx_likes_post_user ON "likes"("post_id", "user_id");
