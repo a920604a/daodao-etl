@@ -15,7 +15,7 @@ CREATE TABLE "reaction" (
     UNIQUE ("user_id", "target_type", "target_id", "reaction_type"),
     FOREIGN KEY ("user_id") REFERENCES "users"("id")
 );
-
+CREATE INDEX idx_reaction_user_target ON "reaction"("user_id", "target_type", "target_id");
 CREATE INDEX idx_reaction_target ON "reaction"("target_type", "target_id", "reaction_type");
 
 -- 收藏表 (Favorite)
@@ -29,6 +29,9 @@ CREATE TABLE "favorite" (
     UNIQUE ("user_id", "target_type", "target_id"),
     FOREIGN KEY ("user_id") REFERENCES "users"("id")
 );
+CREATE INDEX idx_favorite_user_target ON "favorite"("user_id", "target_type", "target_id");
+CREATE INDEX idx_favorite_target ON "favorite"("target_type", "target_id");
+
 
 -- 瀏覽表 (View)
 CREATE TABLE "view" (
@@ -39,9 +42,13 @@ CREATE TABLE "view" (
     "duration" INT,  -- 停留時間（秒）
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY ("user_id") REFERENCES "users"("id")
+    FOREIGN KEY ("user_id") REFERENCES "users"("id"),
+    UNIQUE ("user_id", "target_type", "target_id")
     -- 此表允許同一使用者對同一對象有多筆記錄
 );
+CREATE INDEX idx_view_user_target ON "view"("user_id", "target_type", "target_id");
+CREATE INDEX idx_view_target ON "view"("target_type", "target_id");
+
 
 -- 分享表 (Share )
 CREATE TABLE "share" (
@@ -52,8 +59,12 @@ CREATE TABLE "share" (
     "share_channel" VARCHAR(50),  -- 分享渠道，如社交平台名稱
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY ("user_id") REFERENCES "users"("id")
+    FOREIGN KEY ("user_id") REFERENCES "users"("id"),
+    UNIQUE ("user_id", "target_type", "target_id")
 );
+CREATE INDEX idx_share_user_target ON "share"("user_id", "target_type", "target_id");
+CREATE INDEX idx_share_target ON "share"("target_type", "target_id");
+CREATE INDEX idx_share_channel ON "share"("share_channel");
 
 
 -- 點擊表 (Click)
@@ -65,10 +76,13 @@ CREATE TABLE "click" (
     "click_position" VARCHAR(50),  -- 如點擊區域、元素名稱等
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY ("user_id") REFERENCES "users"("id")
-
+    FOREIGN KEY ("user_id") REFERENCES "users"("id"),
+    UNIQUE ("user_id", "target_type", "target_id"),
 );
 
+CREATE INDEX idx_click_user_target ON "click"("user_id", "target_type", "target_id");
+CREATE INDEX idx_click_target ON "click"("target_type", "target_id");
+CREATE INDEX idx_click_position ON "click"("click_position");
 
 
 
@@ -84,6 +98,8 @@ CREATE TABLE "rating" (
     UNIQUE ("user_id", "target_type", "target_id"),
     FOREIGN KEY ("user_id") REFERENCES "users"("id")
 );
+CREATE INDEX idx_rating_user_target ON "rating"("user_id", "target_type", "target_id");
+CREATE INDEX idx_rating_target ON "rating"("target_type", "target_id");
 
 -- 子表：記錄各細項評分，category 可以是 'detail1', 'detail2', 'detail3'
 CREATE TABLE "rating_detail" (
@@ -95,3 +111,5 @@ CREATE TABLE "rating_detail" (
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY ("rating_id") REFERENCES "rating"("id")
 );
+CREATE INDEX idx_rating_detail_rating_id ON "rating_detail"("rating_id");
+CREATE INDEX idx_rating_detail_category ON "rating_detail"("category");
