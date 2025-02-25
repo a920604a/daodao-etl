@@ -77,7 +77,7 @@ CREATE TABLE "click" (
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY ("user_id") REFERENCES "users"("id"),
-    UNIQUE ("user_id", "target_type", "target_id"),
+    UNIQUE ("user_id", "target_type", "target_id")
 );
 
 CREATE INDEX idx_click_user_target ON "click"("user_id", "target_type", "target_id");
