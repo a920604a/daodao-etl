@@ -144,15 +144,17 @@ CREATE INDEX idx_review_post_id ON "review"("post_id");
 -- 回覆評論表，存放針對文章的使用者評論
 CREATE TABLE "comments" (
     "id" SERIAL PRIMARY KEY,
-    "post_id" INT NOT NULL REFERENCES "post"("id") ON DELETE CASCADE,
+    "commentable_type" VARCHAR(20) NOT NULL 
+        CHECK ("commentable_type" IN ('post', 'resource', 'circle', 'idea', 'portfolio')),
+    "commentable_id" INT NOT NULL,
     "user_id" INT NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
     "content" TEXT NOT NULL,
     "visibility" VARCHAR(10) DEFAULT 'private' CHECK ("visibility" IN ('public','private')),
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
-CREATE INDEX idx_comments_post_user ON "comments"("post_id", "user_id");
+CREATE INDEX idx_comments_target ON "comments"("commentable_type", "commentable_id");
+CREATE INDEX idx_comments_user ON "comments"("user_id");
 CREATE INDEX idx_comments_visibility ON "comments"("visibility");
 
 
