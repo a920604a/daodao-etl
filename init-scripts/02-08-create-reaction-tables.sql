@@ -6,7 +6,8 @@ CREATE TYPE reaction_type AS ENUM ('like');
 CREATE TABLE "reaction" (
     "id" SERIAL PRIMARY KEY,
     "user_id" INT NOT NULL,
-    "target_type" VARCHAR(50) NOT NULL,
+    "target_type" VARCHAR(20) NOT NULL 
+        CHECK ("target_type" IN ('project','post', 'resource','note','outcome','review', 'circle', 'idea','portfolio')),
     "target_id" INT NOT NULL,
     "reaction_type" reaction_type NOT NULL,
     "weight" INT DEFAULT 1,  -- 為不同反應賦予不同權重
@@ -22,7 +23,8 @@ CREATE INDEX idx_reaction_target ON "reaction"("target_type", "target_id", "reac
 CREATE TABLE "favorite" (
     "id" SERIAL PRIMARY KEY,
     "user_id" INT NOT NULL,
-    "target_type" VARCHAR(50) NOT NULL,
+    "target_type" VARCHAR(20) NOT NULL 
+        CHECK ("target_type" IN ('project','post', 'resource','note','outcome','review', 'circle', 'idea','portfolio')),
     "target_id" INT NOT NULL,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -37,7 +39,8 @@ CREATE INDEX idx_favorite_target ON "favorite"("target_type", "target_id");
 CREATE TABLE "view" (
     "id" SERIAL PRIMARY KEY,
     "user_id" INT NOT NULL,
-    "target_type" VARCHAR(50) NOT NULL,
+    "target_type" VARCHAR(20) NOT NULL 
+        CHECK ("target_type" IN ('project','post', 'resource','note','outcome','review', 'circle', 'idea','portfolio')),
     "target_id" INT NOT NULL,
     "duration" INT,  -- 停留時間（秒）
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -54,7 +57,8 @@ CREATE INDEX idx_view_target ON "view"("target_type", "target_id");
 CREATE TABLE "share" (
     "id" SERIAL PRIMARY KEY,
     "user_id" INT NOT NULL,
-    "target_type" VARCHAR(50) NOT NULL,
+    "target_type" VARCHAR(20) NOT NULL 
+        CHECK ("target_type" IN ('project','post', 'resource','note','outcome','review', 'circle', 'idea','portfolio')),
     "target_id" INT NOT NULL,
     "share_channel" VARCHAR(50),  -- 分享渠道，如社交平台名稱
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -71,7 +75,8 @@ CREATE INDEX idx_share_channel ON "share"("share_channel");
 CREATE TABLE "click" (
     "id" SERIAL PRIMARY KEY,
     "user_id" INT NOT NULL,
-    "target_type" VARCHAR(50) NOT NULL,
+    "target_type" VARCHAR(20) NOT NULL 
+        CHECK ("target_type" IN ('project','post', 'resource','note','outcome','review', 'circle', 'idea','portfolio')),
     "target_id" INT NOT NULL,
     "click_position" VARCHAR(50),  -- 如點擊區域、元素名稱等
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -90,7 +95,8 @@ CREATE INDEX idx_click_position ON "click"("click_position");
 CREATE TABLE "rating" (
     "id" SERIAL PRIMARY KEY,
     "user_id" INT NOT NULL,
-    "target_type" VARCHAR(50) NOT NULL,
+    "target_type" VARCHAR(20) NOT NULL 
+        CHECK ("target_type" IN ('project','post', 'resource','note','outcome','review', 'circle', 'idea','portfolio')),
     "target_id" INT NOT NULL,
     "overall_rating" NUMERIC(3,1) NOT NULL CHECK (overall_rating BETWEEN 0 AND 10),
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
