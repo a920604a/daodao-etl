@@ -7,11 +7,11 @@ CREATE TABLE "idea" (
     "video_urls" TEXT[],  -- 儲存影片 URL
     "visibility" VARCHAR(10) DEFAULT 'private' CHECK ("visibility" IN ('public', 'private')),
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 
-CREATE TABLE "learning_resources" (
+CREATE TABLE "learning_resource" (
     "id" SERIAL PRIMARY KEY,
     "idea_id" INT NOT NULL,  -- 連結到 idea
     "name" VARCHAR(255) NOT NULL,
