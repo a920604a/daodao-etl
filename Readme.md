@@ -106,3 +106,7 @@ migrate_user -> migrate_groups
    4. 補上 user schema
    5. mentor mapping 學生/馬拉松學生
    6. project api
+
+
+
+`docker network create shared-daodao-network`
