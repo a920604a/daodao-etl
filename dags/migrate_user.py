@@ -255,12 +255,15 @@ def process_and_migrate_users(**kwargs):
                 birth_day = process_birth_day(user_record)
                 
                 
+                tag_list = [tag for tag in user_record['tagList'].strip('{}').split(',')]
+                print(f"tag_list {tag_list}")
+                    
                 user = add_and_flush(session, User(
                     mongo_id=user_record["mongo_id"],
                     gender=user_record["gender"] if user_record["gender"] else 'other',
                     language=None,
                     education_stage=user_record["educationStage"] if user_record["educationStage"] else None,
-                    tag_list=user_record['tagList'],
+                    tag_list=tag_list,
                     is_open_location=user_record['isOpenLocation'],
                     nickname=user_record['name'] if user_record['name'] else None,
                     is_open_profile=user_record['isOpenProfile'],

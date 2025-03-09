@@ -9,6 +9,7 @@ from config import postgres_uri
 import pandas as pd
 import logging
 from utils.code import partnerEducationStep_mapping, group_type_mapping, group_category_mapping
+from utils.code import city_mapping
 
 # 設定日誌
 logging.basicConfig(level=logging.INFO)
@@ -107,20 +108,35 @@ def transform_and_load_data(**kwargs):
                     print(f"row['partnerEducationStep']: {row['partnerEducationStep']}, partner_education_step_list: {partner_education_step_list}")
 
                     print(f"deadline {str(row['deadline']).strip('{}')}")
+                    
+                    
+                    
                     # 查詢 public.city 表的所有 city 與 id
-                    city_mapping = {
+                    City_map = {
                         city.name: city.id for city in session.query(City).all()
                     }
-
-                    # 將 row['city'] 分割為列表
-                    city_list = str(row['area']).split(',')
-
-                    # 獲取對應的 city_id 列表
-                    city_ids = [city_mapping.get(city.strip()) for city in city_list if city.strip() in city_mapping]
-                    print(f"city_ids {city_ids}")
-
-                    # 判斷是否包含 '線上'
-                    is_online = '線上' in city_list
+                    print(city_mapping)
+                    if pd.notna(row.get('area')):
+                        cleaned_activity_area = str(row['area']).strip('{}')  # 移除
+                        group_area_list = [value.strip() for value in cleaned_activity_area.split(',') if value.strip()]
+                        print(f"group_area_list {group_area_list}")
+                        city_ids = []
+                        for i, city in enumerate(group_area_list):
+                            if city in city_mapping:
+                                city_eng_name= city_mapping.get(city.strip())
+                                if city_eng_name in City_map.keys():
+                                    city_ids.append(City_map.get(city_eng_name))
+                                
+                    is_online = '線上' in group_area_list
+                    tbd = '待討論' in group_area_list
+                    
+                    print(f"city_ids {city_ids} tbd {tbd}, is_online {is_online}")
+                    city_id = city_ids[0] if city_ids else None
+                    
+                    print(f" participator {row['participator']}")
+                    
+                    tag_list = [tag for tag in row['tagList'].strip('{}').split(',')]
+                    print(f"tag_list {tag_list}")
 
 
                     # 創建新的 group 記錄
@@ -132,7 +148,7 @@ def transform_and_load_data(**kwargs):
                         group_type=group_type_list,  # 使用處理後的 group_type_list
                         partner_education_step=partner_education_step_list,  # 使用處理後的 partner_education_step_list
                         description=str(row['description'])[:255] if pd.notna(row['description']) else None,
-                        city_id=city_ids,  # 根據需求調整
+                        city_id = city_id or None,
                         is_grouping=row['isGrouping'],
                         createdDate=datetime.fromisoformat(row['createdDate']).replace(tzinfo=None),
                         updatedDate=datetime.fromisoformat(row['updatedDate']).replace(tzinfo=None),
@@ -146,11 +162,13 @@ def transform_and_load_data(**kwargs):
                         contents=str(row['content'])[:255] if pd.notna(row['content']) else None,
                         expectation_result=str(row['outcome'])[:255] if pd.notna(row['outcome']) else None,
                         notice=str(row['notice'])[:255] if pd.notna(row['notice']) else None,
-                        tag_list=str(row['tagList'])[:255] if pd.notna(row['tagList']) else None,
+                        tag_list=tag_list,
                         group_deadline=pd.to_datetime(row['deadline']) if pd.notna(row['deadline']) else None,
+                        is_need_deadline  = bool(row['isNeedDeadline'] and row['isNeedDeadline'] != []),
+                        participator = int(row['participator']) if row['participator'] is not None else None,
                         hold_time=None,  # 根據需求調整
                         is_online=is_online,  # 根據需求調整
-                        TBD=False,  # 根據需求調整
+                        TBD=tbd,  # 根據需求調整
                     )
                     batch_records.append(group)
                     

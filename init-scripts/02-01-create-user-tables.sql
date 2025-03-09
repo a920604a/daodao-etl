@@ -17,9 +17,9 @@ CREATE UNIQUE INDEX idx_country_alpha3 ON country(alpha3);
 
 CREATE TABLE "location" (
     "id" SERIAL PRIMARY KEY,
-    "city_id" int,
-    "country_id" int,
-    "isTaiwan" boolean,
+    "city_id" INT,
+    "country_id" INT,
+    "isTaiwan" BOOLEAN,
     FOREIGN KEY ("city_id") REFERENCES "city"("id"),
     FOREIGN KEY ("country_id") REFERENCES "country"("id")
 );
@@ -31,19 +31,19 @@ CREATE INDEX idx_location_country_id ON "location"("country_id");
 
 CREATE TABLE "contacts" (
     "id" SERIAL PRIMARY KEY,
-    "google_id" varchar(255),
-    "photo_url" text,
-    "is_subscribe_email" boolean,
-    "email" varchar(255),
-    "ig" varchar(255),
-    "discord" varchar(255),
-    "line" varchar(255),
-    "fb" varchar(255)
+    "google_id" VARCHAR(255),
+    "photo_url" TEXT,
+    "is_subscribe_email" BOOLEAN,
+    "email" VARCHAR(255),
+    "ig" VARCHAR(255),
+    "discord" VARCHAR(255),
+    "line" VARCHAR(255),
+    "fb" VARCHAR(255)
 );
 CREATE TABLE "basic_info" (
     "id" SERIAL PRIMARY KEY,
-    "self_introduction" text,
-    "share_list" text,
+    "self_introduction" TEXT,
+    "share_list" TEXT,
     "want_to_do_list" want_to_do_list_t []
 );
 COMMENT ON COLUMN basic_info.share_list IS 'split(、)';
@@ -54,24 +54,24 @@ COMMENT ON COLUMN basic_info.share_list IS 'split(、)';
 CREATE TABLE "users" (
     "id" SERIAL PRIMARY KEY,
     "external_id" UUID DEFAULT gen_random_uuid() UNIQUE, -- 使用 UUID 作为唯一标识符并添加唯一约束
-    "mongo_id" text NOT NULL UNIQUE,
+    "mongo_id" TEXT NOT NULL UNIQUE,
     "gender" gender_t,
     "language" VARCHAR(255),
     "education_stage" education_stage_t DEFAULT 'other',
-    "tag_list" text,
-    "contact_id" int,
-    "is_open_location" boolean,
-    "location_id" int,
-    "nickname" varchar(255),
+    "tag_list" TEXT[],
+    "contact_id" INT,
+    "is_open_location" BOOLEAN,
+    "location_id" INT,
+    "nickname" VARCHAR(255),
     "role_id" INT NOT NULL,   -- 關聯角色ID
-    "is_open_profile" boolean,
-    "birth_date" date,
-    "basic_info_id" int,
+    "is_open_profile" BOOLEAN,
+    "birth_date" DATE,
+    "basic_info_id" INT,
     "createdDate" TIMESTAMPTZ,
     "updatedDate" TIMESTAMPTZ,
-    "created_by" varchar(255),
+    "created_by" VARCHAR(255),
     "created_at" TIMESTAMPTZ,
-    "updated_by" varchar(255),
+    "updated_by" VARCHAR(255),
     "updated_at" TIMESTAMPTZ,
     FOREIGN KEY("location_id") REFERENCES "location"("id"),
     FOREIGN KEY("contact_id") REFERENCES "contacts"("id"),
@@ -157,3 +157,14 @@ CREATE TABLE user_subscription (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX idx_user_subscription_user_status ON user_subscription (user_id, status);
+
+-- 增加臨時註冊使用者，儲存第一次註冊登入的資料
+CREATE TABLE temp_users (
+    id SERIAL PRIMARY KEY,
+    google_id VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL,
+    photo_url VARCHAR(255),
+    created_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP 
+);

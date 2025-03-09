@@ -1,6 +1,6 @@
 
 city_mapping = {
-    '臺北市': 'taipei_city',
+    '台北市': 'taipei_city',
     '新北市': 'new_taipei_city',
     '基隆市': 'keelung_city',
     '連江縣': 'lianjiang_county',
