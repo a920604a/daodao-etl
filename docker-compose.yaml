@@ -19,6 +19,8 @@ x-airflow-common: &airflow-common
   depends_on:
     postgres:
       condition: service_healthy
+  networks:
+    - shared-daodao-network  # ✅ 連接外部網路
 
 services:
   postgres:
@@ -36,6 +38,9 @@ services:
       interval: 5s
       retries: 5
     restart: always
+    networks:
+      - shared-daodao-network  # ✅ 連接外部網路
+
 
   airflow-webserver:
     <<: *airflow-common
@@ -48,7 +53,6 @@ services:
       timeout: 10s
       retries: 5
     restart: always
-
   airflow-scheduler:
     <<: *airflow-common
     command: scheduler
@@ -76,16 +80,8 @@ services:
       - ./backup/2025-02-21:/backup/2025-02-21
     ports:
       - "27017:27017"
-
-  postgres-daodao:
-    image: postgres:latest
-    container_name: postgres-daodao
-    environment:
-      POSTGRES_USER: ${DAO_POSTGRES_USER}
-      POSTGRES_PASSWORD: ${DAO_POSTGRES_PASSWORD}
-      POSTGRES_DB: ${DAO_POSTGRES_DB}
-    ports:
-      - "5423:5432"
-    volumes:
-      - ./data/postgres:/var/lib/postgresql/data
-      - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - shared-daodao-network  # ✅ 連接外部網路
+networks:
+  shared-daodao-network:
+    external: true
