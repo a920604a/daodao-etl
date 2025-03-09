@@ -157,3 +157,14 @@ CREATE TABLE user_subscription (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX idx_user_subscription_user_status ON user_subscription (user_id, status);
+
+-- 增加臨時註冊使用者，儲存第一次註冊登入的資料
+CREATE TABLE temp_users (
+    id SERIAL PRIMARY KEY,
+    google_id VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL,
+    photo_url VARCHAR(255),
+    created_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP 
+);
